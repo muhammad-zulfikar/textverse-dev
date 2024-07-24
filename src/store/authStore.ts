@@ -1,5 +1,3 @@
-// authStore.ts
-
 import { defineStore } from 'pinia';
 import {
   getStorage,
@@ -14,7 +12,8 @@ import {
   signOut,
   GoogleAuthProvider,
   GithubAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   onAuthStateChanged,
   User,
   updateProfile,
@@ -34,11 +33,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async login(email: string, password: string) {
       try {
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
         this.user = userCredential.user;
         this.avatarUrl = this.user.photoURL || '';
         this.showToast('Signed in successfully');
@@ -49,11 +44,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async signUp(email: string, password: string) {
       try {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         this.user = userCredential.user;
         this.avatarUrl = this.user.photoURL || '';
         this.showToast('Account successfully created');
@@ -76,10 +67,7 @@ export const useAuthStore = defineStore('auth', {
     async signInWithGoogle() {
       try {
         const provider = new GoogleAuthProvider();
-        const userCredential = await signInWithPopup(auth, provider);
-        this.user = userCredential.user;
-        this.avatarUrl = this.user.photoURL || '';
-        this.showToast('Signed in with Google successfully');
+        await signInWithRedirect(auth, provider);
       } catch (error) {
         this.showToast('Google sign-in failed. Please try again.');
         throw error;
@@ -88,38 +76,37 @@ export const useAuthStore = defineStore('auth', {
     async signInWithGitHub() {
       try {
         const provider = new GithubAuthProvider();
-        const userCredential = await signInWithPopup(auth, provider);
-        this.user = userCredential.user;
-        this.avatarUrl = this.user.photoURL || '';
-        this.showToast('Signed in with GitHub successfully');
+        await signInWithRedirect(auth, provider);
       } catch (error) {
         this.showToast('GitHub sign-in failed. Please try again.');
         throw error;
       }
     },
     async fetchCurrentUser() {
-      onAuthStateChanged(auth, (user) => {
+      onAuthStateChanged(auth, async (user) => {
         if (user) {
           this.user = user;
           this.avatarUrl = user.photoURL || '';
         } else {
-          this.user = null;
-          this.avatarUrl = '';
+          const result = await getRedirectResult(auth);
+          if (result && result.user) {
+            this.user = result.user;
+            this.avatarUrl = result.user.photoURL || '';
+            this.showToast('Signed in successfully');
+          } else {
+            this.user = null;
+            this.avatarUrl = '';
+          }
         }
       });
     },
     async updateAvatar(newAvatarUrl: string) {
       if (this.user) {
         try {
-          // Upload image to Firebase Storage
           const storage = getStorage();
           const imageRef = storageRef(storage, `avatars/${this.user.uid}`);
           await uploadString(imageRef, newAvatarUrl, 'data_url');
-
-          // Get the download URL
           const downloadURL = await getDownloadURL(imageRef);
-
-          // Update user profile with the download URL
           await updateProfile(this.user, { photoURL: downloadURL });
           this.avatarUrl = downloadURL;
         } catch (error) {
@@ -128,7 +115,6 @@ export const useAuthStore = defineStore('auth', {
         }
       }
     },
-
     async updateName(newName: string) {
       if (this.user) {
         try {
@@ -139,7 +125,6 @@ export const useAuthStore = defineStore('auth', {
         }
       }
     },
-
     async deleteAccount() {
       if (this.user) {
         try {

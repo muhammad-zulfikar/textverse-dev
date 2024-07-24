@@ -98,12 +98,12 @@
   const isNavOpen = ref(false);
   const isUserDropdownOpen = ref(false);
   const router = useRouter();
-
   const showSignoutConfirmation = ref(false);
 
   const signout = async () => {
     try {
       await authStore.logout();
+      showSignoutConfirmation.value = false;
       router.push('/');
     } catch (error) {
       console.error('Error logging out:', error);

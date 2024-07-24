@@ -37,7 +37,7 @@
             </div>
             <button
               v-if="authStore.isLoggedIn"
-              @click="signout"
+              @click="confirmSignout"
               class="w-full md:w-auto text-sm md:text-base custom-card py-2 px-4 mt-4 md:mt-0"
             >
               Sign out
@@ -351,6 +351,13 @@
     @confirm="deleteAllNotes"
   />
 
+  <AlertModal
+    :is-open="showSignoutConfirmation"
+    :message="'Are you sure you want to sign out? You will be logged out of your account.'"
+    @cancel="showSignoutConfirmation = false"
+    @confirm="signout"
+  />
+
   <AvatarPickerModal
     :is-open="showAvatarPicker"
     :initial-avatar-url="userAvatar"
@@ -389,6 +396,7 @@
 
   const showDeleteAccountConfirmation = ref(false);
   const showDeleteAllNotesConfirmation = ref(false);
+  const showSignoutConfirmation = ref(false);
   const showAvatarPicker = ref(false);
   const showNameEditor = ref(false);
 
@@ -444,7 +452,20 @@
 
   const signInWithGoogle = () => authStore.signInWithGoogle();
   const signInWithGitHub = () => authStore.signInWithGitHub();
-  const signout = () => authStore.logout();
+
+  const signout = async () => {
+    try {
+      await authStore.logout();
+      showSignoutConfirmation.value = false;
+      router.push('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
+  const confirmSignout = () => {
+    showSignoutConfirmation.value = true;
+  }
 
   const toggleDropdown = () => {
     dropdownOpen.value = !dropdownOpen.value;
