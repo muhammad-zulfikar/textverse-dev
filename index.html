@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link id="favicon" rel="icon" type="image/x-icon" href="./src/assets/light/favicon.ico" />
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" id="theme-color" content="#f7f4e4">
+  <title>textVerse</title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
+  <script>
+    function setTheme(isDark) {
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        document.getElementById('theme-color').setAttribute('content', '#4b5563');
+        document.getElementById('favicon').setAttribute('href', './src/assets/dark/favicon.ico');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.getElementById('theme-color').setAttribute('content', '#f7f4e4');
+        document.getElementById('favicon').setAttribute('href', './src/assets/light/favicon.ico');
+      }
+    }
+
+    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    const currentTheme = localStorage.getItem('theme');
+
+    if (currentTheme === 'dark' || (!currentTheme && prefersDarkScheme.matches)) {
+      setTheme(true);
+    } else {
+      setTheme(false);
+    }
+
+    // Listen for changes to the prefers-color-scheme media query
+    prefersDarkScheme.addListener((mediaQuery) => {
+      if (!currentTheme) {
+        setTheme(mediaQuery.matches);
+      }
+    });
+  </script>
+</body>
+
+</html>

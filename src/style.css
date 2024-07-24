@@ -1,0 +1,49 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+body {
+  @apply dark:bg-gray-600 text-black dark:text-white;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+:root {
+  --bg-light: rgb(247, 244, 228);
+}
+
+body {
+  background-color: var(--bg-light);
+}
+
+.custom-card {
+  @apply bg-cream dark:bg-gray-700 border-[1px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+}
+
+.custom-card-border-dashed {
+  @apply bg-cream dark:bg-gray-700 border-[1px] border-dashed border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+}
+
+.custom-card-transparent {
+  @apply bg-transparent border-[1px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+}
+
+.custom-card-transparent-avatar {
+  @apply bg-transparent border-[1px] border-black dark:border-white rounded-full shadow-lg hover:shadow-2xl transition-all duration-300;
+}
+
+.custom-card-no-transition {
+  @apply bg-cream dark:bg-gray-700 border-[1px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl;
+}
+
+.custom-card-no-transition-rounded {
+  @apply bg-cream dark:bg-gray-700 shadow-lg hover:shadow-2xl;
+}
+
+.modal-open {
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
