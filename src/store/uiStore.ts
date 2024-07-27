@@ -11,6 +11,7 @@ export interface NoteLayout {
 
 interface UIState {
   theme: 'light' | 'dark' | 'system';
+  viewType: 'card' | 'table';
   columns: number;
   currentTheme: string;
   isFullScreen: boolean;
@@ -25,6 +26,7 @@ interface UIState {
 export const useUIStore = defineStore('ui', {
   state: (): UIState => ({
     theme: 'system',
+    viewType: 'card',
     currentTheme: localStorage.getItem('theme') || 'system',
     columns: parseInt(
       localStorage.getItem('columns') || (window.innerWidth < 640 ? '2' : '4')
@@ -43,6 +45,10 @@ export const useUIStore = defineStore('ui', {
       this.theme = theme;
       localStorage.setItem('theme', theme);
       this.applyTheme();
+    },
+
+    setViewType(viewType: 'card' | 'table') {
+      this.viewType = viewType;
     },
 
     setColumns(columns: number) {
