@@ -1,4 +1,4 @@
-<!-- Create.vue -->
+<!-- create.vue -->
 
 <template>
   <div class="relative inline-block text-left" ref="dropdownRef">
@@ -35,7 +35,7 @@
     </button>
     <div
       v-if="dropdownOpen"
-      class="custom-card z-50 origin-top-right absolute mt-2 w-[6.4rem] md:w-30"
+      class="custom-card z-50 origin-top-right absolute mt-2 w-[6.4rem] ml-[-15px]"
     >
       <div class="py-1" role="menu" aria-orientation="vertical">
         <a
@@ -55,36 +55,53 @@
       </div>
     </div>
   </div>
+  <InputModal
+    :is-open="isFolderFormOpen"
+    mode="folder"
+    :max-length="10"
+    @update="handleFolderSubmit"
+    @close="closeFolderForm"
+  />
 </template>
 
 <script setup lang="ts">
   import { ref, onMounted, onUnmounted, watch } from 'vue';
-  import { useNotesStore } from '@/store/store';
+  import { notesStore, uiStore, folderStore } from '@/store/stores';
+  import InputModal from '@/components/modal/inputModal.vue';
 
-  const store = useNotesStore();
   const dropdownOpen = ref(false);
   const dropdownRef = ref<HTMLElement | null>(null);
+  const isFolderFormOpen = ref(false);
 
   const toggleDropdown = () => {
-    dropdownOpen.value = !dropdownOpen.value;
-    store.setActiveDropdown(dropdownOpen.value ? 'create' : null);
+    if (dropdownOpen.value) {
+      closeDropdown();
+    } else {
+      uiStore.setActiveDropdown('create');
+    }
+  };
+
+  const closeDropdown = () => {
+    uiStore.setActiveDropdown(null);
   };
 
   const openNoteForm = () => {
-    store.setEditing(true);
+    uiStore.openNote(null);
     closeDropdown();
   };
 
   const openFolderForm = () => {
-    emit('openFolderForm');
+    isFolderFormOpen.value = true;
     closeDropdown();
   };
 
-  const closeDropdown = () => {
-    dropdownOpen.value = false;
-    if (store.activeDropdown === 'create') {
-      store.setActiveDropdown(null);
-    }
+  const closeFolderForm = () => {
+    isFolderFormOpen.value = false;
+  };
+
+  const handleFolderSubmit = (folderName: string) => {
+    folderStore.addFolder(folderName);
+    closeFolderForm();
   };
 
   const handleClickOutside = (event: MouseEvent) => {
@@ -100,7 +117,7 @@
   onUnmounted(() => document.removeEventListener('click', handleClickOutside));
 
   watch(
-    () => store.editing,
+    () => notesStore.editing,
     (newValue) => {
       if (newValue) {
         document.body.classList.add('modal-open');
@@ -110,5 +127,10 @@
     }
   );
 
-  const emit = defineEmits(['openFolderForm']);
+  watch(
+    () => uiStore.activeDropdown,
+    (newValue) => {
+      dropdownOpen.value = newValue === 'create';
+    }
+  );
 </script>

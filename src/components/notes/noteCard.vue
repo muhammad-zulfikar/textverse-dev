@@ -1,19 +1,23 @@
-<!-- NoteCard.vue -->
 <template>
   <li
+    ref="cardRef"
     class="custom-card break-inside-avoid h-min mb-6 md:mb-8 p-2 flex flex-col overflow-x-auto cursor-pointer relative group select-none"
     @contextmenu.prevent="showContextMenu($event)"
     :class="{ 'z-50': showMenu, shadow: note.pinned }"
     @click="handleCardClick"
   >
     <div class="flex justify-between items-start">
-      <h1 class="font-bold text-sl font-serif cursor-pointer dark:text-white">
+      <h1
+        ref="titleRef"
+        class="font-bold text-sl font-serif cursor-pointer dark:text-white"
+      >
         {{ note.title }}
       </h1>
     </div>
     <div>
       <div
         v-if="!showOption"
+        ref="contentRef"
         class="font-serif text-sm mt-2 dark:text-white truncate-text"
         v-html="truncatedContent"
       ></div>
@@ -22,7 +26,8 @@
         class="flex items-center justify-between pt-3 mt-auto font-serif text-gray-500 dark:text-gray-400 text-xs"
       >
         <div
-          v-if="note.folder !== 'Uncategorized'"
+          v-if="note.folder !== DEFAULT_FOLDERS.UNCATEGORIZED"
+          ref="folderRef"
           class="w-1/3 text-left text-[10px] md:text-xs"
         >
           <p
@@ -40,8 +45,8 @@
           <p v-if="note.pinned">Pinned</p>
         </div>
 
-        <div class="w-1/3 text-right text-[10px] md:text-xs">
-          {{ note.last_edited || note.time_created }}
+        <div ref="dateRef" class="w-1/3 text-right text-[10px] md:text-xs">
+          {{ formattedDate }}
         </div>
       </div>
     </div>
@@ -52,9 +57,9 @@
     :note="note"
     :noteId="note.id"
     @hideMenu="hideContextMenu"
-    @edit="store.openNote"
+    @edit="uiStore.openNote"
     @delete="openDeleteAlert"
-    @download="store.downloadNote(note)"
+    @download="notesStore.downloadNote(note)"
     @pin="pinNote"
     @unpin="unpinNote"
   />
@@ -68,15 +73,11 @@
 
 <script setup lang="ts">
   import { ref, computed } from 'vue';
-  import { useNotesStore } from '@/store/store';
+  import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
-  import { useAuthStore } from '@/store/authStore';
-
+  import { DEFAULT_FOLDERS } from '@/store/constants';
   import ContextMenu from '@/components/contextMenu/contextMenu.vue';
   import AlertModal from '@/components/modal/alertModal.vue';
-
-  const store = useNotesStore();
-  const authStore = useAuthStore();
 
   const props = defineProps({
     note: {
@@ -96,21 +97,20 @@
   const isAlertOpen = ref(false);
   const alertMessage = ref('');
 
-  const linkifiedContent = computed(() => store.linkify(props.note.content));
-
   const truncatedContent = computed(() => {
-    const contentElement = document.createElement('div');
-    contentElement.innerHTML = linkifiedContent.value;
-    const lines = contentElement.textContent?.split('\n') ?? [];
+    const div = document.createElement('div');
+    div.innerHTML = props.note.content;
+    const textContent = div.textContent || div.innerText || '';
+    const lines = textContent.split('\n');
     if (lines.length > 10) {
       return lines.slice(0, 10).join('\n') + '...';
     }
-    return contentElement.innerHTML;
+    return props.note.content;
   });
 
   const showContextMenu = (event: MouseEvent) => {
     event.stopPropagation();
-    store.setActiveDropdown(showMenu.value ? 'create' : null);
+    uiStore.setActiveDropdown(showMenu.value ? 'create' : null);
     menuPosition.value = { x: event.clientX, y: event.clientY };
     showMenu.value = true;
   };
@@ -120,8 +120,17 @@
   };
 
   const goToFolder = (folder: string) => {
-    store.setCurrentFolder(folder);
+    folderStore.setCurrentFolder(folder);
   };
+
+  const formattedDate = computed(() => {
+    const date = new Date(props.note.last_edited || props.note.time_created);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  });
 
   const openDeleteAlert = () => {
     hideContextMenu();
@@ -134,41 +143,25 @@
   };
 
   const pinNote = async () => {
-    try {
-      if (authStore.isLoggedIn) {
-        store.pinNote(props.note.id);
-      } else {
-        store.pinNote(props.note.id);
-      }
-    } catch (error) {
-      console.error('Error pinning note:', error);
-    }
+    notesStore.pinNote(props.note.id);
   };
 
   const unpinNote = async () => {
-    try {
-      if (authStore.isLoggedIn) {
-        store.unpinNote(props.note.id);
-      } else {
-        store.unpinNote(props.note.id);
-      }
-    } catch (error) {
-      console.error('Error unpinning note:', error);
-    }
+    notesStore.unpinNote(props.note.id);
   };
 
   const confirmDelete = async () => {
     try {
-      store.removeNote(props.note.id);
+      notesStore.deleteNote(props.note.id);
     } catch (error) {
       console.error('Error deleting note:', error);
-      store.showToastMessage('Failed to delete note. Please try again.');
+      uiStore.showToastMessage('Failed to delete note. Please try again.');
     }
     closeAlert();
   };
 
   const handleCardClick = (_event: MouseEvent) => {
-    store.openNote(props.note.id);
+    uiStore.openNote(props.note.id);
   };
 </script>
 

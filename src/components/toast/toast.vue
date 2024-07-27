@@ -1,12 +1,13 @@
-<!-- Toast.vue -->
-
 <template>
-  <div
-    v-if="visible"
-    class="fixed z-51 bottom-[1rem] right-[1rem] shadow-sm text-sm md:text-base cursor-default hover:shadow-xl rounded-lg py-[.5rem] px-[1rem] bg-cream dark:bg-gray-800 font-serif border-[1px] md:border-2 border-black dark:border-white"
-  >
-    {{ message }}
-  </div>
+  <teleport to="body">
+    <div
+      v-if="visible"
+      @click="hideToast"
+      class="fixed z-[10000] bottom-[1rem] right-[1rem] cursor-pointer shadow-md text-sm md:text-base cursor-default hover:shadow-xl rounded-lg py-[.5rem] px-[1rem] bg-cream dark:bg-gray-750 font-serif border-[1px] md:border-2 border-black dark:border-white transition-all duration-300"
+    >
+      {{ message }}
+    </div>
+  </teleport>
 </template>
 
 <script lang="ts" setup>
@@ -29,6 +30,10 @@
       visible.value = false;
       timeoutId = null;
     }, 3000);
+  };
+
+  const hideToast = () => {
+    visible.value = false;
   };
 
   onMounted(showToast);

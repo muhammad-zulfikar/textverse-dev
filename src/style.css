@@ -3,25 +3,17 @@
 @import 'tailwindcss/utilities';
 
 body {
-  @apply dark:bg-gray-600 text-black dark:text-white;
+  @apply bg-[#f7f4e4] dark:bg-gray-700 text-black dark:text-white;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-:root {
-  --bg-light: rgb(247, 244, 228);
-}
-
-body {
-  background-color: var(--bg-light);
-}
-
 .custom-card {
-  @apply bg-cream dark:bg-gray-700 border-[1px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+  @apply bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
 .custom-card-border-dashed {
-  @apply bg-cream dark:bg-gray-700 border-[1px] border-dashed border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+  @apply bg-cream dark:bg-gray-750 border-[1px] border-dashed border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
 .custom-card-transparent {
@@ -33,11 +25,43 @@ body {
 }
 
 .custom-card-no-transition {
-  @apply bg-cream dark:bg-gray-700 border-[1px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl;
+  @apply bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl;
 }
 
 .custom-card-no-transition-rounded {
-  @apply bg-cream dark:bg-gray-700 shadow-lg hover:shadow-2xl;
+  @apply bg-cream dark:bg-gray-750 shadow-lg hover:shadow-2xl;
+}
+
+.skeleton {
+  @apply bg-gray-400;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.zoom-enter-active,
+.zoom-leave-active {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.zoom-enter-from,
+.zoom-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.zoom-enter-to,
+.zoom-leave-from {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .modal-open {

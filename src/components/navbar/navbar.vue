@@ -1,10 +1,10 @@
 <template>
   <div>
     <div
-      class="flex justify-between items-center p-4 bg-transparent shadow-lg hover:shadow-xl transition-all duration-300 font-serif text-sm md:text-base select-none"
+      class="flex justify-between items-center p-4 h-[52px] bg-transparent shadow-lg hover:shadow-xl transition-all duration-300 font-serif text-sm md:text-base select-none"
     >
       <div class="relative">
-        <button @click="toggleNav" class="flex items-center hover:underline">
+        <button @click="toggleNav" class="hover:underline nav-dropdown-trigger">
           Menu
         </button>
         <div
@@ -36,7 +36,8 @@
       </div>
       <div class="nav-links">
         <button v-if="deferredPrompt" @click="showInstallPrompt">
-          Install
+          <div v-if="loading" class="skeleton rounded-md w-20 h-6"></div>
+          <div v-else>Install</div>
         </button>
       </div>
       <router-link
@@ -45,17 +46,19 @@
         class="hover:underline"
         active-class="underline"
       >
-        Sign in
+        <!-- <div v-if="loading && isRootPath" class="skeleton rounded-md w-16 h-6"></div> -->
+        <div>Sign in</div>
       </router-link>
       <div v-else class="relative">
         <button
           @click="toggleUserDropdown"
-          class="flex items-center hover:underline"
+          class="flex items-center hover:underline nav-dropdown-trigger"
         >
+          <!-- <div v-if="loading && isRootPath" class="skeleton rounded-full w-8 h-8"></div> -->
           <img
             :src="avatarUrl"
             alt="User Avatar"
-            class="w-8 h-8 custom-card-transparent-avatar"
+            class="w-8 h-8 custom-card-transparent-avatar rounded-full"
           />
         </button>
         <div
@@ -90,7 +93,7 @@
 
 <script setup lang="ts">
   import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { useAuthStore } from '@/store/authStore';
   import AlertModal from '@/components/modal/alertModal.vue';
 
@@ -98,6 +101,10 @@
   const isNavOpen = ref(false);
   const isUserDropdownOpen = ref(false);
   const router = useRouter();
+  const route = useRoute();
+  const loading = ref(true);
+
+  const isRootPath = computed(() => route.path === '/');
   const showSignoutConfirmation = ref(false);
 
   const signout = async () => {
@@ -117,10 +124,12 @@
   };
 
   const toggleNav = () => {
+    isUserDropdownOpen.value = false; // Close user dropdown if nav dropdown is toggled
     isNavOpen.value = !isNavOpen.value;
   };
 
   const toggleUserDropdown = () => {
+    isNavOpen.value = false; // Close nav dropdown if user dropdown is toggled
     isUserDropdownOpen.value = !isUserDropdownOpen.value;
   };
 
@@ -151,6 +160,10 @@
   });
 
   onMounted(() => {
+    setTimeout(() => {
+      loading.value = false;
+    }, 500);
+
     window.addEventListener('beforeinstallprompt', (e: Event) => {
       e.preventDefault();
       deferredPrompt.value = e as DeferredPromptEvent;
@@ -164,7 +177,7 @@
 
   const handleClickOutside = (event: MouseEvent) => {
     const target = event.target as HTMLElement;
-    if (!target.closest('.relative')) {
+    if (!target.closest('.nav-dropdown-trigger')) {
       isNavOpen.value = false;
       isUserDropdownOpen.value = false;
     }
@@ -176,7 +189,7 @@
   };
 </script>
 
-<style>
+<style scoped>
   .h-px {
     height: 1px;
   }

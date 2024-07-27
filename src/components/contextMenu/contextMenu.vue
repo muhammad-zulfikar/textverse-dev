@@ -92,10 +92,11 @@
 
 <script setup lang="ts">
   import { ref, computed, onMounted, onUnmounted } from 'vue';
-  import { useNotesStore } from '@/store/store';
+  import { notesStore, folderStore } from '@/store/stores';
   import { Note } from '@/store/types';
 
   import { CSSProperties } from 'vue';
+  import { DEFAULT_FOLDERS } from '@/store/constants';
 
   const props = defineProps({
     visible: {
@@ -125,14 +126,14 @@
     'unpin',
   ]);
 
-  const store = useNotesStore();
   const showFolderOptions = ref(false);
   const dropdownRef = ref<HTMLElement | null>(null);
   const menuRef = ref<HTMLElement | null>(null);
 
   const availableFolders = computed(() =>
-    store.folders.filter(
-      (folder: string) => folder !== props.note.folder && folder !== 'All Notes'
+    folderStore.folders.filter(
+      (folder: string) =>
+        folder !== props.note.folder && folder !== DEFAULT_FOLDERS.ALL_NOTES
     )
   );
 
@@ -175,7 +176,7 @@
   });
 
   const moveNote = (targetFolder: string) => {
-    store.moveNote(props.note.id, targetFolder);
+    notesStore.moveNote(props.note.id, targetFolder);
     showFolderOptions.value = false;
     emit('hideMenu');
   };
@@ -198,7 +199,7 @@
   };
 
   const copyNote = () => {
-    store.copyNote(props.note.id);
+    notesStore.copyNote(props.note.id);
     emit('hideMenu');
   };
 

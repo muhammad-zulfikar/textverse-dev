@@ -2,19 +2,27 @@
 
 <template>
   <Navbar />
-  <SearchBar @update:modelValue="store.setSearchQuery" />
+  <SearchBar @update:modelValue="notesStore.setSearchQuery" />
   <Toolbar />
-  <NoteList :notes="store.filteredNotes" />
-  <NoteView v-if="store.selectedNote" />
+  <NoteList :notes="notesStore.filteredNotes" />
+  <NoteModal
+    :is-open="notesStore.showNoteModal"
+    :note-id="notesStore.selectedNoteId ?? undefined"
+    @close="closeNoteModal"
+  />
 </template>
 
 <script lang="ts" setup>
-  import { useNotesStore } from '@/store/store';
+  import { notesStore, uiStore } from '@/store/stores';
   import Navbar from '@/components/navbar/navbar.vue';
   import SearchBar from '@/components/searchBar/searchBar.vue';
   import Toolbar from '@/components/toolbar/toolbar.vue';
   import NoteList from '@/components/notes/noteList.vue';
-  import NoteView from '@/components/notes/noteView.vue';
+  import NoteModal from '@/components/modal/noteModal.vue';
 
-  const store = useNotesStore();
+  const closeNoteModal = () => {
+    notesStore.selectedNoteId = null;
+    notesStore.showNoteModal = false;
+    uiStore.closeNote();
+  };
 </script>

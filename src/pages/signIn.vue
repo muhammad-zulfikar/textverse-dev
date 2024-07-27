@@ -90,12 +90,9 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
+  import { authStore, uiStore } from '@/store/stores';
   import Navbar from '@/components/navbar/navbar.vue';
-  import { useAuthStore } from '@/store/authStore';
-  import { useNotesStore } from '@/store/store';
 
-  const authStore = useAuthStore();
-  const store = useNotesStore();
   const router = useRouter();
 
   const email = ref('');
@@ -109,13 +106,13 @@
       await authStore.login(email.value, password.value);
       router.push('/');
     } catch (err) {
-      store.showToastMessage('Invalid email or password');
+      uiStore.showToastMessage('Invalid email or password');
     }
   };
 
   const handleSignUp = async () => {
     if (password.value !== confirmPassword.value) {
-      store.showToastMessage('Password do not match');
+      uiStore.showToastMessage('Password do not match');
       return;
     }
     try {
@@ -123,9 +120,9 @@
       router.push('/');
     } catch (err) {
       if (err instanceof Error) {
-        store.showToastMessage(err.message);
+        uiStore.showToastMessage(err.message);
       } else {
-        store.showToastMessage('Invalid email or password');
+        uiStore.showToastMessage('Invalid email or password');
       }
     }
   };
@@ -135,7 +132,7 @@
       await authStore.signInWithGoogle();
       router.push('/');
     } catch (err) {
-      store.showToastMessage('Google sign-in failed');
+      uiStore.showToastMessage('Google sign-in failed');
     }
   };
 
@@ -144,7 +141,7 @@
       await authStore.signInWithGitHub();
       router.push('/');
     } catch (err) {
-      store.showToastMessage('GitHub sign-in failed');
+      uiStore.showToastMessage('GitHub sign-in failed');
     }
   };
 

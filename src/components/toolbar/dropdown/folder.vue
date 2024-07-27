@@ -1,8 +1,10 @@
+<!-- folder.vue -->
+
 <template>
   <div class="relative inline-block text-left" ref="dropdownRef">
     <button
       @click.stop="toggleDropdown"
-      :class="{ 'z-50': isOpen }"
+      :class="{ 'z-50': dropdownOpen }"
       class="hover:underline outline-none mr-4 flex items-center relative cursor-pointer"
     >
       {{ selectedFolder }} ({{ notesCountByFolder[selectedFolder] || 0 }})
@@ -15,7 +17,7 @@
           stroke="currentColor"
         >
           <path
-            v-if="isOpen"
+            v-if="dropdownOpen"
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
@@ -32,8 +34,8 @@
       </span>
     </button>
     <div
-      v-if="isOpen"
-      class="custom-card z-50 origin-top-right absolute mt-2 w-56"
+      v-if="dropdownOpen"
+      class="custom-card z-50 origin-top-right absolute mt-2 w-56 ml-[-56px]"
     >
       <div class="py-1" role="menu" aria-orientation="vertical">
         <template v-for="folder in sortedFolders" :key="folder">
@@ -51,7 +53,10 @@
               {{ folder }} ({{ notesCountByFolder[folder] || 0 }})
             </span>
             <div
-              v-if="folder !== 'All Notes' && folder !== uncategorizedFolder"
+              v-if="
+                folder !== DEFAULT_FOLDERS.ALL_NOTES &&
+                folder !== DEFAULT_FOLDERS.UNCATEGORIZED
+              "
               class="flex items-center space-x-2"
             >
               <button
@@ -72,12 +77,13 @@
       </div>
     </div>
   </div>
-  <folderForm
+  <InputModal
     :is-open="isModalOpen"
-    :mode="modalMode"
-    :current-name="currentFolderName"
+    mode="folder"
+    :current-value="currentFolderName"
+    :max-length="10"
+    @update="handleModalSubmit"
     @close="closeModal"
-    @submit="handleModalSubmit"
   />
   <alertModal
     :is-open="isAlertOpen"
@@ -89,31 +95,38 @@
 
 <script setup lang="ts">
   import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-  import { useNotesStore } from '@/store/store';
-  import folderForm from '@/components/modal/folderForm.vue';
+  import { notesStore, folderStore, uiStore } from '@/store/stores';
+  import InputModal from '@/components/modal/inputModal.vue';
   import alertModal from '@/components/modal/alertModal.vue';
+  import { DEFAULT_FOLDERS } from '@/store/constants';
 
-  const store = useNotesStore();
-  const isOpen = ref(false);
-  const selectedFolder = computed(() => store.currentFolder);
+  const selectedFolder = computed(() => folderStore.currentFolder);
+  const dropdownOpen = ref(false);
   const dropdownRef = ref<HTMLElement | null>(null);
+
+  const toggleDropdown = () => {
+    if (dropdownOpen.value) {
+      closeDropdown();
+    } else {
+      uiStore.setActiveDropdown('folder');
+    }
+  };
+
+  const closeDropdown = () => {
+    uiStore.setActiveDropdown(null);
+  };
 
   const isModalOpen = ref(false);
   const modalMode = ref<'create' | 'rename'>('create');
   const currentFolderName = ref('');
-  const notesCountByFolder = computed(() => store.notesCountByFolder());
+  const notesCountByFolder = computed(() => folderStore.notesCountByFolder());
 
   const isAlertOpen = ref(false);
   const AlertMessage = ref('');
   const folderToDelete = ref('');
 
-  const toggleDropdown = () => {
-    isOpen.value = !isOpen.value;
-    store.setActiveDropdown(isOpen.value ? 'folder' : null);
-  };
-
   const selectFolder = (folder: string) => {
-    store.setCurrentFolder(folder);
+    folderStore.setCurrentFolder(folder);
     closeDropdown();
   };
 
@@ -124,17 +137,21 @@
     closeDropdown();
   };
 
-  const uncategorizedFolder = computed(() => store.uncategorizedFolder);
-
   const sortedFolders = computed(() => {
-    const userFolders = store.folders.filter(
+    const userFolders = folderStore.folders.filter(
       (folder: string) =>
-        folder !== 'All Notes' && folder !== uncategorizedFolder.value
+        folder !== DEFAULT_FOLDERS.ALL_NOTES &&
+        folder !== DEFAULT_FOLDERS.UNCATEGORIZED
     );
 
-    const finalFolders = ['All Notes', ...userFolders.sort()];
-    if (notesCountByFolder.value[uncategorizedFolder.value] > 0) {
-      finalFolders.push(uncategorizedFolder.value);
+    const uncategorizedNotes = notesStore.notes.filter(
+      (note) => note.folder === DEFAULT_FOLDERS.UNCATEGORIZED
+    );
+    const showUncategorized = uncategorizedNotes.length > 0;
+
+    const finalFolders = [DEFAULT_FOLDERS.ALL_NOTES, ...userFolders.sort()];
+    if (showUncategorized) {
+      finalFolders.push(DEFAULT_FOLDERS.UNCATEGORIZED);
     }
 
     return finalFolders;
@@ -146,10 +163,10 @@
 
   const handleModalSubmit = (folderName: string) => {
     if (modalMode.value === 'create') {
-      store.createFolder(folderName);
+      folderStore.addFolder(folderName);
       selectFolder(folderName);
     } else {
-      store.renameFolder(currentFolderName.value, folderName);
+      folderStore.renameFolder(currentFolderName.value, folderName);
       if (selectedFolder.value === currentFolderName.value) {
         selectFolder(folderName);
       }
@@ -167,7 +184,7 @@
   };
 
   const handleAlert = () => {
-    store.deleteFolder(folderToDelete.value);
+    folderStore.deleteFolder(folderToDelete.value);
     closeAlert();
   };
 
@@ -181,19 +198,22 @@
     }
   };
 
-  const closeDropdown = () => {
-    isOpen.value = false;
-    if (store.activeDropdown === 'folder') {
-      store.setActiveDropdown(null);
-    }
-  };
-
-  onMounted(() => document.addEventListener('click', handleClickOutside));
+  onMounted(async () => {
+    document.addEventListener('click', handleClickOutside);
+    await folderStore.loadFolders();
+  });
   onUnmounted(() => document.removeEventListener('click', handleClickOutside));
 
   watch(isAlertOpen, (newVal) => {
     if (newVal) {
-      isOpen.value = false;
+      dropdownOpen.value = false;
     }
   });
+
+  watch(
+    () => uiStore.activeDropdown,
+    (newValue) => {
+      dropdownOpen.value = newValue === 'folder';
+    }
+  );
 </script>

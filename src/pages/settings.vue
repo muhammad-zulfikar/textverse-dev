@@ -29,10 +29,9 @@
                 </span>
                 <span v-else>
                   Signed in as
-                  <span class="underline">{{ username }}</span>
-                  . Your notes are being synced across devices
+                  <span class="underline">{{ username }}.</span>
+                  Your notes are being synced across devices.
                 </span>
-                .
               </p>
             </div>
             <button
@@ -365,9 +364,10 @@
     @close="showAvatarPicker = false"
   />
 
-  <NameEditorModal
+  <InputModal
     :is-open="showNameEditor"
-    :name="username"
+    mode="username"
+    :current-value="username"
     @update="updateName"
     @close="showNameEditor = false"
   />
@@ -375,16 +375,12 @@
 
 <script setup lang="ts">
   import { ref, computed, onMounted, onUnmounted } from 'vue';
+  import { authStore, notesStore, uiStore } from '@/store/stores';
   import Navbar from '@/components/navbar/navbar.vue';
-  import { useNotesStore } from '@/store/store';
-  import { useAuthStore } from '@/store/authStore';
   import AlertModal from '@/components/modal/alertModal.vue';
   import AvatarPickerModal from '@/components/modal/avatarPickerModal.vue';
-  import NameEditorModal from '@/components/modal/nameEditorModal.vue';
+  import InputModal from '@/components/modal/inputModal.vue';
   import router from '@/router';
-
-  const authStore = useAuthStore();
-  const store = useNotesStore();
 
   const dropdownOpen = ref(false);
   const dropdownRef = ref<HTMLElement | null>(null);
@@ -416,9 +412,9 @@
       await authStore.deleteAccount();
       showDeleteAccountConfirmation.value = false;
       router.push('/');
-      store.showToastMessage('Account succesfully deleted');
+      uiStore.showToastMessage('Account succesfully deleted');
     } catch (error) {
-      store.showToastMessage('Failed to delete account');
+      uiStore.showToastMessage('Failed to delete account');
     }
   };
 
@@ -430,9 +426,9 @@
     try {
       await authStore.updateAvatar(newAvatarUrl);
       showAvatarPicker.value = false;
-      store.showToastMessage('Avatar successfully updated');
+      uiStore.showToastMessage('Avatar successfully updated');
     } catch (error) {
-      store.showToastMessage('Failed to update avatar. Please try again.');
+      uiStore.showToastMessage('Failed to update avatar. Please try again.');
     }
   };
 
@@ -444,9 +440,9 @@
     try {
       await authStore.updateName(newName);
       showNameEditor.value = false;
-      store.showToastMessage('Username successfully updated');
+      uiStore.showToastMessage('Username successfully updated');
     } catch (error) {
-      store.showToastMessage('Failed to update username');
+      uiStore.showToastMessage('Failed to update username');
     }
   };
 
@@ -465,14 +461,14 @@
 
   const confirmSignout = () => {
     showSignoutConfirmation.value = true;
-  }
+  };
 
   const toggleDropdown = () => {
     dropdownOpen.value = !dropdownOpen.value;
   };
 
-  const setTheme = (theme: string) => {
-    store.setTheme(theme);
+  const setTheme = (theme: 'light' | 'dark' | 'system') => {
+    uiStore.setTheme(theme);
     darkModeText.value = theme.charAt(0).toUpperCase() + theme.slice(1);
     closeDropdown();
   };
@@ -492,7 +488,8 @@
 
   const getCurrentTheme = () => {
     darkModeText.value =
-      store.currentTheme.charAt(0).toUpperCase() + store.currentTheme.slice(1);
+      uiStore.currentTheme.charAt(0).toUpperCase() +
+      uiStore.currentTheme.slice(1);
   };
 
   const toggleColumnsDropdown = () => {
@@ -504,10 +501,10 @@
   };
 
   const setColumns = (columns: number) => {
-    store.setColumns(columns);
+    uiStore.setColumns(columns);
     columnsText.value = `${columns} Column${columns > 1 ? 's' : ''}`;
     closeColumnsDropdown();
-    store.showToastMessage('Columns view updated');
+    uiStore.showToastMessage('Columns view updated');
   };
 
   const handleClickOutsideColumns = (event: MouseEvent) => {
@@ -534,11 +531,11 @@
   });
 
   const importNotes = () => {
-    store.importNotes();
+    notesStore.importNotes();
   };
 
   const downloadBackup = () => {
-    store.downloadBackup();
+    notesStore.downloadBackup();
   };
 
   const confirmDeleteAllNotes = () => {
@@ -546,7 +543,7 @@
   };
 
   const deleteAllNotes = () => {
-    store.deleteAllNotes();
+    notesStore.deleteAllNotes();
     showDeleteAllNotesConfirmation.value = false;
   };
 

@@ -2,61 +2,61 @@
   {
     "title": "A Tale of Two Cities",
     "content": "Set during the French Revolution, this novel contrasts the lives of two men who look alike but have very different fates.",
-    "timeCreated": "22/05/2024",
+    "time_created": "2023-03-15T08:00:00.000Z",
     "folder": "Historical"
   },
   {
     "title": "All Quiet on the Western Front",
     "content": "A harrowing account of a German soldier's experiences and disillusionment during World War I.",
-    "timeCreated": "22/05/2024",
+    "time_created": "2022-07-23T09:00:00.000Z",
     "folder": "Historical"
   },
   {
     "title": "Pride and Prejudice",
     "content": "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
-    "timeCreated": "21/05/2024",
+    "time_created": "2021-01-30T10:00:00.000Z",
     "folder": "Literature"
   },
   {
     "title": "1984",
     "content": "War is peace. Freedom is slavery. Ignorance is strength. These paradoxes define the dystopian society in which the characters find themselves trapped.",
-    "timeCreated": "21/05/2024",
+    "time_created": "2020-11-05T11:00:00.000Z",
     "folder": "Literature"
   },
   {
     "title": "To Kill a Mockingbird",
     "content": "You never really understand a person until you consider things from his point of view, until you climb into his skin and walk around in it.",
-    "timeCreated": "21/05/2024",
+    "time_created": "2019-09-14T12:00:00.000Z",
     "folder": "Classics"
   },
   {
     "title": "The Great Gatsby",
     "content": "So we beat on, boats against the current, borne back ceaselessly into the past. This line captures the essence of Gatsby's tragic pursuit.",
-    "timeCreated": "21/05/2024",
+    "time_created": "2018-04-20T13:00:00.000Z",
     "folder": "Classics"
   },
   {
     "title": "Brave New World",
     "content": "Words can be like X-rays if you use them properly—they’ll go through anything. You read and you’re pierced by their meaning.",
-    "timeCreated": "21/05/2024",
+    "time_created": "2017-12-10T14:00:00.000Z",
     "folder": "SciFi"
   },
   {
     "title": "Jane Eyre",
     "content": "I am no bird; and no net ensnares me: I am a free human being with an independent will, which I now exert to leave you.",
-    "timeCreated": "21/05/2024",
+    "time_created": "2016-08-25T15:00:00.000Z",
     "folder": "SciFi"
   },
   {
     "title": "Frankenstein",
     "content": "Beware; for I am fearless, and therefore powerful. The creature warns Victor of the consequences of his actions, showcasing his newfound strength.",
-    "timeCreated": "21/05/2024",
+    "time_created": "2015-06-11T16:00:00.000Z",
     "folder": "Horror"
   },
   {
     "title": "The Hobbit",
     "content": "In a hole in the ground there lived a hobbit. Not a nasty, dirty, wet hole, but a hobbit-hole, and that means comfort.",
-    "timeCreated": "21/05/2024",
+    "time_created": "2014-01-05T17:00:00.000Z",
     "folder": "Horror"
   }
 ]

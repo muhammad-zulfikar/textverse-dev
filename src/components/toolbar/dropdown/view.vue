@@ -1,4 +1,4 @@
-<!-- View.vue -->
+<!-- view.vue -->
 
 <template>
   <div class="relative inline-block text-left" ref="dropdownRef">
@@ -35,7 +35,7 @@
     </button>
     <div
       v-if="dropdownOpen"
-      class="custom-card z-50 origin-top-left absolute left-0 mt-2 w-[6.4rem] md:w-30"
+      class="custom-card z-50 origin-top-left absolute left-0 mt-2 w-[6.4rem] ml-[-25px]"
     >
       <div class="py-1" role="menu" aria-orientation="vertical">
         <a
@@ -81,28 +81,27 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, onUnmounted } from 'vue';
-  import { useNotesStore } from '@/store/store';
+  import { ref, onMounted, onUnmounted, watch } from 'vue';
+  import { uiStore } from '@/store/stores';
 
-  const store = useNotesStore();
+  const isMobile = ref(window.innerWidth < 640);
   const dropdownOpen = ref(false);
   const dropdownRef = ref<HTMLElement | null>(null);
-  const isMobile = ref(window.innerWidth < 640);
 
   const toggleDropdown = () => {
-    dropdownOpen.value = !dropdownOpen.value;
-    store.setActiveDropdown(dropdownOpen.value ? 'view' : null);
-  };
-
-  const closeDropdown = () => {
-    dropdownOpen.value = false;
-    if (store.activeDropdown === 'view') {
-      store.setActiveDropdown(null);
+    if (dropdownOpen.value) {
+      closeDropdown();
+    } else {
+      uiStore.setActiveDropdown('view');
     }
   };
 
+  const closeDropdown = () => {
+    uiStore.setActiveDropdown(null);
+  };
+
   const setColumns = (columns: number) => {
-    store.setColumns(columns);
+    uiStore.setColumns(columns);
     closeDropdown();
   };
 
@@ -119,10 +118,10 @@
     const newIsMobile = window.innerWidth < 640;
     if (newIsMobile !== isMobile.value) {
       isMobile.value = newIsMobile;
-      if (isMobile.value && store.columns > 2) {
-        store.setColumns(2);
-      } else if (!isMobile.value && store.columns < 3) {
-        store.setColumns(4);
+      if (isMobile.value && uiStore.columns > 2) {
+        uiStore.setColumns(2);
+      } else if (!isMobile.value && uiStore.columns < 3) {
+        uiStore.setColumns(4);
       }
     }
   };
@@ -137,4 +136,11 @@
     document.removeEventListener('click', handleClickOutside);
     window.removeEventListener('resize', handleResize);
   });
+
+  watch(
+    () => uiStore.activeDropdown,
+    (newValue) => {
+      dropdownOpen.value = newValue === 'view';
+    }
+  );
 </script>

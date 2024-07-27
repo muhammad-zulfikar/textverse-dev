@@ -1,28 +1,22 @@
 <template>
   <div class="relative mb-[28px] md:mb-[46px]">
-    <div
-      v-if="isLoading"
-      class="absolute inset-0 mt-24 flex justify-center items-center"
-    >
-      <div class="font-serif dark:text-white text-md">Loading notes...</div>
-    </div>
     <ul
-      v-else-if="store.filteredNotes.length > 0"
+      v-if="notesStore.filteredNotes.length > 0"
       :class="[
         'w-11/12 mx-auto mt-10',
         {
-          'columns-1 md:max-w-xl': store.columns === 1,
-          'columns-2 md:gap-7 md:max-w-4xl': store.columns === 2,
-          'columns-3 sm:columns-2 md:columns-3 gap-8': store.columns === 3,
+          'columns-1 md:max-w-xl': uiStore.columns === 1,
+          'columns-2 md:gap-7 md:max-w-4xl': uiStore.columns === 2,
+          'columns-3 sm:columns-2 md:columns-3 gap-8': uiStore.columns === 3,
           'columns-4 sm:columns-2 md:columns-3 lg:columns-4 gap-5':
-            store.columns === 4,
+            uiStore.columns === 4,
           'columns-5 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3':
-            store.columns === 5,
+            uiStore.columns === 5,
         },
       ]"
     >
       <li
-        v-for="note in store.filteredNotes"
+        v-for="note in filteredNotes"
         :key="note.id"
         class="break-inside-avoid"
       >
@@ -36,18 +30,19 @@
 </template>
 
 <script lang="ts" setup>
-  import { useNotesStore } from '@/store/store';
-  import { useAuthStore } from '@/store/authStore';
+  import { authStore, notesStore, folderStore, uiStore } from '@/store/stores';
   import NoteCard from './noteCard.vue';
-  import { ref, onMounted, watch } from 'vue';
+  import { ref, onMounted, watch, computed } from 'vue';
 
-  const store = useNotesStore();
-  const authStore = useAuthStore();
   const isLoading = ref(true);
+
+  const filteredNotes = computed(() =>
+    notesStore.filteredNotes(folderStore.currentFolder)
+  );
 
   const loadNotes = async () => {
     isLoading.value = true;
-    await store.loadNotes();
+    await notesStore.loadNotes();
     isLoading.value = false;
   };
 
@@ -62,3 +57,10 @@
     }
   );
 </script>
+
+<style scoped>
+  .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+</style>

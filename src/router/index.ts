@@ -1,10 +1,9 @@
-// index.ts
-
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import home from '@/pages/home.vue';
 import about from '@/pages/about.vue';
 import settings from '@/pages/settings.vue';
 import signIn from '@/pages/signIn.vue';
+import { authStore } from '@/store/stores';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -26,6 +25,13 @@ const routes: Array<RouteRecordRaw> = [
     path: '/sign-in',
     name: 'Sign In',
     component: signIn,
+    beforeEnter: (_to, _from, next) => {
+      if (authStore.isLoggedIn) {
+        next('/');
+      } else {
+        next();
+      }
+    },
   },
 ];
 

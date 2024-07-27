@@ -2,9 +2,11 @@
 
 <template>
   <Navbar />
-  <main class="mx-auto grid max-w-2xl grid-cols-6 gap-6 px-6 pt-24 select-none">
+  <main
+    class="mx-auto grid max-w-2xl grid-cols-6 gap-6 px-6 pt-10 md:pt-24 select-none"
+  >
     <div
-      class="flex flex-col col-span-6 md:col-span-4 h-52 overflow-hidden rounded-lg p-5 md:p-6 custom-card"
+      class="flex flex-col col-span-6 md:col-span-4 h-58 md:h-52 overflow-hidden rounded-lg p-5 md:p-6 custom-card"
     >
       <a
         href="https://github.com/muhammad-zulfikar/vue-notes"
@@ -24,31 +26,48 @@
         >
           CS50x
         </a>
-        course. Please avoid typing sensitive information, as it is stored
-        locally on your browser's cache. The source code is available on GitHub.
+        course. It uses Firebase Realtime Database for signed in users. If
+        you're a guest, please avoid typing sensitive information, as it is
+        stored locally on your browser's cache. The source code is available on
+        GitHub.
       </p>
     </div>
-    <div class="hidden md:grid md:col-span-2">
+    <div class="col-span-6 md:col-span-2">
       <div
         class="p-4 justify-center rounded-lg dark:text-white md:h-52 custom-card"
       >
-        <p class="text-sm font-serif">TODO:</p>
-        <ul class="list-disc pl-4 mt-2">
-          <li class="text-sm font-serif">Fix unpin sort</li>
+        <p class="text-sm font-serif font-bold">TODO(S):</p>
+        <ul class="list-disc pl-4 mt-2 space-y-1">
+          <li class="text-sm font-serif line-through">
+            Optimize note pinning algorithm
+          </li>
+          <li class="text-sm font-serif">Implement collaborative editing</li>
+          <li class="text-sm font-serif">Introduce markdown support</li>
         </ul>
       </div>
     </div>
     <div class="col-span-6">
       <div class="p-4 justify-center rounded-lg dark:text-white custom-card">
-        <p class="text-sm font-serif">Features:</p>
-        <ul class="list-disc pl-4 mt-2">
+        <p class="text-sm font-serif font-bold">Features:</p>
+        <ul class="list-disc pl-4 mt-2 columns-2 gap-6 md:gap-12 space-y-2">
           <li class="text-sm font-serif">
-            Create, edit, pin, search, and delete notes
+            Create, edit, pin, search, and organize with ease
           </li>
-          <li class="text-sm font-serif">Download notes as .txt</li>
-          <li class="text-sm font-serif">Dark theme</li>
-          <li class="text-sm font-serif">Folder support</li>
-          <li class="text-sm font-serif">Context menu</li>
+          <li class="text-sm font-serif">
+            Seamless theme switching between light and dark modes
+          </li>
+          <li class="text-sm font-serif">
+            Smart categorization with folder support
+          </li>
+          <li class="text-sm font-serif">
+            Right-click context menu for quick actions
+          </li>
+          <li class="text-sm font-serif">
+            Secure sign-in with real-time note synchronization across devices
+          </li>
+          <li class="text-sm font-serif">
+            Offline functionality for uninterrupted productivity
+          </li>
         </ul>
       </div>
     </div>

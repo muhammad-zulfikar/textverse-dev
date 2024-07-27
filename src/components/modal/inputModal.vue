@@ -1,5 +1,4 @@
-<!-- nameEditorModal.vue -->
-
+<!-- inputModal.vue -->
 <template>
   <div
     v-if="isOpen"
@@ -14,14 +13,23 @@
       @click.stop
       class="z-50 font-serif custom-card p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3"
     >
-      <h1 class="text-xl font-bold mb-4">Rename</h1>
+      <h1 class="text-xl font-bold mb-4">{{ modalTitle }}</h1>
       <input
-        v-model="name"
+        v-model="inputValue"
         @focus="handleFocus"
         @blur="handleBlur"
         :placeholder="placeholder"
         class="w-full p-1 bg-transparent border-0 border-b-2 border-black dark:border-white outline-none placeholder-black dark:placeholder-white placeholder-opacity-50"
       />
+      <span
+        v-if="showCharCount"
+        :class="[
+          'flex justify-end font-normal text-gray-500 text-sm mt-1',
+          { 'text-red-500': inputValue.length > maxLength },
+        ]"
+      >
+        {{ inputValue.length }} / {{ maxLength }}
+      </span>
       <div class="flex justify-end mt-6">
         <button
           @click.prevent="closeModal"
@@ -52,28 +60,41 @@
 
   const props = defineProps<{
     isOpen: boolean;
-    name: string; // Changed from currentName to name
+    mode: 'username' | 'folder';
+    currentValue?: string;
+    maxLength?: number;
   }>();
 
   const emit = defineEmits<{
     (e: 'close'): void;
-    (e: 'update', name: string): void; // Changed from 'submit' to 'update'
+    (e: 'update', value: string): void;
   }>();
 
-  const name = ref(props.name || '');
-  const placeholder = ref('Enter your username');
+  const inputValue = ref(props.currentValue || '');
+  const placeholder = ref('Enter name');
 
-  const isValid = computed(() => name.value.trim().length > 0);
+  const modalTitle = computed(() => {
+    if (props.mode === 'username') return 'Rename';
+    return props.currentValue ? 'Rename Folder' : 'Create New Folder';
+  });
+
+  const showCharCount = computed(() => props.mode === 'folder');
+  const maxLength = computed(() => props.maxLength || 30);
+
+  const isValid = computed(() => {
+    const trimmedLength = inputValue.value.trim().length;
+    return trimmedLength > 0 && trimmedLength <= maxLength.value;
+  });
 
   const handleSubmit = () => {
     if (isValid.value) {
-      emit('update', name.value); // Changed from 'submit' to 'update'
+      emit('update', inputValue.value);
       closeModal();
     }
   };
 
   const closeModal = () => {
-    name.value = '';
+    inputValue.value = '';
     emit('close');
   };
 
@@ -82,15 +103,27 @@
   };
 
   const handleBlur = () => {
-    if (name.value.trim() === '') {
-      placeholder.value = 'Enter name';
+    if (inputValue.value.trim() === '') {
+      placeholder.value =
+        props.mode === 'username' ? 'Enter your username' : 'Enter folder name';
     }
   };
 
   watch(
-    () => props.name,
-    (newName) => {
-      name.value = newName;
+    () => props.currentValue,
+    (newValue) => {
+      inputValue.value = newValue || '';
+    }
+  );
+
+  watch(
+    () => props.isOpen,
+    (newValue) => {
+      if (newValue) {
+        document.body.classList.add('modal-open');
+      } else {
+        document.body.classList.remove('modal-open');
+      }
     }
   );
 </script>
