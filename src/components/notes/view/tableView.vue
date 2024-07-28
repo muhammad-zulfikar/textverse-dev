@@ -1,3 +1,5 @@
+<!-- tableView.vue -->
+
 <template>
   <div class="w-full max-w-5xl mx-auto px-4 md:px-0 text-sm md:text-base">
     <div class="flex justify-end mb-4 relative">
@@ -39,20 +41,20 @@
         >
           <div class="py-1" role="menu" aria-orientation="vertical">
             <a
-            v-for="column in availableColumns"
-            :key="column"
-            @click.stop="toggleColumn(column)"
-            class="block px-4 py-2 text-sm cursor-pointer hover:underline flex items-center"
-            role="menuitem"
-          >
-            <input
-              type="checkbox"
-              :checked="visibleColumns.includes(column)"
-              class="mr-2"
-              @click.stop
+              v-for="column in filteredColumns"
+              :key="column"
+              @click.stop="toggleColumn(column)"
+              class="block px-4 py-2 text-sm cursor-pointer hover:underline flex items-center"
+              role="menuitem"
             >
-            {{ column }}
-          </a>
+              <input
+                type="checkbox"
+                :checked="visibleColumns.includes(column)"
+                class="mr-2 cursor-pointer"
+                @click.stop="toggleColumn(column)"
+              >
+              {{ column }}
+            </a>
           </div>
         </div>
       </div>
@@ -81,7 +83,9 @@
                 @change="toggleSelectAll"
               >
             </th>
-            <th v-for="column in visibleColumns" :key="column" class="p-3 text-left border-b-[1px] border-r-[1px] border-black dark:border-white whitespace-nowrap">
+            <th v-for="column in visibleColumns" :key="column" 
+                :class="{'hidden md:table-cell': column === 'Content'}"
+                class="p-3 text-left border-b-[1px] border-r-[1px] border-black dark:border-white whitespace-nowrap">
               {{ column }}
             </th>
           </tr>
@@ -95,7 +99,7 @@
                 @change="toggleNoteSelection(note.id)"
               >
             </td>
-            <td v-if="visibleColumns.includes('Title')" class="md:w-[200px] p-3 border-b-[1px] border-r-[1px] border-black dark:border-white">
+            <td v-if="visibleColumns.includes('Title')" class="w-[250px] p-3 border-b-[1px] border-r-[1px] border-black dark:border-white">
               <span 
                 class="cursor-pointer hover:underline line-clamp-2"
                 @click="openNote(note.id)"
@@ -103,7 +107,7 @@
                 {{ note.title }}
               </span>
             </td>
-            <td v-if="visibleColumns.includes('Content')" class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white">
+            <td v-if="visibleColumns.includes('Content') && !isMobile" class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white">
               <div class="line-clamp-2">{{ note.content }}</div>
             </td>
             <td v-if="visibleColumns.includes('Folder')" class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white">
@@ -129,7 +133,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { Note } from '@/store/types';
 import { uiStore, notesStore } from '@/store/stores';
-import AlertModal from '../modal/alertModal.vue';
+import AlertModal from '@/components/modal/alertModal.vue';
 
 const { notes } = defineProps<{ notes: Note[] }>();
 
@@ -140,6 +144,14 @@ const selectMode = ref(false);
 const selectedNotes = ref<number[]>([]);
 const showDeleteConfirmation = ref(false);
 const showDropdownRef = ref<HTMLElement | null>(null);
+
+// Detect if the device is mobile
+const isMobile = ref(window.innerWidth < 768);
+
+// Filter out 'Content' for mobile view
+const filteredColumns = computed(() => {
+  return isMobile.value ? availableColumns.filter(col => col !== 'Content') : availableColumns;
+});
 
 const allSelected = computed(() => selectedNotes.value.length === notes.length);
 
@@ -222,12 +234,22 @@ const handleClickOutside = (event: MouseEvent) => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
+  // Update isMobile when the window is resized
+  window.addEventListener('resize', updateIsMobile);
+  updateIsMobile(); // Set the initial value
 });
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
+  window.removeEventListener('resize', updateIsMobile);
 });
 
+// Function to update isMobile based on window width
+const updateIsMobile = () => {
+  isMobile.value = window.innerWidth < 768;
+};
+
+// Watch for changes in uiStore.activeDropdown to manage dropdown state
 watch(
   () => uiStore.activeDropdown,
   (newValue) => {
@@ -272,8 +294,16 @@ table tr:last-child td {
 
 .line-clamp-2 {
   display: -webkit-box;
+  line-clamp: 1;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Hide the "Content" column on mobile */
+@media (max-width: 767px) {
+  .hidden-mobile {
+    display: none;
+  }
 }
 </style>

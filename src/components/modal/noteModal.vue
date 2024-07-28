@@ -1,4 +1,5 @@
-<!-- NoteModal.vue -->
+<!-- noteModal.vue -->
+ 
 <template>
   <div
     v-if="isOpen"

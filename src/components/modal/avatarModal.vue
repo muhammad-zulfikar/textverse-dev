@@ -1,5 +1,3 @@
-<!-- avatarPickerModal.vue -->
-
 <template>
   <div
     v-if="isOpen"
@@ -58,7 +56,8 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
+  import { uiStore } from '@/store/stores';
+import { ref, watch } from 'vue';
 
   const props = defineProps<{
     isOpen: boolean;
@@ -70,7 +69,7 @@
     (e: 'select', avatarUrl: string): void;
   }>();
 
-  const avatarUrl = ref(props.initialAvatarUrl || '');
+  const avatarUrl = ref<string | null>(null); // Initialize as null
   const fileInput = ref<HTMLInputElement | null>(null);
 
   const handleFileChange = (event: Event) => {
@@ -107,13 +106,13 @@
         closeModal();
       } catch (error) {
         console.error('Failed to update avatar:', error);
-        // You may want to show an error message to the user here
+        uiStore.showToastMessage('Failed to update avatar')
       }
     }
   };
 
   const closeModal = () => {
-    avatarUrl.value = '';
+    avatarUrl.value = null; // Reset avatarUrl on close
     emit('close');
   };
 

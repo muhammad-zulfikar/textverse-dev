@@ -378,7 +378,7 @@
   import { authStore, notesStore, uiStore } from '@/store/stores';
   import Navbar from '@/components/navbar/navbar.vue';
   import AlertModal from '@/components/modal/alertModal.vue';
-  import AvatarPickerModal from '@/components/modal/avatarPickerModal.vue';
+  import AvatarPickerModal from '@/components/modal/avatarModal.vue';
   import InputModal from '@/components/modal/inputModal.vue';
   import router from '@/router';
 
@@ -399,7 +399,7 @@
   const userAvatar = computed(() => authStore.user?.photoURL || '');
   const username = computed(() => authStore.user?.displayName || 'User');
   const joinedSince = computed(() => {
-    const joinedDate = authStore.user?.metadata?.creationTime;
+  const joinedDate = authStore.user?.metadata?.creationTime;
     return joinedDate ? new Date(joinedDate).toLocaleDateString() : 'Unknown';
   });
 

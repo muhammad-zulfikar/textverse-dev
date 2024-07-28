@@ -1,3 +1,5 @@
+<!-- navbar.vue -->
+
 <template>
   <div>
     <div
@@ -46,7 +48,6 @@
         class="hover:underline"
         active-class="underline"
       >
-        <!-- <div v-if="loading && isRootPath" class="skeleton rounded-md w-16 h-6"></div> -->
         <div>Sign in</div>
       </router-link>
       <div v-else class="relative">
@@ -54,11 +55,10 @@
           @click="toggleUserDropdown"
           class="flex items-center hover:underline nav-dropdown-trigger"
         >
-          <!-- <div v-if="loading && isRootPath" class="skeleton rounded-full w-8 h-8"></div> -->
           <img
             :src="avatarUrl"
             alt="User Avatar"
-            class="w-8 h-8 custom-card-transparent-avatar rounded-full"
+            class="w-8 h-8 custom-card-transparent-avatar rounded-full object-cover"
           />
         </button>
         <div
@@ -81,7 +81,6 @@
       </div>
     </div>
     <div class="bg-black dark:bg-white h-px transition-all duration-300"></div>
-    <!-- Confirmation Modal -->
     <AlertModal
       :is-open="showSignoutConfirmation"
       :message="'Are you sure you want to sign out? You will be logged out of your account.'"

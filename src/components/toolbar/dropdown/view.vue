@@ -33,7 +33,7 @@
     </button>
     <div
       v-if="dropdownOpen"
-      class="custom-card z-50 origin-top-left absolute left-0 mt-2 w-fit ml-[-25px]"
+      class="custom-card z-50 origin-top-left absolute left-0 mt-2 w-fit ml-[-30px]"
     >
       <div class="py-1" role="menu" aria-orientation="vertical">
         <a
@@ -42,7 +42,7 @@
           class="block px-4 py-2 text-sm cursor-pointer hover:underline flex justify-between items-center"
           role="menuitem"
         >
-          Card View
+          Card
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="h-4 w-4 ml-1"
@@ -58,7 +58,7 @@
             />
           </svg>
         </a>
-        <div v-if="columnsExpanded" class="flex items-center justify-center">
+        <div v-if="columnsExpanded" class="flex items-center justify-center mx-2">
           <a
             @click.stop="decreaseColumns"
             class="block px-1 py-2 text-sm cursor-pointer hover:underline"
@@ -75,15 +75,62 @@
             +
           </a>
         </div>
-        <div class="border-t border-gray-200 my-1"></div>
         <a
           @click.stop="setViewType('table')"
           :class="{ 'underline': uiStore.viewType === 'table' }"
           class="block px-4 py-2 text-sm cursor-pointer hover:underline"
           role="menuitem"
         >
-          Table View
+          Table
         </a>
+        <a
+          @click.stop="setViewType('email')"
+          :class="{ 'underline': uiStore.viewType === 'email' }"
+          class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+          role="menuitem"
+        >
+          Mail
+        </a>
+        <a 
+            @click.stop="toggleFolderView"
+            :class="{ 'underline': uiStore.viewType === 'folder' }"
+            class="block px-4 py-2 text-sm cursor-pointer hover:underline flex justify-between items-center"
+            role="menuitem"
+          >
+            Folder
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 ml-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                :d="folderViewExpanded ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'"
+              />
+            </svg>
+          </a>
+          <div v-if="folderViewExpanded" class="">
+            <a
+              @click.stop="setFolderViewType('grid')"
+              :class="{ 'underline': uiStore.folderViewType === 'grid' }"
+              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+              role="menuitem"
+            >
+              - Grid
+            </a>
+            <a
+              @click.stop="setFolderViewType('list')"
+              :class="{ 'underline': uiStore.folderViewType === 'list' }"
+              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+              role="menuitem"
+            >
+              - List
+            </a>
+            </div>
       </div>
     </div>
   </div>
@@ -97,6 +144,7 @@ const isMobile = ref(window.innerWidth < 640);
 const dropdownOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
 const columnsExpanded = ref(false);
+const folderViewExpanded = ref(false);
 
 const toggleDropdown = () => {
   if (dropdownOpen.value) {
@@ -109,16 +157,17 @@ const toggleDropdown = () => {
 const closeDropdown = () => {
   uiStore.setActiveDropdown(null);
   columnsExpanded.value = false;
+  folderViewExpanded.value = false;
 };
 
-const setColumns = (columns: number) => {
-  uiStore.setColumns(columns);
-};
-
-const setViewType = (viewType: 'card' | 'table') => {
+const setViewType = (viewType: 'card' | 'table' | 'email' | 'folder') => {
   uiStore.setViewType(viewType);
   if (viewType === 'card') {
-    columnsExpanded.value = !columnsExpanded.value;
+    columnsExpanded.value = true;
+    folderViewExpanded.value = false;
+  } else if (viewType === 'folder') {
+    columnsExpanded.value = false;
+    folderViewExpanded.value = true;
   } else {
     closeDropdown();
   }
@@ -142,6 +191,19 @@ const decreaseColumns = () => {
   if (uiStore.columns > 1) {
     uiStore.setColumns(uiStore.columns - 1);
   }
+};
+
+const toggleFolderView = () => {
+  if (folderViewExpanded.value) {
+    folderViewExpanded.value = false;
+  } else {
+    setViewType('folder');
+  }
+};
+
+const setFolderViewType = (viewType: 'grid' | 'list') => {
+  uiStore.setFolderViewType(viewType);
+  closeDropdown();
 };
 
 const handleClickOutside = (event: MouseEvent) => {
@@ -185,8 +247,13 @@ watch(
   (newValue) => {
     if (newValue === 'card') {
       columnsExpanded.value = true;
+      folderViewExpanded.value = false;
+    } else if (newValue === 'folder') {
+      columnsExpanded.value = false;
+      folderViewExpanded.value = true;
     } else {
       columnsExpanded.value = false;
+      folderViewExpanded.value = false;
     }
   }
 );

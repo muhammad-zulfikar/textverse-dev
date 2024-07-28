@@ -5,39 +5,35 @@ import { notesStore } from './stores';
 
 export interface NoteLayout {
   id: number;
-  height: number;
-  width: number;
 }
 
 interface UIState {
   theme: 'light' | 'dark' | 'system';
-  viewType: 'card' | 'table';
+  viewType: 'card' | 'table' | 'email' | 'folder';
   columns: number;
+  folderViewType: 'grid' | 'list';
   currentTheme: string;
   isFullScreen: boolean;
   activeDropdown: string | null;
   showToast: boolean;
   toastMessage: string;
   toastTimeoutId: number | null;
-  noteLayouts: Record<number, NoteLayout>;
-  noteOpenPosition: { x: number; y: number } | null;
 }
 
 export const useUIStore = defineStore('ui', {
   state: (): UIState => ({
     theme: 'system',
-    viewType: 'card',
+    viewType: (localStorage.getItem('viewType') as 'card' | 'table' | 'email' | 'folder') || 'card',
     currentTheme: localStorage.getItem('theme') || 'system',
     columns: parseInt(
       localStorage.getItem('columns') || (window.innerWidth < 640 ? '2' : '4')
     ),
+    folderViewType: 'grid',
     isFullScreen: false,
     activeDropdown: null,
     showToast: false,
     toastMessage: '',
     toastTimeoutId: null,
-    noteLayouts: JSON.parse(localStorage.getItem('noteLayouts') || '{}'),
-    noteOpenPosition: null,
   }),
 
   actions: {
@@ -47,13 +43,18 @@ export const useUIStore = defineStore('ui', {
       this.applyTheme();
     },
 
-    setViewType(viewType: 'card' | 'table') {
+    setViewType(viewType: 'card' | 'table' | 'email' | 'folder') {
       this.viewType = viewType;
+      localStorage.setItem('viewType', viewType);
     },
 
     setColumns(columns: number) {
       this.columns = columns;
       localStorage.setItem('columns', columns.toString());
+    },
+
+    setFolderViewType(viewType: 'grid' | 'list') {
+      this.folderViewType = viewType;
     },
 
     toggleFullScreen() {
@@ -85,6 +86,11 @@ export const useUIStore = defineStore('ui', {
         this.columns = parseInt(savedColumns, 10);
       }
 
+      const savedViewType = localStorage.getItem('viewType') as UIState['viewType'] | null;
+      if (savedViewType) {
+        this.viewType = savedViewType;
+      }
+
       this.applyTheme();
     },
 
@@ -109,10 +115,6 @@ export const useUIStore = defineStore('ui', {
       notesStore.showNoteModal = false;
     },
 
-    setNoteOpenPosition(position: { x: number; y: number } | null) {
-      this.noteOpenPosition = position;
-    },
-
     openNote(noteId: number | null) {
       notesStore.selectedNoteId = noteId;
       notesStore.showNoteModal = true;
@@ -123,15 +125,6 @@ export const useUIStore = defineStore('ui', {
       notesStore.selectedNoteId = null;
       notesStore.showNoteModal = false;
       document.body.classList.remove('modal-open');
-    },
-
-    saveNoteLayout(noteId: number, layout: Omit<NoteLayout, 'id'>) {
-      this.noteLayouts[noteId] = { id: noteId, ...layout };
-      localStorage.setItem('noteLayouts', JSON.stringify(this.noteLayouts));
-    },
-
-    getNoteLayout(noteId: number): NoteLayout | null {
-      return this.noteLayouts[noteId] || null;
     },
   },
 });

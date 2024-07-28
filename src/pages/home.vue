@@ -17,7 +17,7 @@
   import Navbar from '@/components/navbar/navbar.vue';
   import SearchBar from '@/components/searchBar/searchBar.vue';
   import Toolbar from '@/components/toolbar/toolbar.vue';
-  import NoteList from '@/components/notes/noteList.vue';
+  import NoteList from '@/components/notes/noteView.vue';
   import NoteModal from '@/components/modal/noteModal.vue';
 
   const closeNoteModal = () => {
