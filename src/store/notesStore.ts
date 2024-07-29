@@ -32,6 +32,7 @@ export const useNotesStore = defineStore('notes', {
   getters: {
     selectedNote: (state) =>
       state.notes.find((note) => note.id === state.selectedNoteId),
+    
     filteredNotes:
       (state) =>
       (folderId: string): Note[] => {
@@ -369,6 +370,15 @@ export const useNotesStore = defineStore('notes', {
             uiStore.showToastMessage('Failed to copy note content');
           });
       }
+    },
+
+    localeDate(dateString: string | Date): string {
+      const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+      return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
     },
 
     downloadNote(note: Note) {

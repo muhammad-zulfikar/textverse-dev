@@ -1,14 +1,16 @@
 <template>
+  <div>
   <div class="custom-card flex h-full min-h-[800px] md:mx-auto md:max-w-5xl mt-10 rounded-lg border border-black dark:border-white overflow-hidden font-serif mx-4">
     <!-- Sidebar -->
-    <div v-if="!isMobileView || !selectedNoteId" class="w-full md:w-1/4 overflow-y-auto rounded-l-lg">
+    <div v-if="!isMobileView || !selectedNoteId" class="w-full md:w-1/4 overflow-y-auto rounded-l-lg select-none">
       <div
         v-for="(note, index) in notes"
         :key="note.id"
         @click="selectNote(note.id)"
+        @contextmenu.prevent="(event) => showContextMenu(event, note)"
         class="p-4 cursor-pointer hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
         :class="{
-          'bg-[#ebdfc0] dark:bg-gray-700': selectedNoteId === note.id,
+          'bg-[#ebdfc0] dark:bg-gray-700': isContextMenuOpenForNote(note.id) || selectedNoteId === note.id,
           'border-b border-black dark:border-white': index !== notes.length - 1
         }"
       >
@@ -16,7 +18,8 @@
         <p class="text-sm text-gray-600 dark:text-gray-300 truncate">{{ truncateContent(note.content) }}</p>
         <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
           <span>{{ note.folder }}</span>
-          <span>{{ formatDate(note.last_edited || note.time_created) }}</span>
+          <span v-if="note.pinned">Pinned</span>
+          <span>{{ notesStore.localeDate(note.last_edited || note.time_created) }}</span>
         </div>
       </div>
     </div>
@@ -26,14 +29,14 @@
       <div v-if="selectedNote" class="h-full flex flex-col">
         <div class="flex justify-between items-center mb-4">
           <div class="flex">
-            <button v-if="isMobileView && selectedNoteId" @click="deselectNote" class="hover:underline md:hidden">Back</button>
+            <button v-if="isMobileView && selectedNoteId" @click="deselectNote" class="hover:underline md:hidden text-sm">Back</button>
           </div>
           <div class="flex justify-end">
-            <button @click="openDeleteAlert" class="hover:underline text-red-500 mr-4">Delete</button>
+            <button @click="openDeleteAlert" class="hover:underline text-red-500 mr-4 text-sm md:text-base">Delete</button>
             <button 
               @click="saveNote"
               :class="[
-                'dark:hover:bg-transparent outline-none',
+                'dark:hover:bg-transparent outline-none text-sm md:text-base',
                 {
                   'hover:underline cursor-pointer': hasChanges,
                   'text-gray-500 cursor-not-allowed': !hasChanges,
@@ -76,7 +79,7 @@
               </div>
             </div>
           </div>
-          <span class="ml-4 text-gray-600 dark:text-gray-300">Last edited: {{ formatDate(selectedNote.last_edited || selectedNote.time_created) }}</span>
+          <span class="ml-4 text-gray-600 dark:text-gray-300">Last edited: {{ notesStore.localeDate(selectedNote.last_edited || selectedNote.time_created) }}</span>
         </div>
         <div class="border-b border-gray-600 dark:border-gray-200 my-1"></div>
         <textarea 
@@ -87,18 +90,33 @@
       </div>
     </div>
   </div>
-  <AlertModal
+  <contextMenu
+    v-if="editedNote"
+    :visible="showMenu"
+    :position="menuPosition"
+    :note="editedNote"
+    :noteId="editedNote.id"
+    @hideMenu="hideContextMenu"
+    @edit="uiStore.openNote"
+    @delete="openDeleteAlert"
+    @download="notesStore.downloadNote"
+    @pin="notesStore.pinNote"
+    @unpin="notesStore.unpinNote"
+  />
+  <alertModal
     :is-open="isAlertOpen"
     :message="alertMessage"
     @confirm="confirmDelete"
     @cancel="closeAlert"
   />
+</div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { notesStore, uiStore, folderStore } from '@/store/stores';
-import AlertModal from '@/components/modal/alertModal.vue';
+import contextMenu from '@/components/contextMenu/contextMenu.vue';
+import alertModal from '@/components/modal/alertModal.vue';
 import { Note } from '@/store/types';
 import { DEFAULT_FOLDERS } from '@/store/constants';
 
@@ -114,6 +132,9 @@ const alertMessage = ref('');
 const isDropdownOpen = ref(false);
 const selectedFolder = ref('');
 const editedNote = ref<Note | null>(null);
+const isContextMenuOpenForNote = (noteId: number) => showMenu.value && editedNote.value?.id === noteId;
+const showMenu = ref(false);
+const menuPosition = ref({ x: 0, y: 0 });
 
 const availableFolders = computed(() => {
     return [
@@ -149,7 +170,6 @@ function selectFolder(folder: string) {
   selectedFolder.value = folder;
   if (editedNote.value) {
     editedNote.value.folder = folder;
-    uiStore.showToastMessage(`Folder changed to "${folder}"`);
   }
   isDropdownOpen.value = false;
 }
@@ -174,22 +194,22 @@ function truncateContent(content: string): string {
   return content.length > 100 ? content.slice(0, 100) + '...' : content;
 }
 
-function formatDate(dateInput: string | Date): string {
-  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
 function saveNote() {
   if (editedNote.value && hasChanges.value) {
     notesStore.updateNote(editedNote.value);
   }
 }
+
+const showContextMenu = (event: MouseEvent, note: Note) => {
+  event.stopPropagation();
+  menuPosition.value = { x: event.clientX, y: event.clientY };
+  showMenu.value = true;
+  editedNote.value = note;
+};
+
+const hideContextMenu = () => {
+  showMenu.value = false;
+};
 
 const openDeleteAlert = () => {
   if (selectedNote.value) {

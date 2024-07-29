@@ -101,20 +101,20 @@
             </td>
             <td v-if="visibleColumns.includes('Title')" class="w-[250px] p-3 border-b-[1px] border-r-[1px] border-black dark:border-white">
               <span 
-                class="cursor-pointer hover:underline line-clamp-2"
-                @click="openNote(note.id)"
+                class="cursor-pointer hover:underline line-clamp-1"
+                @click="uiStore.openNote(note.id)"
               >
                 {{ note.title }}
               </span>
             </td>
             <td v-if="visibleColumns.includes('Content') && !isMobile" class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white">
-              <div class="line-clamp-2">{{ note.content }}</div>
+              <div class="line-clamp-1">{{ note.content }}</div>
             </td>
-            <td v-if="visibleColumns.includes('Folder')" class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white">
-              <div class="line-clamp-2">{{ note.folder }}</div>
+            <td v-if="visibleColumns.includes('Folder')" @click="folderStore.setCurrentFolder(note.folder)" class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white cursor-pointer hover:underline">
+              <div class="line-clamp-1">{{ note.folder }}</div>
             </td>
             <td v-if="visibleColumns.includes('Date')" class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white whitespace-nowrap">
-              {{ formatDate(note.last_edited || note.time_created) }}
+              {{ notesStore.localeDate(note.last_edited || note.time_created) }}
             </td>
           </tr>
         </tbody>
@@ -132,7 +132,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { Note } from '@/store/types';
-import { uiStore, notesStore } from '@/store/stores';
+import { uiStore, notesStore, folderStore } from '@/store/stores';
 import AlertModal from '@/components/modal/alertModal.vue';
 
 const { notes } = defineProps<{ notes: Note[] }>();
@@ -144,29 +144,13 @@ const selectMode = ref(false);
 const selectedNotes = ref<number[]>([]);
 const showDeleteConfirmation = ref(false);
 const showDropdownRef = ref<HTMLElement | null>(null);
-
-// Detect if the device is mobile
 const isMobile = ref(window.innerWidth < 768);
 
-// Filter out 'Content' for mobile view
 const filteredColumns = computed(() => {
   return isMobile.value ? availableColumns.filter(col => col !== 'Content') : availableColumns;
 });
-
 const allSelected = computed(() => selectedNotes.value.length === notes.length);
 
-const formatDate = (dateString: string | Date): string => {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-};
-
-const openNote = (noteId: number) => {
-  uiStore.openNote(noteId);
-};
 
 const toggleShowDropdown = () => {
   if (showDropdownOpen.value) {
@@ -234,9 +218,8 @@ const handleClickOutside = (event: MouseEvent) => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
-  // Update isMobile when the window is resized
   window.addEventListener('resize', updateIsMobile);
-  updateIsMobile(); // Set the initial value
+  updateIsMobile();
 });
 
 onUnmounted(() => {
@@ -244,12 +227,10 @@ onUnmounted(() => {
   window.removeEventListener('resize', updateIsMobile);
 });
 
-// Function to update isMobile based on window width
 const updateIsMobile = () => {
   isMobile.value = window.innerWidth < 768;
 };
 
-// Watch for changes in uiStore.activeDropdown to manage dropdown state
 watch(
   () => uiStore.activeDropdown,
   (newValue) => {
@@ -292,7 +273,7 @@ table tr:last-child td {
   border-bottom: 0;
 }
 
-.line-clamp-2 {
+.line-clamp-1 {
   display: -webkit-box;
   line-clamp: 1;
   -webkit-line-clamp: 1;
@@ -300,7 +281,6 @@ table tr:last-child td {
   overflow: hidden;
 }
 
-/* Hide the "Content" column on mobile */
 @media (max-width: 767px) {
   .hidden-mobile {
     display: none;

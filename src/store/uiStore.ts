@@ -110,6 +110,7 @@ export const useUIStore = defineStore('ui', {
         this.toastTimeoutId = null;
       }, 3000);
     },
+    
     closeNoteModal() {
       notesStore.selectedNoteId = null;
       notesStore.showNoteModal = false;

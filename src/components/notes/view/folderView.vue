@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-10 max-w-3xl mx-auto font-serif">
+  <div class="mt-10 max-w-2xl mx-auto font-serif">
     <!-- Folders view -->
     <div v-if="currentView === 'folders'" :class="uiStore.folderViewType === 'grid' ? 'grid-view' : 'list-view'">
       <div
@@ -15,7 +15,6 @@
         <span :class="uiStore.folderViewType === 'grid' ? 'mt-2 text-sm font-medium text-center break-words w-full' : 'text-sm font-medium'">{{ folder }}</span>
       </div>
     </div>
-
     <!-- Notes view -->
     <div v-else-if="currentView === 'notes'" :class="uiStore.folderViewType === 'grid' ? 'grid-view' : 'list-view'">
       <div class="mb-4 flex items-center col-span-full">
@@ -26,7 +25,7 @@
         </button>
         <h2 class="text-xl font-semibold ml-4">{{ currentFolder }}</h2>
       </div>
-      <div v-if="folderNotes.length === 0" class="col-span-full flex items-center justify-center h-full">
+      <div v-if="folderNotes.length === 0" class="col-span-full flex items-center justify-center h-full mt-24">
         <p class="text-gray-500">No notes yet</p>
       </div>
       <div
@@ -37,10 +36,11 @@
         class="custom-card p-4 rounded-lg cursor-pointer"
         :class="uiStore.folderViewType === 'grid' ? 'flex flex-col items-center' : 'flex items-center mb-2'"
       >
-        <div :class="uiStore.folderViewType === 'grid' ? 'w-8 h-8 md:w-14 md:h-14' : 'w-8 h-8 mr-4'">
+        <div :class="uiStore.folderViewType === 'grid' ? 'w-8 h-8 md:w-14 md:h-14 mb-2' : 'w-8 h-8 mr-4'">
           <img src="@/assets/icons/file.svg" alt="File Icon">
         </div>
-        <h3 :class="uiStore.folderViewType === 'grid' ? 'mt-2 text-sm font-medium text-center break-words w-full' : 'text-sm font-medium'">{{ note.title }}</h3>
+        <h3 :class="uiStore.folderViewType === 'grid' ? 'text-sm font-medium text-center break-words w-full' : 'text-sm font-medium flex-grow'">{{ note.title }}</h3>
+        <span :class="uiStore.folderViewType === 'grid' ? 'text-xs mt-2' : 'text-xs ml-auto'">{{ notesStore.localeDate(note.last_edited || note.time_created) }}</span>
       </div>
     </div>
   </div>
@@ -56,7 +56,6 @@ const currentView = ref('folders');
 const currentFolder = ref('');
 
 const folders = computed(() => folderStore.folders);
-
 const folderNotes = computed(() => notesStore.filteredNotes(currentFolder.value));
 
 const openFolder = (folder: string) => {

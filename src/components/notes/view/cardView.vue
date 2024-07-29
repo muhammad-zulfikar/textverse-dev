@@ -1,9 +1,9 @@
 <!-- cardView.vue -->
 
 <template>
+  <div class="w-11/12 mx-auto mt-10">
   <ul
     :class="[
-      'w-11/12 mx-auto mt-10',
       {
         'columns-1 md:max-w-xl': uiStore.columns === 1,
         'columns-2 md:gap-7 md:max-w-4xl': uiStore.columns === 2,
@@ -19,7 +19,7 @@
       class="custom-card break-inside-avoid h-min mb-6 md:mb-8 p-2 flex flex-col overflow-x-auto cursor-pointer relative group select-none"
       :class="{ 'z-50': showMenu && selectedNote?.id === note.id, shadow: note.pinned }"
       @contextmenu.prevent="(event) => showContextMenu(event, note)"
-      @click="() => handleCardClick(note)"
+      @click="() => uiStore.openNote(note.id)"
     >
       <div class="flex justify-between items-start">
         <h1 class="font-bold text-sl font-serif cursor-pointer dark:text-white">
@@ -42,7 +42,7 @@
           >
             <p
               class="cursor-pointer hover:underline truncate"
-              @click.stop="goToFolder(note.folder)"
+              @click.stop="folderStore.setCurrentFolder(note.folder)"
             >
               {{ note.folder }}
             </p>
@@ -56,7 +56,7 @@
           </div>
 
           <div class="w-1/3 text-right text-[10px] md:text-xs">
-            {{ formattedDate(note.last_edited || note.time_created) }}
+            {{ notesStore.localeDate(note.last_edited || note.time_created) }}
           </div>
         </div>
       </div>
@@ -72,8 +72,8 @@
     @edit="uiStore.openNote"
     @delete="openDeleteAlert"
     @download="notesStore.downloadNote"
-    @pin="pinNote"
-    @unpin="unpinNote"
+    @pin="notesStore.pinNote"
+    @unpin="notesStore.unpinNote"
   />
   <AlertModal
     :is-open="isAlertOpen"
@@ -81,6 +81,7 @@
     @confirm="confirmDelete"
     @cancel="closeAlert"
   />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -99,7 +100,6 @@ const showOption = ref(false);
 const showMenu = ref(false);
 const menuPosition = ref({ x: 0, y: 0 });
 const selectedNote = ref<Note | null>(null);
-
 const isAlertOpen = ref(false);
 const alertMessage = ref('');
 
@@ -127,19 +127,6 @@ const hideContextMenu = () => {
   selectedNote.value = null;
 };
 
-const goToFolder = (folder: string) => {
-  folderStore.setCurrentFolder(folder);
-};
-
-const formattedDate = (dateString: string | Date) => {
-  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-};
-
 const openDeleteAlert = () => {
   hideContextMenu();
   if (selectedNote.value) {
@@ -152,18 +139,6 @@ const closeAlert = () => {
   isAlertOpen.value = false;
 };
 
-const pinNote = async () => {
-  if (selectedNote.value) {
-    notesStore.pinNote(selectedNote.value.id);
-  }
-};
-
-const unpinNote = async () => {
-  if (selectedNote.value) {
-    notesStore.unpinNote(selectedNote.value.id);
-  }
-};
-
 const confirmDelete = async () => {
   try {
     if (selectedNote.value) {
@@ -174,10 +149,6 @@ const confirmDelete = async () => {
     uiStore.showToastMessage('Failed to delete note. Please try again.');
   }
   closeAlert();
-};
-
-const handleCardClick = (note: Note) => {
-  uiStore.openNote(note.id);
 };
 </script>
 

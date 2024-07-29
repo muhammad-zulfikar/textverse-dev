@@ -61,7 +61,7 @@
         <div v-if="columnsExpanded" class="flex items-center justify-center mx-2">
           <a
             @click.stop="decreaseColumns"
-            class="block px-1 py-2 text-sm cursor-pointer hover:underline"
+            class="block px-1 pb-1 text-xl cursor-pointer"
             role="menuitem"
           >
             -
@@ -69,7 +69,7 @@
           <span class="px-1 text-sm whitespace-nowrap">{{ uiStore.columns }} Columns</span>
           <a
             @click.stop="increaseColumns"
-            class="block px-1 py-2 text-sm cursor-pointer hover:underline"
+            class="block px-1 pb-1 text-xl cursor-pointer"
             role="menuitem"
           >
             +
