@@ -30,40 +30,40 @@
 </template>
 
 <script lang="ts" setup>
-import { authStore, notesStore, folderStore, uiStore } from '@/store/stores';
-import cardView from './view/cardView.vue';
-import tableView from './view/tableView.vue';
-import mailView from './view/mailView.vue';
-import folderView from './view/folderView.vue';
-import { ref, onMounted, watch, computed } from 'vue';
+  import { authStore, notesStore, folderStore, uiStore } from '@/store/stores';
+  import cardView from './view/cardView.vue';
+  import tableView from './view/tableView.vue';
+  import mailView from './view/mailView.vue';
+  import folderView from './view/folderView.vue';
+  import { ref, onMounted, watch, computed } from 'vue';
 
-const isLoading = ref(true);
+  const isLoading = ref(true);
 
-const filteredNotes = computed(() =>
-  notesStore.filteredNotes(folderStore.currentFolder)
-);
+  const filteredNotes = computed(() =>
+    notesStore.filteredNotes(folderStore.currentFolder)
+  );
 
-const loadNotes = async () => {
-  isLoading.value = true;
-  await notesStore.loadNotes();
-  isLoading.value = false;
-};
+  const loadNotes = async () => {
+    isLoading.value = true;
+    await notesStore.loadNotes();
+    isLoading.value = false;
+  };
 
-onMounted(async () => {
-  await loadNotes();
-});
-
-watch(
-  () => authStore.user,
-  async () => {
+  onMounted(async () => {
     await loadNotes();
-  }
-);
+  });
+
+  watch(
+    () => authStore.user,
+    async () => {
+      await loadNotes();
+    }
+  );
 </script>
 
 <style scoped>
-.break-inside-avoid {
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
+  .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 </style>

@@ -399,7 +399,7 @@
   const userAvatar = computed(() => authStore.user?.photoURL || '');
   const username = computed(() => authStore.user?.displayName || 'User');
   const joinedSince = computed(() => {
-  const joinedDate = authStore.user?.metadata?.creationTime;
+    const joinedDate = authStore.user?.metadata?.creationTime;
     return joinedDate ? new Date(joinedDate).toLocaleDateString() : 'Unknown';
   });
 

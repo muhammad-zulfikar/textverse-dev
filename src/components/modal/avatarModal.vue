@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
   import { uiStore } from '@/store/stores';
-import { ref, watch } from 'vue';
+  import { ref, watch } from 'vue';
 
   const props = defineProps<{
     isOpen: boolean;
@@ -106,7 +106,7 @@ import { ref, watch } from 'vue';
         closeModal();
       } catch (error) {
         console.error('Failed to update avatar:', error);
-        uiStore.showToastMessage('Failed to update avatar')
+        uiStore.showToastMessage('Failed to update avatar');
       }
     }
   };

@@ -1,5 +1,5 @@
 <!-- noteModal.vue -->
- 
+
 <template>
   <div
     v-if="isOpen"
@@ -218,12 +218,8 @@
   });
 
   const hasChanges = computed(() => {
-    if (!originalNote.value) return false;
-    return (
-      editedNote.value.title !== originalNote.value.title ||
-      editedNote.value.content !== originalNote.value.content ||
-      editedNote.value.folder !== originalNote.value.folder
-    );
+    if (!originalNote.value || !editedNote.value) return false;
+    return notesStore.hasChanged(originalNote.value, editedNote.value);
   });
 
   const availableFolders = computed(() => {
@@ -273,22 +269,24 @@
   const saveNote = async () => {
     if (!isValid.value) return;
 
-    if (isEditMode.value) {
+    if (isEditMode.value && hasChanges.value) {
       await notesStore.updateNote(editedNote.value);
-    } else {
+    } else if (!isEditMode.value) {
       await notesStore.addNote(editedNote.value);
     }
     closeModal();
   };
 
-  const closeModal = () => {
-    emit('close');
-  };
-
   const handleOutsideClick = () => {
     if (!isEditMode.value || (isEditMode.value && !hasChanges.value)) {
       closeModal();
+    } else {
+      uiStore.showToastMessage('You have unsaved changes!');
     }
+  };
+
+  const closeModal = () => {
+    emit('close');
   };
 
   const handleClickOutside = (event: MouseEvent) => {

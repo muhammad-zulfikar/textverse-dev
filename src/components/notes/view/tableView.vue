@@ -3,7 +3,10 @@
 <template>
   <div class="w-full max-w-5xl mx-auto px-4 md:px-0 text-sm md:text-base">
     <div class="flex justify-end mb-4 relative">
-      <div class="relative inline-block text-left whitespace-nowrap mr-5" ref="showDropdownRef">
+      <div
+        class="relative inline-block text-left whitespace-nowrap mr-5"
+        ref="showDropdownRef"
+      >
         <button
           @click.stop="toggleShowDropdown"
           :class="{ 'z-50': showDropdownOpen }"
@@ -52,16 +55,13 @@
                 :checked="visibleColumns.includes(column)"
                 class="mr-2 cursor-pointer"
                 @click.stop="toggleColumn(column)"
-              >
+              />
               {{ column }}
             </a>
           </div>
         </div>
       </div>
-      <button
-        @click="toggleSelectMode"
-        class="hover:underline font-serif"
-      >
+      <button @click="toggleSelectMode" class="hover:underline font-serif">
         Select
       </button>
       <button
@@ -73,47 +73,88 @@
       </button>
     </div>
     <div class="overflow-x-auto">
-      <table class="min-w-[800px] w-full border-separate border-spacing-0 font-serif rounded-lg overflow-hidden">
+      <table
+        class="min-w-[800px] w-full border-separate border-spacing-0 font-serif rounded-lg overflow-hidden"
+      >
         <thead>
           <tr class="bg-[#ebdfc0] dark:bg-gray-800">
-            <th v-if="selectMode" class="p-3 text-left w-10 border-b-[1px] border-r-[1px] border-black dark:border-white">
+            <th
+              v-if="selectMode"
+              class="p-3 text-left w-10 border-b-[1px] border-r-[1px] border-black dark:border-white"
+            >
               <input
                 type="checkbox"
                 :checked="allSelected"
                 @change="toggleSelectAll"
-              >
+              />
             </th>
-            <th v-for="column in visibleColumns" :key="column" 
-                :class="{'hidden md:table-cell': column === 'Content'}"
-                class="p-3 text-left border-b-[1px] border-r-[1px] border-black dark:border-white whitespace-nowrap">
+            <th
+              v-for="column in visibleColumns"
+              :key="column"
+              :class="{ 'hidden md:table-cell': column === 'Content' }"
+              class="p-3 text-left border-b-[1px] border-r-[1px] border-black dark:border-white whitespace-nowrap"
+            >
               {{ column }}
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="note in notes" :key="note.id" class="bg-cream dark:bg-gray-750">
-            <td v-if="selectMode" class="p-3 w-10 border-b-[1px] border-r-[1px] border-black dark:border-white">
+          <tr
+            v-for="note in notes"
+            :key="note.id"
+            class="bg-cream dark:bg-gray-750"
+          >
+            <td
+              v-if="selectMode"
+              class="p-3 w-10 border-b-[1px] border-r-[1px] border-black dark:border-white"
+            >
               <input
                 type="checkbox"
                 :checked="selectedNotes.includes(note.id)"
                 @change="toggleNoteSelection(note.id)"
-              >
+              />
             </td>
-            <td v-if="visibleColumns.includes('Title')" class="w-[250px] p-3 border-b-[1px] border-r-[1px] border-black dark:border-white">
-              <span 
-                class="cursor-pointer hover:underline line-clamp-1"
-                @click="uiStore.openNote(note.id)"
-              >
-                {{ note.title }}
-              </span>
+            <td
+              v-if="visibleColumns.includes('Title')"
+              class="w-[250px] p-3 border-b-[1px] border-r-[1px] border-black dark:border-white relative group"
+            >
+              <div class="flex items-center">
+                <input
+                  :value="note.title"
+                  @input="updateNoteTitle(note, $event)"
+                  @blur="saveNoteIfChanged(note)"
+                  class="w-full bg-transparent outline-none"
+                />
+                <button
+                  @click.stop="openSidebar(note)"
+                  class="custom-card text-sm ml-2 px-2 py-1 absolute right-2 top-1/2 transform -translate-y-1/2 group-hover:inline-block md:group-hover:inline-block md:hidden"
+                >
+                  Open
+                </button>
+              </div>
             </td>
-            <td v-if="visibleColumns.includes('Content') && !isMobile" class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white">
-              <div class="line-clamp-1">{{ note.content }}</div>
+            <td
+              v-if="visibleColumns.includes('Content') && !isMobile"
+              class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white"
+            >
+              <input
+                :value="note.content"
+                @input="updateNoteContent(note, $event)"
+                @blur="saveNoteIfChanged(note)"
+                class="w-full bg-transparent outline-none"
+              />
             </td>
-            <td v-if="visibleColumns.includes('Folder')" @click="folderStore.setCurrentFolder(note.folder)" class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white cursor-pointer hover:underline">
+            <td
+              v-if="visibleColumns.includes('Folder')"
+              @click="folderStore.setCurrentFolder(note.folder)"
+              class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white cursor-pointer hover:underline"
+            >
               <div class="line-clamp-1">{{ note.folder }}</div>
             </td>
-            <td v-if="visibleColumns.includes('Date')" class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white whitespace-nowrap">
+            <td
+              v-if="visibleColumns.includes('Date')"
+              class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white whitespace-nowrap"
+            >
               {{ notesStore.localeDate(note.last_edited || note.time_created) }}
             </td>
           </tr>
@@ -126,164 +167,247 @@
       @cancel="showDeleteConfirmation = false"
       @confirm="deleteSelectedNotes"
     />
+    <div
+      v-if="sidebarOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 z-40 backdrop-blur-[2px]"
+      @click="closeSidebar"
+    ></div>
+    <transition name="slide">
+      <NoteSidebar
+        v-if="sidebarOpen && selectedNote"
+        :note="selectedNote"
+        @close="closeSidebar"
+        @update="updateNote"
+        @delete="deleteNote"
+      />
+    </transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import { Note } from '@/store/types';
-import { uiStore, notesStore, folderStore } from '@/store/stores';
-import AlertModal from '@/components/modal/alertModal.vue';
+  import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+  import { Note } from '@/store/types';
+  import { uiStore, notesStore, folderStore } from '@/store/stores';
+  import AlertModal from '@/components/modal/alertModal.vue';
+  import NoteSidebar from '@/components/noteSidebar.vue';
 
-const { notes } = defineProps<{ notes: Note[] }>();
+  const { notes } = defineProps<{
+    notes: Note[];
+  }>();
 
-const availableColumns = ['Title', 'Content', 'Folder', 'Date'];
-const visibleColumns = ref(availableColumns);
-const showDropdownOpen = ref(false);
-const selectMode = ref(false);
-const selectedNotes = ref<number[]>([]);
-const showDeleteConfirmation = ref(false);
-const showDropdownRef = ref<HTMLElement | null>(null);
-const isMobile = ref(window.innerWidth < 768);
+  const sidebarOpen = ref(false);
+  const selectedNote = ref<Note | null>(null);
 
-const filteredColumns = computed(() => {
-  return isMobile.value ? availableColumns.filter(col => col !== 'Content') : availableColumns;
-});
-const allSelected = computed(() => selectedNotes.value.length === notes.length);
+  const updatedNotes = ref<{
+    [key: number]: Partial<Note>;
+  }>({});
 
+  const updateNoteTitle = (note: Note, event: Event) => {
+    const newTitle = (event.target as HTMLInputElement).value;
+    if (!updatedNotes.value[note.id]) {
+      updatedNotes.value[note.id] = { ...note };
+    }
+    updatedNotes.value[note.id].title = newTitle;
+  };
 
-const toggleShowDropdown = () => {
-  if (showDropdownOpen.value) {
-    closeShowDropdown();
-  } else {
-    uiStore.setActiveDropdown('show');
-  }
-};
+  const updateNoteContent = (note: Note, event: Event) => {
+    const newContent = (event.target as HTMLInputElement).value;
+    if (!updatedNotes.value[note.id]) {
+      updatedNotes.value[note.id] = { ...note };
+    }
+    updatedNotes.value[note.id].content = newContent;
+  };
 
-const closeShowDropdown = () => {
-  uiStore.setActiveDropdown(null);
-};
+  const saveNoteIfChanged = (note: Note) => {
+    if (updatedNotes.value[note.id]) {
+      const updatedNote = { ...note, ...updatedNotes.value[note.id] };
+      if (notesStore.hasChanged(note, updatedNote)) {
+        notesStore.updateNote(updatedNote);
+      }
+      delete updatedNotes.value[note.id];
+    }
+  };
 
-const toggleColumn = (column: string) => {
-  if (visibleColumns.value.includes(column)) {
-    visibleColumns.value = visibleColumns.value.filter(c => c !== column);
-  } else {
-    visibleColumns.value.push(column);
-  }
-  visibleColumns.value.sort((a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b));
-};
+  const openSidebar = (note: Note) => {
+    selectedNote.value = { ...note };
+    sidebarOpen.value = true;
+  };
 
-const toggleSelectMode = () => {
-  selectMode.value = !selectMode.value;
-  if (!selectMode.value) {
+  const closeSidebar = () => {
+    sidebarOpen.value = false;
+    selectedNote.value = null;
+  };
+
+  const updateNote = (note: Note) => {
+    notesStore.updateNote(note);
+  };
+
+  const deleteNote = (noteId: number) => {
+    notesStore.deleteNote(noteId);
+    closeSidebar();
+  };
+
+  const availableColumns = ['Title', 'Content', 'Folder', 'Date'];
+  const visibleColumns = ref(availableColumns);
+  const showDropdownOpen = ref(false);
+  const selectMode = ref(false);
+  const selectedNotes = ref<number[]>([]);
+  const showDeleteConfirmation = ref(false);
+  const showDropdownRef = ref<HTMLElement | null>(null);
+  const isMobile = ref(window.innerWidth < 768);
+
+  const filteredColumns = computed(() => {
+    return isMobile.value
+      ? availableColumns.filter((col) => col !== 'Content')
+      : availableColumns;
+  });
+  const allSelected = computed(
+    () => selectedNotes.value.length === notes.length
+  );
+
+  const toggleShowDropdown = () => {
+    if (showDropdownOpen.value) {
+      closeShowDropdown();
+    } else {
+      uiStore.setActiveDropdown('show');
+    }
+  };
+
+  const closeShowDropdown = () => {
+    uiStore.setActiveDropdown(null);
+  };
+
+  const toggleColumn = (column: string) => {
+    if (visibleColumns.value.includes(column)) {
+      visibleColumns.value = visibleColumns.value.filter((c) => c !== column);
+    } else {
+      visibleColumns.value.push(column);
+    }
+    visibleColumns.value.sort(
+      (a, b) => availableColumns.indexOf(a) - availableColumns.indexOf(b)
+    );
+  };
+
+  const toggleSelectMode = () => {
+    selectMode.value = !selectMode.value;
+    if (!selectMode.value) {
+      selectedNotes.value = [];
+    }
+  };
+
+  const toggleNoteSelection = (noteId: number) => {
+    if (selectedNotes.value.includes(noteId)) {
+      selectedNotes.value = selectedNotes.value.filter((id) => id !== noteId);
+    } else {
+      selectedNotes.value.push(noteId);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (allSelected.value) {
+      selectedNotes.value = [];
+    } else {
+      selectedNotes.value = notes.map((note) => note.id);
+    }
+  };
+
+  const confirmDeleteSelectedNotes = () => {
+    showDeleteConfirmation.value = true;
+  };
+
+  const deleteSelectedNotes = async () => {
+    const notesToDeleteCount = selectedNotes.value.length;
+    for (const noteId of selectedNotes.value) {
+      await notesStore.deleteNote(noteId);
+    }
     selectedNotes.value = [];
-  }
-};
+    showDeleteConfirmation.value = false;
+    uiStore.showToastMessage(
+      `${notesToDeleteCount} note(s) deleted successfully!`
+    );
+  };
 
-const toggleNoteSelection = (noteId: number) => {
-  if (selectedNotes.value.includes(noteId)) {
-    selectedNotes.value = selectedNotes.value.filter(id => id !== noteId);
-  } else {
-    selectedNotes.value.push(noteId);
-  }
-};
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      showDropdownRef.value &&
+      !showDropdownRef.value.contains(event.target as Node)
+    ) {
+      closeShowDropdown();
+    }
+  };
 
-const toggleSelectAll = () => {
-  if (allSelected.value) {
-    selectedNotes.value = [];
-  } else {
-    selectedNotes.value = notes.map(note => note.id);
-  }
-};
+  onMounted(() => {
+    document.addEventListener('click', handleClickOutside);
+    window.addEventListener('resize', updateIsMobile);
+    updateIsMobile();
+  });
 
-const confirmDeleteSelectedNotes = () => {
-  showDeleteConfirmation.value = true;
-};
+  onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
+    window.removeEventListener('resize', updateIsMobile);
+  });
 
-const deleteSelectedNotes = async () => {
-  const notesToDeleteCount = selectedNotes.value.length;
-  for (const noteId of selectedNotes.value) {
-    await notesStore.deleteNote(noteId);
-  }
-  selectedNotes.value = [];
-  showDeleteConfirmation.value = false;
-  uiStore.showToastMessage(`${notesToDeleteCount} note(s) deleted successfully!`);
-};
+  const updateIsMobile = () => {
+    isMobile.value = window.innerWidth < 768;
+  };
 
-const handleClickOutside = (event: MouseEvent) => {
-  if (showDropdownRef.value && !showDropdownRef.value.contains(event.target as Node)) {
-    closeShowDropdown();
-  }
-};
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside);
-  window.addEventListener('resize', updateIsMobile);
-  updateIsMobile();
-});
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside);
-  window.removeEventListener('resize', updateIsMobile);
-});
-
-const updateIsMobile = () => {
-  isMobile.value = window.innerWidth < 768;
-};
-
-watch(
-  () => uiStore.activeDropdown,
-  (newValue) => {
-    showDropdownOpen.value = newValue === 'show';
-  }
-);
+  watch(
+    () => uiStore.activeDropdown,
+    (newValue) => {
+      showDropdownOpen.value = newValue === 'show';
+    }
+  );
 </script>
 
 <style scoped>
-.overflow-x-auto {
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-table {
-  border: 1px solid black;
-  min-width: 100%;
-}
-
-.dark table {
-  border-color: white;
-}
-
-table th:first-child,
-table td:first-child {
-  border-left: 0;
-}
-
-table th:last-child,
-table td:last-child {
-  border-right: 0;
-}
-
-table tr:first-child th {
-  border-top: 0;
-}
-
-table tr:last-child td {
-  border-bottom: 0;
-}
-
-.line-clamp-1 {
-  display: -webkit-box;
-  line-clamp: 1;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-@media (max-width: 767px) {
-  .hidden-mobile {
-    display: none;
+  .overflow-x-auto {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-}
+
+  table {
+    border: 1px solid black;
+    min-width: 100%;
+  }
+
+  .dark table {
+    border-color: white;
+  }
+
+  table th:first-child,
+  table td:first-child {
+    border-left: 0;
+  }
+
+  table th:last-child,
+  table td:last-child {
+    border-right: 0;
+  }
+
+  table tr:first-child th {
+    border-top: 0;
+  }
+
+  table tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .line-clamp-1 {
+    display: -webkit-box;
+    line-clamp: 1;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  @media (max-width: 767px) {
+    .hidden-mobile {
+      display: none;
+    }
+
+    .group:hover button {
+      display: inline-block;
+    }
+  }
 </style>

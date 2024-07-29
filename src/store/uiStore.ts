@@ -23,7 +23,12 @@ interface UIState {
 export const useUIStore = defineStore('ui', {
   state: (): UIState => ({
     theme: 'system',
-    viewType: (localStorage.getItem('viewType') as 'card' | 'table' | 'email' | 'folder') || 'card',
+    viewType:
+      (localStorage.getItem('viewType') as
+        | 'card'
+        | 'table'
+        | 'email'
+        | 'folder') || 'card',
     currentTheme: localStorage.getItem('theme') || 'system',
     columns: parseInt(
       localStorage.getItem('columns') || (window.innerWidth < 640 ? '2' : '4')
@@ -86,7 +91,9 @@ export const useUIStore = defineStore('ui', {
         this.columns = parseInt(savedColumns, 10);
       }
 
-      const savedViewType = localStorage.getItem('viewType') as UIState['viewType'] | null;
+      const savedViewType = localStorage.getItem('viewType') as
+        | UIState['viewType']
+        | null;
       if (savedViewType) {
         this.viewType = savedViewType;
       }
@@ -110,7 +117,7 @@ export const useUIStore = defineStore('ui', {
         this.toastTimeoutId = null;
       }, 3000);
     },
-    
+
     closeNoteModal() {
       notesStore.selectedNoteId = null;
       notesStore.showNoteModal = false;
