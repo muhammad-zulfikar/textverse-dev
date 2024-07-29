@@ -98,7 +98,7 @@
             </th>
           </tr>
         </thead>
-        <tbody>
+        <transition-group name="list" tag="tbody">
           <tr
             v-for="note in notes"
             :key="note.id"
@@ -158,7 +158,7 @@
               {{ notesStore.localeDate(note.last_edited || note.time_created) }}
             </td>
           </tr>
-        </tbody>
+        </transition-group>
       </table>
     </div>
     <AlertModal
@@ -399,6 +399,22 @@
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  .list-move,
+  .list-enter-active,
+  .list-leave-active {
+    transition: all 0.5s ease;
+  }
+
+  .list-enter-from,
+  .list-leave-to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  .list-leave-active {
+    position: absolute;
   }
 
   @media (max-width: 767px) {

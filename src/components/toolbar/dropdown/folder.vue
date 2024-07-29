@@ -33,6 +33,7 @@
         </svg>
       </span>
     </button>
+    <Transition name="zoom">
     <div
       v-if="dropdownOpen"
       class="custom-card z-50 origin-top-right absolute mt-2 w-56 ml-[-56px]"
@@ -76,6 +77,7 @@
         </template>
       </div>
     </div>
+    </Transition>
   </div>
   <InputModal
     :is-open="isModalOpen"

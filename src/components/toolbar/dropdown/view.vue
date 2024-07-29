@@ -34,6 +34,7 @@
         </svg>
       </span>
     </button>
+    <Transition name="zoom">
     <div
       v-if="dropdownOpen"
       class="custom-card z-50 origin-top-left absolute left-0 mt-2 w-fit ml-[-30px]"
@@ -141,6 +142,7 @@
         </div>
       </div>
     </div>
+    </Transition>
   </div>
 </template>
 

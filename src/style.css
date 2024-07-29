@@ -42,10 +42,12 @@ body {
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -66,6 +68,38 @@ body {
 .zoom-leave-from {
   opacity: 1;
   transform: scale(1);
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.toast-slide-enter-active,
+.toast-slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.toast-slide-enter-from,
+.toast-slide-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
 }
 
 .modal-open {

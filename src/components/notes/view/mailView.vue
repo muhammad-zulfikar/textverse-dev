@@ -10,9 +10,10 @@
         v-if="!isMobileView || !selectedNoteId"
         class="w-full md:w-1/4 overflow-y-auto rounded-l-lg select-none"
       >
+      <transition-group name="list" tag="div">
         <div
           v-for="(note, index) in notes"
-          :key="note.id"
+          :key="`${note.id}-${note.pinned}-${note.last_edited}`"
           @click="selectNote(note.id)"
           @contextmenu.prevent="(event) => showContextMenu(event, note)"
           class="p-4 cursor-pointer hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
@@ -37,9 +38,11 @@
             </span>
           </div>
         </div>
+        </transition-group>
       </div>
 
       <!-- Main content -->
+      <transition name="fade" mode="out-in">
       <div
         v-if="(!isMobileView || selectedNoteId) && editedNote"
         class="w-full md:w-3/4 p-6 overflow-y-auto md:border-l border-black dark:border-white rounded-r-lg relative"
@@ -162,6 +165,7 @@
           ></textarea>
         </div>
       </div>
+      </transition>
     </div>
     <contextMenu
       v-if="editedNote"
@@ -345,3 +349,16 @@
     window.removeEventListener('resize', handleResize);
   });
 </script>
+
+<style scoped>
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+  </style>

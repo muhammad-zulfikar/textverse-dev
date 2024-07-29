@@ -1,6 +1,7 @@
 <!-- noteModal.vue -->
 
 <template>
+<transition name="zoom">
   <div
     v-if="isOpen"
     class="fixed inset-0 z-50 flex items-center justify-center font-serif"
@@ -170,6 +171,7 @@
       </div>
     </div>
   </div>
+</transition>
 </template>
 
 <script setup lang="ts">

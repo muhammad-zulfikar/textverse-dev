@@ -1,8 +1,6 @@
-<!-- cardView.vue -->
-
 <template>
   <div class="w-11/12 mx-auto mt-10">
-    <ul
+    <transition-group name="list" tag="ul"
       :class="[
         {
           'columns-1 md:max-w-xl': uiStore.columns === 1,
@@ -27,9 +25,7 @@
         @click="() => uiStore.openNote(note.id)"
       >
         <div class="flex justify-between items-start">
-          <h1
-            class="font-bold text-sl font-serif cursor-pointer dark:text-white"
-          >
+          <h1 class="font-bold text-sl font-serif cursor-pointer dark:text-white">
             {{ note.title }}
           </h1>
         </div>
@@ -68,7 +64,7 @@
           </div>
         </div>
       </li>
-    </ul>
+    </transition-group>
     <ContextMenu
       v-if="selectedNote"
       :visible="showMenu"

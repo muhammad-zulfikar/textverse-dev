@@ -33,6 +33,7 @@
         </svg>
       </span>
     </button>
+    <Transition name="zoom">
     <div
       v-if="dropdownOpen"
       class="custom-card z-50 origin-top-right absolute mt-2 w-[6.4rem] ml-[-15px]"
@@ -54,6 +55,7 @@
         </a>
       </div>
     </div>
+  </Transition>
   </div>
   <InputModal
     :is-open="isFolderFormOpen"
