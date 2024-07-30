@@ -15,6 +15,7 @@ interface NotesState {
   searchQuery: string;
   editing: boolean;
   showNoteModal: boolean;
+  showNoteSidebar: boolean;
   isLoading: boolean;
 }
 
@@ -26,6 +27,7 @@ export const useNotesStore = defineStore('notes', {
     searchQuery: '',
     editing: false,
     showNoteModal: false,
+    showNoteSidebar: false,
     isLoading: true,
   }),
 
@@ -388,22 +390,6 @@ export const useNotesStore = defineStore('notes', {
         month: '2-digit',
         year: 'numeric',
       });
-    },
-
-    downloadNote(note: Note) {
-      const { title, content, time_created } = note;
-      const filename = `${title}.txt`;
-      const blob = new Blob(
-        [`Title: ${title}\nTime Created: ${time_created}\n\n${content}`],
-        { type: 'text/plain' }
-      );
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.click();
-      URL.revokeObjectURL(url);
-      uiStore.showToastMessage('Note downloaded successfully!');
     },
 
     setSearchQuery(query: string) {

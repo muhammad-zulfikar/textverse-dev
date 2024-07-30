@@ -53,7 +53,7 @@
         return cardView;
       case 'table':
         return tableView;
-      case 'email':
+      case 'mail':
         return mailView;
       case 'folder':
         return folderView;

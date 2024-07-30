@@ -10,10 +10,9 @@
         v-if="!isMobileView || !selectedNoteId"
         class="w-full md:w-1/4 overflow-y-auto rounded-l-lg select-none"
       >
-        <transition-group name="list" tag="div">
           <div
             v-for="(note, index) in notes"
-            :key="`${note.id}-${note.pinned}-${note.last_edited}`"
+            :key="note.id"
             @click="selectNote(note.id)"
             @contextmenu.prevent="(event) => showContextMenu(event, note)"
             class="p-4 cursor-pointer hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
@@ -40,7 +39,6 @@
               </span>
             </div>
           </div>
-        </transition-group>
       </div>
 
       <div
@@ -175,7 +173,6 @@
       @hideMenu="hideContextMenu"
       @edit="uiStore.openNote"
       @delete="openDeleteAlert"
-      @download="notesStore.downloadNote"
       @pin="notesStore.pinNote"
       @unpin="notesStore.unpinNote"
     />

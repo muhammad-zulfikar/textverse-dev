@@ -1,3 +1,5 @@
+<!-- view.vue -->
+
 <template>
   <div
     class="relative inline-block text-left whitespace-nowrap"
@@ -93,8 +95,8 @@
             Table
           </a>
           <a
-            @click.stop="setViewType('email')"
-            :class="{ underline: uiStore.viewType === 'email' }"
+            @click.stop="setViewType('mail')"
+            :class="{ underline: uiStore.viewType === 'mail' }"
             class="block px-4 py-2 text-sm cursor-pointer hover:underline"
             role="menuitem"
           >
@@ -170,7 +172,7 @@
     folderViewExpanded.value = false;
   };
 
-  const setViewType = (viewType: 'card' | 'table' | 'email' | 'folder') => {
+  const setViewType = (viewType: 'card' | 'table' | 'mail' | 'folder') => {
     uiStore.setViewType(viewType);
     if (viewType === 'card') {
       columnsExpanded.value = true;

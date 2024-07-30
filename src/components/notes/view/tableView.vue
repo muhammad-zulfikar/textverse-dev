@@ -126,7 +126,7 @@
                   class="w-full bg-transparent outline-none"
                 />
                 <button
-                  @click.stop="openSidebar(note)"
+                  @click.stop="openSidebar(note.id)"
                   class="custom-card text-sm ml-2 px-2 py-1 absolute right-2 top-1/2 transform -translate-y-1/2 group-hover:inline-block md:group-hover:inline-block md:hidden"
                 >
                   Open
@@ -161,6 +161,7 @@
         </transition-group>
       </table>
     </div>
+    <div v-if="showDeleteConfirmation" class="fixed inset-0 bg-black bg-opacity-50"></div>
     <AlertModal
       :is-open="showDeleteConfirmation"
       :message="`Are you sure you want to delete ${selectedNotes.length} note(s)?`"
@@ -174,11 +175,9 @@
     ></div>
     <transition name="slide">
       <NoteSidebar
-        v-if="sidebarOpen && selectedNote"
-        :note="selectedNote"
+        v-if="sidebarOpen"
+        :note-id="selectedNoteId"
         @close="closeSidebar"
-        @update="updateNote"
-        @delete="deleteNote"
       />
     </transition>
   </div>
@@ -196,7 +195,17 @@
   }>();
 
   const sidebarOpen = ref(false);
-  const selectedNote = ref<Note | null>(null);
+  const selectedNoteId = ref<number | null>(null);
+
+  const openSidebar = (noteId: number | null) => {
+    selectedNoteId.value = noteId;
+    sidebarOpen.value = true;
+  };
+
+  const closeSidebar = () => {
+    sidebarOpen.value = false;
+    selectedNoteId.value = null;
+  };
 
   const updatedNotes = ref<{
     [key: number]: Partial<Note>;
@@ -226,25 +235,6 @@
       }
       delete updatedNotes.value[note.id];
     }
-  };
-
-  const openSidebar = (note: Note) => {
-    selectedNote.value = { ...note };
-    sidebarOpen.value = true;
-  };
-
-  const closeSidebar = () => {
-    sidebarOpen.value = false;
-    selectedNote.value = null;
-  };
-
-  const updateNote = (note: Note) => {
-    notesStore.updateNote(note);
-  };
-
-  const deleteNote = (noteId: number) => {
-    notesStore.deleteNote(noteId);
-    closeSidebar();
   };
 
   const availableColumns = ['Title', 'Content', 'Folder', 'Date'];

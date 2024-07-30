@@ -6,10 +6,7 @@
       v-if="isOpen"
       class="fixed inset-0 z-50 flex items-center justify-center font-serif"
     >
-      <div
-        @click="handleOutsideClick"
-        class="absolute inset-0 bg-black bg-opacity-50"
-      ></div>
+      <div @click="handleOutsideClick" class="absolute inset-0"></div>
       <div
         @click.stop
         :class="[
@@ -159,9 +156,10 @@
               :class="[
                 'dark:hover:bg-transparent outline-none text-sm',
                 {
-                  'hover:underline cursor-pointer':
+                  'text-blue-500 hover:underline cursor-pointer':
                     isValid && (!isEditMode || hasChanges),
-                  'text-gray-500': !isValid || (isEditMode && !hasChanges),
+                  'text-gray-500 cursor-not-allowed':
+                    !isValid || (isEditMode && !hasChanges),
                 },
               ]"
             >

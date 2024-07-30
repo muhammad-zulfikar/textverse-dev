@@ -79,7 +79,6 @@
         @hideMenu="hideContextMenu"
         @edit="uiStore.openNote"
         @delete="openDeleteAlert"
-        @download="notesStore.downloadNote"
         @pin="notesStore.pinNote"
         @unpin="notesStore.unpinNote"
       />

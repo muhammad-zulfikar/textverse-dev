@@ -9,7 +9,7 @@ export interface NoteLayout {
 
 interface UIState {
   theme: 'light' | 'dark' | 'system';
-  viewType: 'card' | 'table' | 'email' | 'folder';
+  viewType: 'card' | 'table' | 'mail' | 'folder';
   columns: number;
   folderViewType: 'grid' | 'list';
   currentTheme: string;
@@ -18,6 +18,7 @@ interface UIState {
   showToast: boolean;
   toastMessage: string;
   toastTimeoutId: number | null;
+  isAlertOpen: boolean;
 }
 
 export const useUIStore = defineStore('ui', {
@@ -27,7 +28,7 @@ export const useUIStore = defineStore('ui', {
       (localStorage.getItem('viewType') as
         | 'card'
         | 'table'
-        | 'email'
+        | 'mail'
         | 'folder') || 'card',
     currentTheme: localStorage.getItem('theme') || 'system',
     columns: parseInt(
@@ -39,6 +40,7 @@ export const useUIStore = defineStore('ui', {
     showToast: false,
     toastMessage: '',
     toastTimeoutId: null,
+    isAlertOpen: false,
   }),
 
   actions: {
@@ -48,7 +50,7 @@ export const useUIStore = defineStore('ui', {
       this.applyTheme();
     },
 
-    setViewType(viewType: 'card' | 'table' | 'email' | 'folder') {
+    setViewType(viewType: 'card' | 'table' | 'mail' | 'folder') {
       this.viewType = viewType;
       localStorage.setItem('viewType', viewType);
     },
@@ -118,21 +120,50 @@ export const useUIStore = defineStore('ui', {
       }, 3000);
     },
 
+    showNoteModal() {
+      if (this.viewType !== 'table') {
+        notesStore.showNoteModal = true;
+        document.body.classList.add('modal-open');
+      }
+    },
+
     closeNoteModal() {
-      notesStore.selectedNoteId = null;
-      notesStore.showNoteModal = false;
+      if (this.viewType !== 'table') {
+        notesStore.showNoteModal = false;
+        document.body.classList.remove('modal-open');
+      }
     },
 
     openNote(noteId: number | null) {
       notesStore.selectedNoteId = noteId;
-      notesStore.showNoteModal = true;
-      document.body.classList.add('modal-open');
+      switch (this.viewType) {
+        case 'card':
+        case 'mail':
+        case 'folder':
+          notesStore.showNoteModal = true;
+          document.body.classList.add('modal-open');
+          break;
+        case 'table':
+          notesStore.showNoteSidebar = true;
+          document.body.classList.add('modal-open');
+          break;
+      }
     },
 
     closeNote() {
       notesStore.selectedNoteId = null;
-      notesStore.showNoteModal = false;
-      document.body.classList.remove('modal-open');
+      switch (this.viewType) {
+        case 'card':
+        case 'mail':
+        case 'folder':
+          notesStore.showNoteModal = false;
+          document.body.classList.remove('modal-open');
+          break;
+        case 'table':
+          notesStore.showNoteSidebar = false;
+          document.body.classList.remove('modal-open');
+          break;
+      }
     },
   },
 });
