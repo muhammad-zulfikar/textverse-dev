@@ -410,7 +410,7 @@
   const showAvatarPicker = ref(false);
   const showNameEditor = ref(false);
   const showAvatarViewer = ref(false);
-  const userAvatar = computed(() => authStore.user?.photoURL || '/avatar.png');
+  const userAvatar = computed(() => authStore.avatarUrl);
   const username = computed(() => authStore.user?.displayName || 'User');
   const joinedSince = computed(() => {
     const joinedDate = authStore.user?.metadata?.creationTime;
@@ -452,10 +452,11 @@ const updateAvatar = async (newAvatarUrl: string) => {
 
 const removeAvatar = async () => {
   try {
-    await authStore.updateAvatar('/src/assets/icons/avatar.png');
+    await authStore.updateAvatar('/avatar.png');
     showAvatarPicker.value = false;
-    uiStore.showToastMessage('Avatar removed');
+    uiStore.showToastMessage('Avatar removed successfully');
   } catch (error) {
+    console.error('Error removing avatar:', error);
     uiStore.showToastMessage('Failed to remove avatar. Please try again.');
   }
 };

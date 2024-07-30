@@ -9,12 +9,6 @@
           @click.stop
           class="z-50 font-serif custom-card p-5 relative flex flex-col items-center p-16"
         >
-        <button
-            @click.prevent="closeModal"
-            class="absolute right-4 top-4 hover:underline dark:hover:bg-transparent outline-none cursor-pointer text-sm"
-          >
-            Close
-          </button>
           <img
             :src="avatarUrl"
             class="w-64 h-64 rounded-full custom-card-transparent-avatar object-cover"

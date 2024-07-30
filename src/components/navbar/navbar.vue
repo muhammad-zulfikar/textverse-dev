@@ -100,7 +100,8 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+  import { storeToRefs } from 'pinia';
+  import { ref, onMounted, onBeforeUnmount } from 'vue';
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/store/authStore';
   import AlertModal from '@/components/modal/alertModal.vue';
@@ -159,10 +160,7 @@
     }
   };
 
-  const avatarUrl = computed(() => {
-    const defaultAvatar = '/avatar.png';
-    return authStore.avatarUrl || defaultAvatar;
-  });
+  const { avatarUrl } = storeToRefs(authStore);
 
   onMounted(() => {
     setTimeout(() => {

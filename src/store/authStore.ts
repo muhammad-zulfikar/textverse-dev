@@ -6,6 +6,7 @@ import {
   ref as storageRef,
   uploadString,
   getDownloadURL,
+  deleteObject,
 } from 'firebase/storage';
 import { auth } from '@/firebase';
 import {
@@ -104,7 +105,7 @@ export const useAuthStore = defineStore('auth', {
           providerName === 'Google'
             ? new GoogleAuthProvider()
             : new GithubAuthProvider();
-
+    
         if (this.isMobile()) {
           await signInWithRedirect(auth, provider);
         } else {
@@ -126,6 +127,7 @@ export const useAuthStore = defineStore('auth', {
           this.user = result.user;
           this.avatarUrl = this.user.photoURL || '';
           this.showToast('Signed in successfully');
+          await this.syncFolders();
         }
       } catch (error: any) {
         this.showToast(`Sign-in failed: ${error.message}`);
@@ -153,7 +155,7 @@ export const useAuthStore = defineStore('auth', {
         onAuthStateChanged(auth, async (user) => {
           if (user) {
             this.user = user;
-            this.avatarUrl = user.photoURL || '';
+            this.avatarUrl = user.photoURL || '/avatar.png';
           } else {
             const result = await getRedirectResult(auth);
             if (result && result.user) {
@@ -181,12 +183,22 @@ export const useAuthStore = defineStore('auth', {
     async updateAvatar(newAvatarUrl: string) {
       if (this.user) {
         try {
-          if (newAvatarUrl === '/src/assets/icons/avatar.png') {
+          const storage = getStorage();
+          const imageRef = storageRef(storage, `avatars/${this.user.uid}`);
+
+          if (newAvatarUrl === '/avatar.png') {
+            // Remove the existing avatar from storage if it exists
+            try {
+              await deleteObject(imageRef);
+            } catch (error) {
+              // Ignore error if file doesn't exist
+            }
+            
+            // Set photoURL to null
             await updateProfile(this.user, { photoURL: null });
-            this.avatarUrl = newAvatarUrl;
+            this.avatarUrl = '/avatar.png'; // Update the store's avatarUrl
           } else {
-            const storage = getStorage();
-            const imageRef = storageRef(storage, `avatars/${this.user.uid}`);
+            // Upload new avatar
             await uploadString(imageRef, newAvatarUrl, 'data_url');
             const downloadURL = await getDownloadURL(imageRef);
             await updateProfile(this.user, { photoURL: downloadURL });
