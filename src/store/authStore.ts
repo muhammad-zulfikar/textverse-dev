@@ -181,12 +181,17 @@ export const useAuthStore = defineStore('auth', {
     async updateAvatar(newAvatarUrl: string) {
       if (this.user) {
         try {
-          const storage = getStorage();
-          const imageRef = storageRef(storage, `avatars/${this.user.uid}`);
-          await uploadString(imageRef, newAvatarUrl, 'data_url');
-          const downloadURL = await getDownloadURL(imageRef);
-          await updateProfile(this.user, { photoURL: downloadURL });
-          this.avatarUrl = downloadURL;
+          if (newAvatarUrl === '/src/assets/icons/avatar.png') {
+            await updateProfile(this.user, { photoURL: null });
+            this.avatarUrl = newAvatarUrl;
+          } else {
+            const storage = getStorage();
+            const imageRef = storageRef(storage, `avatars/${this.user.uid}`);
+            await uploadString(imageRef, newAvatarUrl, 'data_url');
+            const downloadURL = await getDownloadURL(imageRef);
+            await updateProfile(this.user, { photoURL: downloadURL });
+            this.avatarUrl = downloadURL;
+          }
         } catch (error) {
           throw error;
         }

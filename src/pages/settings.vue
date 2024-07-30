@@ -299,7 +299,8 @@
             <img
               :src="userAvatar"
               alt="User Avatar"
-              class="w-24 h-24 rounded-full mb-4 custom-card-transparent-avatar"
+              class="w-24 h-24 rounded-full mb-4 custom-card-transparent-avatar object-cover cursor-pointer"
+              @click="openAvatarViewer"
             />
             <h3 class="text-xl font-semibold">{{ username }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -338,6 +339,7 @@
         showDeleteAllNotesConfirmation ||
         showSignoutConfirmation ||
         showAvatarPicker ||
+        showAvatarViewer ||
         showNameEditor
       "
       class="fixed inset-0 bg-black bg-opacity-50"
@@ -365,11 +367,18 @@
     />
 
     <AvatarModal
-      :is-open="showAvatarPicker"
-      :initial-avatar-url="userAvatar"
-      @select="updateAvatar"
-      @close="showAvatarPicker = false"
-    />
+    :is-open="showAvatarPicker"
+    :initial-avatar-url="userAvatar"
+    @select="updateAvatar"
+    @remove="removeAvatar"
+    @close="showAvatarPicker = false"
+  />
+
+  <AvatarViewModal
+    :is-open="showAvatarViewer"
+    :avatar-url="userAvatar"
+    @close="showAvatarViewer = false"
+  />
 
     <InputModal
       :is-open="showNameEditor"
@@ -386,6 +395,7 @@
   import { authStore, notesStore, uiStore } from '@/store/stores';
   import AlertModal from '@/components/modal/alertModal.vue';
   import AvatarModal from '@/components/modal/avatarModal.vue';
+  import AvatarViewModal from '@/components/modal/avatarViewModal.vue';
   import InputModal from '@/components/modal/inputModal.vue';
   import router from '@/router';
 
@@ -399,8 +409,8 @@
   const showSignoutConfirmation = ref(false);
   const showAvatarPicker = ref(false);
   const showNameEditor = ref(false);
-
-  const userAvatar = computed(() => authStore.user?.photoURL || '');
+  const showAvatarViewer = ref(false);
+  const userAvatar = computed(() => authStore.user?.photoURL || '/avatar.png');
   const username = computed(() => authStore.user?.displayName || 'User');
   const joinedSince = computed(() => {
     const joinedDate = authStore.user?.metadata?.creationTime;
@@ -426,15 +436,29 @@
     showAvatarPicker.value = true;
   };
 
-  const updateAvatar = async (newAvatarUrl: string) => {
-    try {
-      await authStore.updateAvatar(newAvatarUrl);
-      showAvatarPicker.value = false;
-      uiStore.showToastMessage('Avatar successfully updated');
-    } catch (error) {
-      uiStore.showToastMessage('Failed to update avatar. Please try again.');
-    }
-  };
+  const openAvatarViewer = () => {
+  showAvatarViewer.value = true;
+};
+
+const updateAvatar = async (newAvatarUrl: string) => {
+  try {
+    await authStore.updateAvatar(newAvatarUrl);
+    showAvatarPicker.value = false;
+    uiStore.showToastMessage('Avatar successfully updated');
+  } catch (error) {
+    uiStore.showToastMessage('Failed to update avatar. Please try again.');
+  }
+};
+
+const removeAvatar = async () => {
+  try {
+    await authStore.updateAvatar('/src/assets/icons/avatar.png');
+    showAvatarPicker.value = false;
+    uiStore.showToastMessage('Avatar removed');
+  } catch (error) {
+    uiStore.showToastMessage('Failed to remove avatar. Please try again.');
+  }
+};
 
   const openNameEditor = () => {
     showNameEditor.value = true;

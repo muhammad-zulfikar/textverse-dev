@@ -14,7 +14,7 @@
           <img
             v-if="avatarUrl"
             :src="avatarUrl"
-            class="w-32 h-32 rounded-full custom-card-transparent-avatar mb-4"
+            class="w-32 h-32 rounded-full custom-card-transparent-avatar mb-4 object-cover"
             alt="Avatar"
           />
           <div
@@ -34,20 +34,28 @@
             accept="image/*"
           />
         </div>
-        <div class="flex justify-end mt-6">
+        <div class="flex justify-between mt-6">
           <button
-            @click.prevent="closeModal"
-            class="hover:underline dark:hover:bg-transparent outline-none mr-6 cursor-pointer text-sm"
+            @click.prevent="removeAvatar"
+            class="text-red-500 hover:underline dark:hover:bg-transparent outline-none cursor-pointer text-sm"
           >
-            Cancel
+            Remove Avatar
           </button>
-          <button
-            :disabled="!avatarUrl"
-            @click.prevent="confirmSelection"
-            class="dark:hover:bg-transparent outline-none text-sm"
-          >
-            Select
-          </button>
+          <div>
+            <button
+              @click.prevent="closeModal"
+              class="hover:underline dark:hover:bg-transparent outline-none mr-6 cursor-pointer text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              :disabled="!avatarUrl"
+              @click.prevent="confirmSelection"
+              class="dark:hover:bg-transparent outline-none text-sm"
+            >
+              Select
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -55,70 +63,77 @@
 </template>
 
 <script setup lang="ts">
-  import { uiStore } from '@/store/stores';
-  import { ref, watch } from 'vue';
+import { uiStore } from '@/store/stores';
+import { ref, watch } from 'vue';
 
-  const props = defineProps<{
-    isOpen: boolean;
-    initialAvatarUrl?: string;
-  }>();
+const props = defineProps<{
+  isOpen: boolean;
+  initialAvatarUrl?: string;
+}>();
 
-  const emit = defineEmits<{
-    (e: 'close'): void;
-    (e: 'select', avatarUrl: string): void;
-  }>();
+const emit = defineEmits<{
+  (e: 'close'): void;
+  (e: 'select', avatarUrl: string): void;
+  (e: 'remove'): void;
+}>();
 
-  const avatarUrl = ref<string | null>(null);
-  const fileInput = ref<HTMLInputElement | null>(null);
+const avatarUrl = ref<string | null>(null);
+const fileInput = ref<HTMLInputElement | null>(null);
 
-  const handleFileChange = (event: Event) => {
-    const fileInput = event.target as HTMLInputElement;
-    const file = fileInput.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        avatarUrl.value = reader.result as string;
-      };
-      reader.readAsDataURL(file);
+const handleFileChange = (event: Event) => {
+  const fileInput = event.target as HTMLInputElement;
+  const file = fileInput.files?.[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      avatarUrl.value = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+const handleDrop = (event: DragEvent) => {
+  const file = event.dataTransfer?.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      avatarUrl.value = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+const triggerFilePicker = () => {
+  fileInput.value?.click();
+};
+
+const confirmSelection = () => {
+  if (avatarUrl.value) {
+    try {
+      emit('select', avatarUrl.value);
+      closeModal();
+    } catch (error) {
+      console.error('Failed to update avatar:', error);
+      uiStore.showToastMessage('Failed to update avatar');
     }
-  };
+  }
+};
 
-  const handleDrop = (event: DragEvent) => {
-    const file = event.dataTransfer?.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        avatarUrl.value = reader.result as string;
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+const removeAvatar = () => {
+  emit('remove');
+  uiStore.showToastMessage('Avatar removed');
+  closeModal();
+};
 
-  const triggerFilePicker = () => {
-    fileInput.value?.click();
-  };
+const closeModal = () => {
+  avatarUrl.value = null;
+  emit('close');
+};
 
-  const confirmSelection = () => {
-    if (avatarUrl.value) {
-      try {
-        emit('select', avatarUrl.value);
-        closeModal();
-      } catch (error) {
-        console.error('Failed to update avatar:', error);
-        uiStore.showToastMessage('Failed to update avatar');
-      }
-    }
-  };
-
-  const closeModal = () => {
-    avatarUrl.value = null;
-    emit('close');
-  };
-
-  watch(
-    () => props.isOpen,
-    (isOpen) => {
-      document.body.classList.toggle('modal-open', isOpen);
-    }
-  );
+watch(
+  () => props.isOpen,
+  (isOpen) => {
+    document.body.classList.toggle('modal-open', isOpen);
+  }
+);
 </script>
