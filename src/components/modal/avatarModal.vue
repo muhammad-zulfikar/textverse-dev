@@ -4,10 +4,7 @@
       v-if="isOpen"
       class="fixed inset-0 z-40 flex items-center justify-center"
     >
-      <div
-        @click="closeModal"
-        class="absolute inset-0 bg-black bg-opacity-50"
-      ></div>
+      <div @click="closeModal" class="absolute inset-0"></div>
       <div
         @click.stop
         class="z-50 font-serif custom-card p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3"
@@ -71,7 +68,7 @@
     (e: 'select', avatarUrl: string): void;
   }>();
 
-  const avatarUrl = ref<string | null>(null); // Initialize as null
+  const avatarUrl = ref<string | null>(null);
   const fileInput = ref<HTMLInputElement | null>(null);
 
   const handleFileChange = (event: Event) => {
@@ -114,7 +111,7 @@
   };
 
   const closeModal = () => {
-    avatarUrl.value = null; // Reset avatarUrl on close
+    avatarUrl.value = null;
     emit('close');
   };
 

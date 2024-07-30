@@ -118,51 +118,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { notesStore, folderStore, uiStore } from '@/store/stores';
-import folderIcon from '@/assets/icons/folder.svg';
-import emptyFolderIcon from '@/assets/icons/folder-empty.svg';
+  import { ref, computed } from 'vue';
+  import { notesStore, folderStore, uiStore } from '@/store/stores';
+  import folderIcon from '@/assets/icons/folder.svg';
+  import emptyFolderIcon from '@/assets/icons/folder-empty.svg';
 
-const currentView = ref('folders');
-const currentFolder = ref('');
+  const currentView = ref('folders');
+  const currentFolder = ref('');
 
-const folders = computed(() => folderStore.folders);
-const folderNotes = computed(() =>
-  notesStore.filteredNotes(currentFolder.value)
-);
+  const folders = computed(() => folderStore.folders);
+  const folderNotes = computed(() =>
+    notesStore.filteredNotes(currentFolder.value)
+  );
 
-const openFolder = (folder: string) => {
-  currentFolder.value = folder;
-  currentView.value = 'notes';
-};
+  const openFolder = (folder: string) => {
+    currentFolder.value = folder;
+    currentView.value = 'notes';
+  };
 
-const goBackToFolders = () => {
-  currentView.value = 'folders';
-  currentFolder.value = '';
-};
+  const goBackToFolders = () => {
+    currentView.value = 'folders';
+    currentFolder.value = '';
+  };
 
-const folderHasNotes = (folder: string) => {
-  return notesStore.filteredNotes(folder).length > 0;
-};
+  const folderHasNotes = (folder: string) => {
+    return notesStore.filteredNotes(folder).length > 0;
+  };
 
-const notesCountByFolder = computed(() => folderStore.notesCountByFolder());
+  const notesCountByFolder = computed(() => folderStore.notesCountByFolder());
 </script>
 
 <style scoped>
-.grid-view {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
-}
+  .grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
 
-.list-view {
-  display: flex;
-  flex-direction: column;
-}
+  .list-view {
+    display: flex;
+    flex-direction: column;
+  }
 
-.truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  .truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 </style>

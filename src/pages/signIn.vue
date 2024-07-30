@@ -1,5 +1,4 @@
 <template>
-  <Navbar />
   <div
     class="font-serif custom-card max-w-xs sm:max-w-sm md:max-w-md px-12 py-8 md:p-8 relative flex flex-col mx-auto mt-20 md:mt-14"
   >
@@ -91,7 +90,6 @@
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
   import { authStore, uiStore } from '@/store/stores';
-  import Navbar from '@/components/navbar/navbar.vue';
 
   const router = useRouter();
 

@@ -1,77 +1,78 @@
 <!-- Home.vue -->
 
 <template>
-  <Navbar />
-  <main
-    class="mx-auto grid max-w-2xl grid-cols-6 gap-6 px-6 pt-10 md:pt-24 select-none"
-  >
-    <div
-      class="flex flex-col col-span-6 md:col-span-4 h-58 md:h-52 overflow-hidden rounded-lg p-5 md:p-6 custom-card"
+  <div>
+    <main
+      class="mx-auto grid max-w-2xl grid-cols-6 gap-6 px-6 pt-10 md:pt-24 select-none"
     >
-      <a
-        href="https://github.com/muhammad-zulfikar/vue-notes"
-        target="_blank"
-        class="flex w-fit space-x-1.5 text-sm font-serif rounded-lg px-2 py-1 border-[1px] md:border-2 border-black dark:border-white hover:shadow-lg"
-      >
-        <span>GitHub</span>
-        <span>&rarr;</span>
-      </a>
-      <p class="text-sm font-serif mt-4">
-        This is a basic note-taking application developed using Vue, Vite, and
-        TypeScript. This website was created as the final project for the
-        <a
-          href="https://cs50.harvard.edu/x/2024/"
-          target="_blank"
-          class="underline"
-        >
-          CS50x
-        </a>
-        course. It uses Firebase Realtime Database for signed in users. If
-        you're a guest, please avoid typing sensitive information, as it is
-        stored locally on your browser's cache. The source code is available on
-        GitHub.
-      </p>
-    </div>
-    <div class="col-span-6 md:col-span-2">
       <div
-        class="p-4 justify-center rounded-lg dark:text-white md:h-52 custom-card"
+        class="flex flex-col col-span-6 md:col-span-4 h-58 md:h-52 overflow-hidden rounded-lg p-5 md:p-6 custom-card"
       >
-        <p class="text-sm font-serif font-bold">TODO(S):</p>
-        <ul class="list-disc pl-4 mt-2 space-y-1">
-          <li class="text-sm font-serif line-through">
-            Optimize note pinning algorithm
-          </li>
-          <li class="text-sm font-serif">Implement collaborative editing</li>
-          <li class="text-sm font-serif">Introduce markdown support</li>
-        </ul>
+        <a
+          href="https://github.com/muhammad-zulfikar/vue-notes"
+          target="_blank"
+          class="flex w-fit space-x-1.5 text-sm font-serif rounded-lg px-2 py-1 border-[1px] md:border-2 border-black dark:border-white hover:shadow-lg"
+        >
+          <span>GitHub</span>
+          <span>&rarr;</span>
+        </a>
+        <p class="text-sm font-serif mt-4">
+          This is a basic note-taking application developed using Vue, Vite, and
+          TypeScript. This website was created as the final project for the
+          <a
+            href="https://cs50.harvard.edu/x/2024/"
+            target="_blank"
+            class="underline"
+          >
+            CS50x
+          </a>
+          course. It uses Firebase Realtime Database for signed in users. If
+          you're a guest, please avoid typing sensitive information, as it is
+          stored locally on your browser's cache. The source code is available
+          on GitHub.
+        </p>
       </div>
-    </div>
-    <div class="col-span-6">
-      <div class="p-4 justify-center rounded-lg dark:text-white custom-card">
-        <p class="text-sm font-serif font-bold">Features:</p>
-        <ul class="list-disc pl-4 mt-2 columns-2 gap-6 md:gap-12 space-y-2">
-          <li class="text-sm font-serif">
-            Create, edit, pin, search, and organize with ease
-          </li>
-          <li class="text-sm font-serif">
-            Seamless theme switching between light and dark modes
-          </li>
-          <li class="text-sm font-serif">
-            Smart categorization with folder support
-          </li>
-          <li class="text-sm font-serif">
-            Right-click context menu for quick actions
-          </li>
-          <li class="text-sm font-serif">
-            Secure sign-in with real-time note synchronization across devices
-          </li>
-          <li class="text-sm font-serif">
-            Offline functionality for uninterrupted productivity
-          </li>
-        </ul>
+      <div class="col-span-6 md:col-span-2">
+        <div
+          class="p-4 justify-center rounded-lg dark:text-white md:h-52 custom-card"
+        >
+          <p class="text-sm font-serif font-bold">TODO(S):</p>
+          <ul class="list-disc pl-4 mt-2 space-y-1">
+            <li class="text-sm font-serif line-through">
+              Optimize note pinning algorithm
+            </li>
+            <li class="text-sm font-serif">Implement collaborative editing</li>
+            <li class="text-sm font-serif">Introduce markdown support</li>
+          </ul>
+        </div>
       </div>
-    </div>
-  </main>
+      <div class="col-span-6">
+        <div class="p-4 justify-center rounded-lg dark:text-white custom-card">
+          <p class="text-sm font-serif font-bold">Features:</p>
+          <ul class="list-disc pl-4 mt-2 columns-2 gap-6 md:gap-12 space-y-2">
+            <li class="text-sm font-serif">
+              Create, edit, pin, search, and organize with ease
+            </li>
+            <li class="text-sm font-serif">
+              Seamless theme switching between light and dark modes
+            </li>
+            <li class="text-sm font-serif">
+              Smart categorization with folder support
+            </li>
+            <li class="text-sm font-serif">
+              Right-click context menu for quick actions
+            </li>
+            <li class="text-sm font-serif">
+              Secure sign-in with real-time note synchronization across devices
+            </li>
+            <li class="text-sm font-serif">
+              Offline functionality for uninterrupted productivity
+            </li>
+          </ul>
+        </div>
+      </div>
+    </main>
+  </div>
 </template>
 
 <script setup>

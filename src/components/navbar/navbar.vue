@@ -1,5 +1,3 @@
-<!-- navbar.vue -->
-
 <template>
   <div>
     <div
@@ -17,6 +15,7 @@
             <router-link
               to="/"
               class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+              :class="{ underline: isActive('/') }"
               @click="toggleNav"
             >
               Home
@@ -24,6 +23,7 @@
             <router-link
               to="/about"
               class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+              :class="{ underline: isActive('/about') }"
               @click="toggleNav"
             >
               About
@@ -31,6 +31,7 @@
             <router-link
               to="/settings"
               class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+              :class="{ underline: isActive('/settings') }"
               @click="toggleNav"
             >
               Settings
@@ -187,10 +188,9 @@
     isUserDropdownOpen.value = false;
     router.push('/settings');
   };
-</script>
 
-<style scoped>
-  .h-px {
-    height: 1px;
-  }
-</style>
+  // Utility function to determine if the current route is active
+  const isActive = (route: string) => {
+    return router.currentRoute.value.path === route;
+  };
+</script>

@@ -27,7 +27,10 @@
           <div
             class="flex justify-between text-[10px] md:text-xs text-gray-500 dark:text-gray-400 mt-2"
           >
-            <span class="hover:underline" @click.stop="folderStore.setCurrentFolder(note.folder)">
+            <span
+              class="hover:underline"
+              @click.stop="folderStore.setCurrentFolder(note.folder)"
+            >
               {{ note.folder }}
             </span>
             <span v-if="note.pinned">Pinned</span>
@@ -174,10 +177,7 @@
         </div>
       </div>
     </div>
-    <div
-      v-if="isAlertOpen"
-      class="fixed inset-0 bg-black bg-opacity-50"
-    ></div>
+    <div v-if="isAlertOpen" class="fixed inset-0 bg-black bg-opacity-50"></div>
     <alertModal
       :is-open="isAlertOpen"
       :message="alertMessage"
@@ -188,230 +188,231 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { notesStore, uiStore, folderStore } from '@/store/stores';
-import alertModal from '@/components/modal/alertModal.vue';
-import { Note } from '@/store/types';
-import { DEFAULT_FOLDERS } from '@/store/constants';
+  import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+  import { notesStore, uiStore, folderStore } from '@/store/stores';
+  import alertModal from '@/components/modal/alertModal.vue';
+  import { Note } from '@/store/types';
+  import { DEFAULT_FOLDERS } from '@/store/constants';
 
-const props = defineProps<{
-  notes: Note[];
-}>();
+  const props = defineProps<{
+    notes: Note[];
+  }>();
 
-const selectedNoteId = ref<number | null>(null);
-const isMobileView = ref(false);
-const textareaHeight = ref('auto');
-const isAlertOpen = ref(false);
-const alertMessage = ref('');
-const isDropdownOpen = ref(false);
-const selectedFolder = ref('');
-const editedNote = ref<Note | null>(null);
-const isContextMenuOpenForNote = (noteId: number) => editedNote.value?.id === noteId;
+  const selectedNoteId = ref<number | null>(null);
+  const isMobileView = ref(false);
+  const textareaHeight = ref('auto');
+  const isAlertOpen = ref(false);
+  const alertMessage = ref('');
+  const isDropdownOpen = ref(false);
+  const selectedFolder = ref('');
+  const editedNote = ref<Note | null>(null);
+  const isContextMenuOpenForNote = (noteId: number) =>
+    editedNote.value?.id === noteId;
 
-const availableFolders = computed(() => {
-  return [
-    ...folderStore.folders.filter(
-      (folder) => folder !== DEFAULT_FOLDERS.ALL_NOTES
-    ),
-  ];
-});
+  const availableFolders = computed(() => {
+    return [
+      ...folderStore.folders.filter(
+        (folder) => folder !== DEFAULT_FOLDERS.ALL_NOTES
+      ),
+    ];
+  });
 
-const selectedNote = computed(() =>
-  props.notes.find((note) => note.id === selectedNoteId.value)
-);
+  const selectedNote = computed(() =>
+    props.notes.find((note) => note.id === selectedNoteId.value)
+  );
 
-const hasChanges = computed(() => {
-  if (!selectedNote.value && !uiStore.isCreatingNote) return false;
-  if (uiStore.isCreatingNote) {
-    return (
-      editedNote.value!.title.trim() !== '' ||
-      editedNote.value!.content.trim() !== ''
-    );
-  }
-  return notesStore.hasChanged(selectedNote.value!, editedNote.value!);
-});
-
-const notesToDisplay = computed(() => {
-  if (uiStore.isCreatingNote && editedNote.value) {
-    return [editedNote.value, ...props.notes];
-  }
-  return props.notes;
-});
-
-watch(selectedNote, (newNote) => {
-  if (newNote) {
-    editedNote.value = { ...newNote };
-    selectedFolder.value = newNote.folder;
-  } else if (uiStore.isCreatingNote) {
-    createNewNote();
-  } else {
-    editedNote.value = null;
-  }
-});
-
-watch(
-  () => uiStore.isCreatingNote,
-  (isCreating) => {
-    if (isCreating) {
-      createNewNote();
-    }
-  }
-);
-
-function createNewNote() {
-  const newNote: Note = {
-    id: Date.now(), // Temporary ID, will be replaced when saved
-    title: '',
-    content: '',
-    folder: DEFAULT_FOLDERS.UNCATEGORIZED,
-    time_created: new Date().toISOString(),
-    last_edited: new Date().toISOString(),
-    pinned: false,
-  };
-  editedNote.value = newNote;
-  selectedFolder.value = DEFAULT_FOLDERS.UNCATEGORIZED;
-  selectedNoteId.value = null;
-}
-
-function selectFolder(folder: string) {
-  selectedFolder.value = folder;
-  if (editedNote.value) {
-    editedNote.value.folder = folder;
-  }
-  isDropdownOpen.value = false;
-}
-
-function toggleDropdown() {
-  isDropdownOpen.value = !isDropdownOpen.value;
-}
-
-function selectNote(id: number) {
-  selectedNoteId.value = id;
-  uiStore.isCreatingNote = false;
-  const note = props.notes.find((note) => note.id === id);
-  if (note) {
-    editedNote.value = { ...note };
-  }
-}
-
-function deselectNote() {
-    selectedNoteId.value = null;
-}
-
-function cancelNote() {
-  if (uiStore.isCreatingNote) {
-    uiStore.isCreatingNote = false;
-  }
-  selectedNoteId.value = null;
-  editedNote.value = null;
-  if (!isMobileView.value) {
-    selectNewestNote();
-  }
-}
-
-function truncateContent(content: string): string {
-  return content.length > 100 ? content.slice(0, 100) + '...' : content;
-}
-
-async function saveNote() {
-  if (editedNote.value && hasChanges.value) {
+  const hasChanges = computed(() => {
+    if (!selectedNote.value && !uiStore.isCreatingNote) return false;
     if (uiStore.isCreatingNote) {
-      try {
-        const newNoteId = await notesStore.addNote(editedNote.value);
-        uiStore.isCreatingNote = false;
-        if (!isMobileView.value && typeof newNoteId === 'number') {
-          selectNote(newNoteId);
-        }
-      } catch (error) {
-        console.error('Error adding new note:', error);
-        uiStore.showToastMessage('Failed to add new note. Please try again.');
-      }
+      return (
+        editedNote.value!.title.trim() !== '' ||
+        editedNote.value!.content.trim() !== ''
+      );
+    }
+    return notesStore.hasChanged(selectedNote.value!, editedNote.value!);
+  });
+
+  const notesToDisplay = computed(() => {
+    if (uiStore.isCreatingNote && editedNote.value) {
+      return [editedNote.value, ...props.notes];
+    }
+    return props.notes;
+  });
+
+  watch(selectedNote, (newNote) => {
+    if (newNote) {
+      editedNote.value = { ...newNote };
+      selectedFolder.value = newNote.folder;
+    } else if (uiStore.isCreatingNote) {
+      createNewNote();
     } else {
-      try {
-        await notesStore.updateNote(editedNote.value);
-      } catch (error) {
-        console.error('Error updating note:', error);
-        uiStore.showToastMessage('Failed to update note. Please try again.');
+      editedNote.value = null;
+    }
+  });
+
+  watch(
+    () => uiStore.isCreatingNote,
+    (isCreating) => {
+      if (isCreating) {
+        createNewNote();
       }
     }
-    cancelNote();
-  }
-}
+  );
 
-const openDeleteAlert = () => {
-  if (selectedNote.value) {
-    alertMessage.value = `Are you sure you want to delete the note "${selectedNote.value.title}"?`;
-    isAlertOpen.value = true;
+  function createNewNote() {
+    const newNote: Note = {
+      id: Date.now(), // Temporary ID, will be replaced when saved
+      title: '',
+      content: '',
+      folder: DEFAULT_FOLDERS.UNCATEGORIZED,
+      time_created: new Date().toISOString(),
+      last_edited: new Date().toISOString(),
+      pinned: false,
+    };
+    editedNote.value = newNote;
+    selectedFolder.value = DEFAULT_FOLDERS.UNCATEGORIZED;
+    selectedNoteId.value = null;
   }
-};
 
-const confirmDelete = async () => {
-  try {
-    if (selectedNote.value) {
-      await notesStore.deleteNote(selectedNote.value.id);
+  function selectFolder(folder: string) {
+    selectedFolder.value = folder;
+    if (editedNote.value) {
+      editedNote.value.folder = folder;
+    }
+    isDropdownOpen.value = false;
+  }
+
+  function toggleDropdown() {
+    isDropdownOpen.value = !isDropdownOpen.value;
+  }
+
+  function selectNote(id: number) {
+    selectedNoteId.value = id;
+    uiStore.isCreatingNote = false;
+    const note = props.notes.find((note) => note.id === id);
+    if (note) {
+      editedNote.value = { ...note };
+    }
+  }
+
+  function deselectNote() {
+    selectedNoteId.value = null;
+  }
+
+  function cancelNote() {
+    if (uiStore.isCreatingNote) {
+      uiStore.isCreatingNote = false;
+    }
+    selectedNoteId.value = null;
+    editedNote.value = null;
+    if (!isMobileView.value) {
+      selectNewestNote();
+    }
+  }
+
+  function truncateContent(content: string): string {
+    return content.length > 100 ? content.slice(0, 100) + '...' : content;
+  }
+
+  async function saveNote() {
+    if (editedNote.value && hasChanges.value) {
+      if (uiStore.isCreatingNote) {
+        try {
+          const newNoteId = await notesStore.addNote(editedNote.value);
+          uiStore.isCreatingNote = false;
+          if (!isMobileView.value && typeof newNoteId === 'number') {
+            selectNote(newNoteId);
+          }
+        } catch (error) {
+          console.error('Error adding new note:', error);
+          uiStore.showToastMessage('Failed to add new note. Please try again.');
+        }
+      } else {
+        try {
+          await notesStore.updateNote(editedNote.value);
+        } catch (error) {
+          console.error('Error updating note:', error);
+          uiStore.showToastMessage('Failed to update note. Please try again.');
+        }
+      }
       cancelNote();
-      deselectNote();
-    }
-  } catch (error) {
-    console.error('Error deleting note:', error);
-    uiStore.showToastMessage('Failed to delete note. Please try again.');
-  }
-  closeAlert();
-};
-
-const closeAlert = () => {
-  isAlertOpen.value = false;
-};
-
-function updateTextareaHeight() {
-  if (selectedNote.value || uiStore.isCreatingNote) {
-    const mainContent = document.querySelector(
-      '.w-full.md\\:w-3\\/4'
-    ) as HTMLElement;
-    if (mainContent) {
-      const otherContentHeight =
-        mainContent.offsetHeight -
-        (document.querySelector('textarea') as HTMLElement).offsetHeight;
-      textareaHeight.value = isMobileView.value
-        ? `${mainContent.offsetHeight - otherContentHeight}px`
-        : 'auto';
     }
   }
-}
 
-function handleResize() {
-  isMobileView.value = window.innerWidth < 768;
-  if (!isMobileView.value && props.notes.length) {
+  const openDeleteAlert = () => {
+    if (selectedNote.value) {
+      alertMessage.value = `Are you sure you want to delete the note "${selectedNote.value.title}"?`;
+      isAlertOpen.value = true;
+    }
+  };
+
+  const confirmDelete = async () => {
+    try {
+      if (selectedNote.value) {
+        await notesStore.deleteNote(selectedNote.value.id);
+        cancelNote();
+        deselectNote();
+      }
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      uiStore.showToastMessage('Failed to delete note. Please try again.');
+    }
+    closeAlert();
+  };
+
+  const closeAlert = () => {
+    isAlertOpen.value = false;
+  };
+
+  function updateTextareaHeight() {
+    if (selectedNote.value || uiStore.isCreatingNote) {
+      const mainContent = document.querySelector(
+        '.w-full.md\\:w-3\\/4'
+      ) as HTMLElement;
+      if (mainContent) {
+        const otherContentHeight =
+          mainContent.offsetHeight -
+          (document.querySelector('textarea') as HTMLElement).offsetHeight;
+        textareaHeight.value = isMobileView.value
+          ? `${mainContent.offsetHeight - otherContentHeight}px`
+          : 'auto';
+      }
+    }
+  }
+
+  function handleResize() {
+    isMobileView.value = window.innerWidth < 768;
+    if (!isMobileView.value && props.notes.length) {
       if (!selectedNoteId.value) {
         selectedNoteId.value = props.notes[0].id;
       }
     }
     updateTextareaHeight();
-}
-
-function selectNewestNote() {
-  const newestNote = props.notes.reduce((newest, current) => {
-    const newestDate = new Date(newest.last_edited || newest.time_created);
-    const currentDate = new Date(current.last_edited || current.time_created);
-    return currentDate > newestDate ? current : newest;
-  }, props.notes[0]);
-
-  if (newestNote) {
-    selectNote(newestNote.id);
   }
-}
 
-watch(selectedNoteId, updateTextareaHeight);
+  function selectNewestNote() {
+    const newestNote = props.notes.reduce((newest, current) => {
+      const newestDate = new Date(newest.last_edited || newest.time_created);
+      const currentDate = new Date(current.last_edited || current.time_created);
+      return currentDate > newestDate ? current : newest;
+    }, props.notes[0]);
 
-onMounted(() => {
-  window.addEventListener('resize', handleResize);
-  handleResize();
-  if (!isMobileView.value) {
-    selectNewestNote();
+    if (newestNote) {
+      selectNote(newestNote.id);
+    }
   }
-});
 
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
-});
+  watch(selectedNoteId, updateTextareaHeight);
+
+  onMounted(() => {
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    if (!isMobileView.value) {
+      selectNewestNote();
+    }
+  });
+
+  onUnmounted(() => {
+    window.removeEventListener('resize', handleResize);
+  });
 </script>

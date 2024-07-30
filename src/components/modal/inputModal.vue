@@ -5,10 +5,7 @@
       v-if="isOpen"
       class="fixed inset-0 z-40 flex items-center justify-center"
     >
-      <div
-        @click="closeModal"
-        class="absolute inset-0"
-      ></div>
+      <div @click="closeModal" class="absolute inset-0"></div>
       <form
         @submit.prevent="handleSubmit"
         @click.stop
