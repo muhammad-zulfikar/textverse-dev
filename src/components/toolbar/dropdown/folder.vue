@@ -79,6 +79,11 @@
       </div>
     </Transition>
   </div>
+  <div
+    v-if="isModalOpen"
+    class="fixed inset-0 bg-black bg-opacity-50 z-40"
+    @click="closeModal"
+  ></div>
   <InputModal
     :is-open="isModalOpen"
     mode="folder"
@@ -87,6 +92,10 @@
     @update="handleModalSubmit"
     @close="closeModal"
   />
+  <div
+    v-if="isAlertOpen"
+    class="fixed inset-0 bg-black bg-opacity-50 z-40"
+  ></div>
   <alertModal
     :is-open="isAlertOpen"
     :message="AlertMessage"

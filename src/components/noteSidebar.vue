@@ -179,179 +179,179 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
-import { Note } from '@/store/types';
-import { notesStore, folderStore, uiStore } from '@/store/stores';
-import { DEFAULT_FOLDERS } from '@/store/constants';
-import AlertModal from '@/components/modal/alertModal.vue';
+  import { ref, computed, watch, onMounted } from 'vue';
+  import { Note } from '@/store/types';
+  import { notesStore, folderStore, uiStore } from '@/store/stores';
+  import { DEFAULT_FOLDERS } from '@/store/constants';
+  import AlertModal from '@/components/modal/alertModal.vue';
 
-const props = defineProps<{
-  noteId: number | null;
-}>();
+  const props = defineProps<{
+    noteId: number | null;
+  }>();
 
-const emit = defineEmits(['close', 'update', 'delete']);
+  const emit = defineEmits(['close', 'update', 'delete']);
 
-const isEditMode = computed(() => props.noteId !== null);
+  const isEditMode = computed(() => props.noteId !== null);
 
-const editedNote = ref<Note>({
-  id: Date.now(),
-  title: '',
-  content: '',
-  time_created: new Date().toISOString(),
-  last_edited: new Date().toISOString(),
-  pinned: false,
-  folder: DEFAULT_FOLDERS.UNCATEGORIZED,
-});
+  const editedNote = ref<Note>({
+    id: Date.now(),
+    title: '',
+    content: '',
+    time_created: new Date().toISOString(),
+    last_edited: new Date().toISOString(),
+    pinned: false,
+    folder: DEFAULT_FOLDERS.UNCATEGORIZED,
+  });
 
-const sidebarOpen = ref(true);
-const originalNote = ref<Note | null>(null);
-const selectedFolder = ref(DEFAULT_FOLDERS.UNCATEGORIZED);
-const isDropdownOpen = ref(false);
-const textareaHeight = ref('auto');
-const sidebarContainer = ref<HTMLElement | null>(null);
-const isExpanded = ref(false);
-const creatingFolder = ref(false);
-const newFolderName = ref('');
-const alertMessage = ref('');
+  const sidebarOpen = ref(true);
+  const originalNote = ref<Note | null>(null);
+  const selectedFolder = ref(DEFAULT_FOLDERS.UNCATEGORIZED);
+  const isDropdownOpen = ref(false);
+  const textareaHeight = ref('auto');
+  const sidebarContainer = ref<HTMLElement | null>(null);
+  const isExpanded = ref(false);
+  const creatingFolder = ref(false);
+  const newFolderName = ref('');
+  const alertMessage = ref('');
 
-const availableFolders = computed(() => {
-  return [
-    ...folderStore.folders.filter(
-      (folder) => folder !== DEFAULT_FOLDERS.ALL_NOTES
-    ),
-  ];
-});
+  const availableFolders = computed(() => {
+    return [
+      ...folderStore.folders.filter(
+        (folder) => folder !== DEFAULT_FOLDERS.ALL_NOTES
+      ),
+    ];
+  });
 
-const isValid = computed(() => {
-  return (
-    editedNote.value.title.trim().length > 0 &&
-    editedNote.value.title.length <= 30 &&
-    editedNote.value.content.length <= 100000
-  );
-});
-
-const hasChanges = computed(() => {
-  if (!originalNote.value)
+  const isValid = computed(() => {
     return (
-      editedNote.value.title.trim() !== '' ||
-      editedNote.value.content.trim() !== ''
+      editedNote.value.title.trim().length > 0 &&
+      editedNote.value.title.length <= 30 &&
+      editedNote.value.content.length <= 100000
     );
-  return notesStore.hasChanged(originalNote.value, editedNote.value);
-});
+  });
 
-function attemptClose() {
-  if (!hasChanges.value) {
-    closeSidebar();
-  }
-}
+  const hasChanges = computed(() => {
+    if (!originalNote.value)
+      return (
+        editedNote.value.title.trim() !== '' ||
+        editedNote.value.content.trim() !== ''
+      );
+    return notesStore.hasChanged(originalNote.value, editedNote.value);
+  });
 
-function closeSidebar() {
-  sidebarOpen.value = false;
-  emit('close');
-}
-
-function selectFolder(folder: string) {
-  selectedFolder.value = folder;
-  editedNote.value.folder = folder;
-  isDropdownOpen.value = false;
-}
-
-function toggleDropdown() {
-  isDropdownOpen.value = !isDropdownOpen.value;
-}
-
-function toggleExpand() {
-  isExpanded.value = !isExpanded.value;
-}
-
-function createNewFolder() {
-  creatingFolder.value = true;
-  newFolderName.value = '';
-}
-
-function saveNewFolder() {
-  if (newFolderName.value.trim().length > 0) {
-    folderStore.addFolder(newFolderName.value.trim());
-    selectFolder(newFolderName.value.trim());
-  }
-  creatingFolder.value = false;
-}
-
-const saveNote = async () => {
-  if (!isValid.value) return;
-
-  if (isEditMode.value && hasChanges.value) {
-    await notesStore.updateNote(editedNote.value);
-  } else if (!isEditMode.value) {
-    await notesStore.addNote(editedNote.value);
-  }
-  emit('close');
-};
-
-const openDeleteAlert = () => {
-  alertMessage.value = `Are you sure you want to delete the note "${editedNote.value.title}"?`;
-  uiStore.isAlertOpen = true;
-};
-
-const closeAlert = () => {
-  uiStore.isAlertOpen = false;
-};
-
-const confirmDelete = async () => {
-  try {
-    await notesStore.deleteNote(editedNote.value.id);
-    emit('close');
-  } catch (error) {
-    console.error('Error deleting note:', error);
-    uiStore.showToastMessage('Failed to delete note. Please try again.');
-  }
-  closeAlert();
-};
-
-watch(
-  () => props.noteId,
-  async (newNoteId) => {
-    if (newNoteId !== null) {
-      const note = notesStore.notes.find((n) => n.id === newNoteId);
-      if (note) {
-        editedNote.value = { ...note };
-        originalNote.value = { ...note };
-      }
-    } else {
-      editedNote.value = {
-        id: Date.now(),
-        title: '',
-        content: '',
-        time_created: new Date().toISOString(),
-        last_edited: new Date().toISOString(),
-        pinned: false,
-        folder:
-          folderStore.currentFolder !== DEFAULT_FOLDERS.ALL_NOTES
-            ? folderStore.currentFolder
-            : DEFAULT_FOLDERS.UNCATEGORIZED,
-      };
-      originalNote.value = null;
+  function attemptClose() {
+    if (!hasChanges.value) {
+      closeSidebar();
     }
-  },
-  { immediate: true }
-);
-
-onMounted(() => {
-  if (sidebarContainer.value) {
-    textareaHeight.value = `${sidebarContainer.value.clientHeight - 248}px`;
   }
-});
 
-const sidebarWidthClass = computed(() =>
-  isExpanded.value
-    ? 'w-full custom-card-no-rounded'
-    : 'w-3/4 md:w-2/5 custom-card'
-);
+  function closeSidebar() {
+    sidebarOpen.value = false;
+    emit('close');
+  }
+
+  function selectFolder(folder: string) {
+    selectedFolder.value = folder;
+    editedNote.value.folder = folder;
+    isDropdownOpen.value = false;
+  }
+
+  function toggleDropdown() {
+    isDropdownOpen.value = !isDropdownOpen.value;
+  }
+
+  function toggleExpand() {
+    isExpanded.value = !isExpanded.value;
+  }
+
+  function createNewFolder() {
+    creatingFolder.value = true;
+    newFolderName.value = '';
+  }
+
+  function saveNewFolder() {
+    if (newFolderName.value.trim().length > 0) {
+      folderStore.addFolder(newFolderName.value.trim());
+      selectFolder(newFolderName.value.trim());
+    }
+    creatingFolder.value = false;
+  }
+
+  const saveNote = async () => {
+    if (!isValid.value) return;
+
+    if (isEditMode.value && hasChanges.value) {
+      await notesStore.updateNote(editedNote.value);
+    } else if (!isEditMode.value) {
+      await notesStore.addNote(editedNote.value);
+    }
+    emit('close');
+  };
+
+  const openDeleteAlert = () => {
+    alertMessage.value = `Are you sure you want to delete the note "${editedNote.value.title}"?`;
+    uiStore.isAlertOpen = true;
+  };
+
+  const closeAlert = () => {
+    uiStore.isAlertOpen = false;
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await notesStore.deleteNote(editedNote.value.id);
+      emit('close');
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      uiStore.showToastMessage('Failed to delete note. Please try again.');
+    }
+    closeAlert();
+  };
+
+  watch(
+    () => props.noteId,
+    async (newNoteId) => {
+      if (newNoteId !== null) {
+        const note = notesStore.notes.find((n) => n.id === newNoteId);
+        if (note) {
+          editedNote.value = { ...note };
+          originalNote.value = { ...note };
+        }
+      } else {
+        editedNote.value = {
+          id: Date.now(),
+          title: '',
+          content: '',
+          time_created: new Date().toISOString(),
+          last_edited: new Date().toISOString(),
+          pinned: false,
+          folder:
+            folderStore.currentFolder !== DEFAULT_FOLDERS.ALL_NOTES
+              ? folderStore.currentFolder
+              : DEFAULT_FOLDERS.UNCATEGORIZED,
+        };
+        originalNote.value = null;
+      }
+    },
+    { immediate: true }
+  );
+
+  onMounted(() => {
+    if (sidebarContainer.value) {
+      textareaHeight.value = `${sidebarContainer.value.clientHeight - 248}px`;
+    }
+  });
+
+  const sidebarWidthClass = computed(() =>
+    isExpanded.value
+      ? 'w-full custom-card-no-rounded'
+      : 'w-3/4 md:w-2/5 custom-card'
+  );
 </script>
 
 <style scoped>
-.dropdown-menu {
-  top: 100%;
-  left: 0;
-}
+  .dropdown-menu {
+    top: 100%;
+    left: 0;
+  }
 </style>

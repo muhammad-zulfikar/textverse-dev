@@ -57,6 +57,11 @@
       </div>
     </Transition>
   </div>
+  <div
+    v-if="isFolderFormOpen"
+    class="fixed inset-0 bg-black bg-opacity-50 z-40"
+    @click="closeFolderForm"
+  ></div>
   <InputModal
     :is-open="isFolderFormOpen"
     mode="folder"

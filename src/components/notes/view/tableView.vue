@@ -161,7 +161,10 @@
         </transition-group>
       </table>
     </div>
-    <div v-if="showDeleteConfirmation" class="fixed inset-0 bg-black bg-opacity-50"></div>
+    <div
+      v-if="showDeleteConfirmation"
+      class="fixed inset-0 bg-black bg-opacity-50"
+    ></div>
     <AlertModal
       :is-open="showDeleteConfirmation"
       :message="`Are you sure you want to delete ${selectedNotes.length} note(s)?`"

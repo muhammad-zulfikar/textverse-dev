@@ -7,7 +7,7 @@
     >
       <div
         @click="closeModal"
-        class="absolute inset-0 bg-black bg-opacity-50"
+        class="absolute inset-0"
       ></div>
       <form
         @submit.prevent="handleSubmit"

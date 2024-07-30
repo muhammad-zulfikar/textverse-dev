@@ -70,7 +70,7 @@
   }
   .slide-fade-enter-active,
   .slide-fade-leave-active {
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
   }
   .slide-fade-enter-from,
   .slide-fade-leave-to {

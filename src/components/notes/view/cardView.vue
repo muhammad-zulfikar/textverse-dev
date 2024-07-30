@@ -1,5 +1,5 @@
 <template>
-  <div class="w-11/12 mx-auto mt-10">
+  <div class="w-11/12 mx-auto mt-10 flex justify-center">
     <transition-group
       name="list"
       tag="ul"

@@ -19,6 +19,7 @@ interface UIState {
   toastMessage: string;
   toastTimeoutId: number | null;
   isAlertOpen: boolean;
+  isCreatingNote: boolean;
 }
 
 export const useUIStore = defineStore('ui', {
@@ -41,6 +42,7 @@ export const useUIStore = defineStore('ui', {
     toastMessage: '',
     toastTimeoutId: null,
     isAlertOpen: false,
+    isCreatingNote: false,
   }),
 
   actions: {
@@ -138,7 +140,6 @@ export const useUIStore = defineStore('ui', {
       notesStore.selectedNoteId = noteId;
       switch (this.viewType) {
         case 'card':
-        case 'mail':
         case 'folder':
           notesStore.showNoteModal = true;
           document.body.classList.add('modal-open');
@@ -147,6 +148,12 @@ export const useUIStore = defineStore('ui', {
           notesStore.showNoteSidebar = true;
           document.body.classList.add('modal-open');
           break;
+        case 'mail':
+          if (noteId === null) {
+            this.isCreatingNote = true;
+            notesStore.selectedNoteId = null;
+          }
+          break;
       }
     },
 
@@ -154,7 +161,6 @@ export const useUIStore = defineStore('ui', {
       notesStore.selectedNoteId = null;
       switch (this.viewType) {
         case 'card':
-        case 'mail':
         case 'folder':
           notesStore.showNoteModal = false;
           document.body.classList.remove('modal-open');
@@ -162,6 +168,9 @@ export const useUIStore = defineStore('ui', {
         case 'table':
           notesStore.showNoteSidebar = false;
           document.body.classList.remove('modal-open');
+          break;
+        case 'mail':
+          this.isCreatingNote = false;
           break;
       }
     },
