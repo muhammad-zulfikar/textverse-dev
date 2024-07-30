@@ -1,6 +1,6 @@
 <template>
   <div>
-    <LoadingSpinner v-if="isLoading" />
+    <LoadingSpinner v-if="authStore.isLoading" />
     <template v-else>
       <Navbar />
       <div>
@@ -25,20 +25,15 @@
   import Toast from '@/components/toast/toast.vue';
   import LoadingSpinner from '@/components/loadingSpinner.vue';
 
-  const isLoading = ref(true);
   const router = useRouter();
-
   const routeOrder = ['Home', 'About', 'Settings', 'Sign In'];
   const transitionName = ref('slide-right');
 
   watch(
     () => router.currentRoute.value,
     (to, from) => {
-      // Ensure that both `to` and `from` are defined
       const toIndex = to ? routeOrder.indexOf(to.name as string) : -1;
       const fromIndex = from ? routeOrder.indexOf(from.name as string) : -1;
-
-      // Determine the transition direction
       transitionName.value = toIndex > fromIndex ? 'slide-left' : 'slide-right';
     },
     { immediate: true }
@@ -55,8 +50,6 @@
       uiStore.showToastMessage(
         'An error occurred while loading the app. Please try again.'
       );
-    } finally {
-      isLoading.value = false;
     }
   });
 </script>

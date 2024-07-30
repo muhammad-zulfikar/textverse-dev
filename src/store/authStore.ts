@@ -29,7 +29,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as User | null,
     avatarUrl: '' as string,
-    isLoading: true,
+    isLoading: false,
   }),
   actions: {
     showToast(message: string) {
@@ -38,6 +38,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async login(email: string, password: string) {
+      this.isLoading = true;
       try {
         const userCredential = await signInWithEmailAndPassword(
           auth,
@@ -50,11 +51,16 @@ export const useAuthStore = defineStore('auth', {
       } catch (error) {
         this.showToast('Sign in failed. Please check your credentials.');
         throw error;
+      } finally {
+        setTimeout(() => {
+          this.isLoading = false;
+        }, 1000);
       }
       await this.syncFolders();
     },
 
     async signUp(email: string, password: string) {
+      this.isLoading = true;
       try {
         const userCredential = await createUserWithEmailAndPassword(
           auth,
@@ -67,10 +73,15 @@ export const useAuthStore = defineStore('auth', {
       } catch (error) {
         this.showToast('Sign up failed. Please try again.');
         throw error;
+      } finally {
+        setTimeout(() => {
+          this.isLoading = false;
+        }, 1000);
       }
     },
 
     async logout() {
+      this.isLoading = true;
       try {
         await signOut(auth);
         this.user = null;
@@ -79,6 +90,10 @@ export const useAuthStore = defineStore('auth', {
       } catch (error) {
         this.showToast('Sign out failed. Please try again.');
         throw error;
+      } finally {
+        setTimeout(() => {
+          this.isLoading = false;
+        }, 1000);
       }
       await this.syncFolders();
     },
@@ -133,7 +148,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async fetchCurrentUser() {
-      this.isLoading = true; // Set loading to true when starting to fetch
+      this.isLoading = true;
       return new Promise<void>((resolve) => {
         onAuthStateChanged(auth, async (user) => {
           if (user) {
@@ -150,8 +165,10 @@ export const useAuthStore = defineStore('auth', {
               this.avatarUrl = '';
             }
           }
-          this.isLoading = false; // Set loading to false when done
-          resolve();
+          setTimeout(() => {
+            this.isLoading = false;
+            resolve();
+          }, 500);
         });
       });
     },

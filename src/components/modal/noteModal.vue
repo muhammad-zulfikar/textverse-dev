@@ -3,7 +3,7 @@
 <template>
   <transition name="zoom">
     <div
-      v-if="isOpen"
+      v-if="uiStore.isNoteCardOpen"
       class="fixed inset-0 z-50 flex items-center justify-center font-serif"
     >
       <div @click="handleOutsideClick" class="absolute inset-0"></div>
@@ -13,18 +13,17 @@
           'p-5 relative flex flex-col',
           {
             'custom-card w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3':
-              !uiStore.isFullScreen,
-            'custom-card w-full h-full rounded-none border-none':
-              uiStore.isFullScreen,
+              !uiStore.isExpanded,
+            'custom-card-no-rounded-border w-full h-full': uiStore.isExpanded,
           },
         ]"
       >
         <div class="absolute top-0 right-1 flex text-sm p-4 select-none">
           <button
             class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none mr-6"
-            @click="uiStore.toggleFullScreen"
+            @click="uiStore.toggleExpand"
           >
-            {{ uiStore.isFullScreen ? 'Collapse' : 'Expand' }}
+            {{ uiStore.isExpanded ? 'Collapse' : 'Expand' }}
           </button>
           <button
             class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none"
@@ -33,48 +32,29 @@
             Close
           </button>
         </div>
-        <h1 class="text-xl font-bold mb-4 mt-8">
+        <h1 class="text-xl font-bold mt-8 mb-4">
           <input
             v-model="editedNote.title"
             placeholder="Title"
             class="w-full bg-transparent p-1 border-0 border-b-[1px] md:border-b-2 border-black dark:border-white outline-none placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
           />
-          <span
-            :class="[
-              'flex justify-end font-normal text-gray-500 text-sm mt-1',
-              { 'text-red-500': editedNote.title.length > 30 },
-            ]"
-          >
-            {{ editedNote.title.length }} / 30
-          </span>
         </h1>
         <textarea
           v-model="editedNote.content"
           placeholder="Content"
-          class="w-full p-2 bg-transparent resize-none border-[1px] md:border-2 border-black dark:border-white rounded focus:outline-none flex-grow placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
-          rows="5"
+          class="w-full p-2 mb-2 bg-transparent resize-none border-[1px] md:border-2 border-black dark:border-white rounded focus:outline-none flex-grow placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
+          rows="7"
         ></textarea>
-        <div class="flex justify-between">
-          <div
-            v-if="isEditMode"
-            class="flex justify-end mt-1 select-none text-gray-500 text-sm"
-          >
+        <div class="flex justify-end">
+          <div class="flex justify-end mt-1 select-none text-gray-500 text-sm">
             {{ formattedDate }}
           </div>
-          <span
-            :class="[
-              'flex justify-end text-gray-500 text-sm mt-1 select-none',
-              { 'text-red-500': editedNote.content.length > 100000 },
-            ]"
-          >
-            {{ editedNote.content.length }} / 100000
-          </span>
         </div>
         <div class="flex justify-between mt-6 select-none text-sm">
           <div class="relative inline-block text-left" ref="dropdownRef">
             <button
               @click.stop="toggleDropdown"
-              :class="{ 'z-50': isOpen }"
+              :class="{ 'z-50': uiStore.isNoteCardOpen }"
               type="button"
               class="hover:underline outline-none flex items-center relative cursor-pointer"
             >
@@ -151,14 +131,13 @@
           </div>
           <div>
             <button
-              :disabled="!isValid || (isEditMode && !hasChanges)"
               @click="saveNote"
               :class="[
                 'dark:hover:bg-transparent outline-none text-sm',
                 {
                   'text-blue-500 hover:underline cursor-pointer':
                     isValid && (!isEditMode || hasChanges),
-                  'text-gray-500 cursor-not-allowed':
+                  'text-gray-500 cursor-pointer':
                     !isValid || (isEditMode && !hasChanges),
                 },
               ]"
@@ -235,11 +214,7 @@
     const date = new Date(
       editedNote.value.last_edited || editedNote.value.time_created
     );
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
+    return notesStore.localeDate(date);
   });
 
   const toggleDropdown = () => {
@@ -267,7 +242,10 @@
   };
 
   const saveNote = async () => {
-    if (!isValid.value) return;
+    if (!isValid.value) {
+      showInvalidNoteToast();
+      return;
+    }
 
     if (isEditMode.value && hasChanges.value) {
       await notesStore.updateNote(editedNote.value);
@@ -277,8 +255,20 @@
     closeModal();
   };
 
+  const showInvalidNoteToast = () => {
+    if (editedNote.value.title.trim().length === 0) {
+      uiStore.showToastMessage('Title is required');
+    } else if (editedNote.value.title.length > 30) {
+      uiStore.showToastMessage('Title exceeds 30 characters');
+    } else if (editedNote.value.content.length > 100000) {
+      uiStore.showToastMessage('Content exceeds 100,000 characters');
+    }
+  };
+
   const handleOutsideClick = () => {
-    if (!isEditMode.value || (isEditMode.value && !hasChanges.value)) {
+    if (!isEditMode.value && isValid.value) {
+      uiStore.showToastMessage('You have unsaved changes!');
+    } else if (!isEditMode.value || (isEditMode.value && !hasChanges.value)) {
       closeModal();
     } else {
       uiStore.showToastMessage('You have unsaved changes!');
@@ -348,10 +338,6 @@
 </script>
 
 <style scoped>
-  .modal-open {
-    overflow: hidden;
-  }
-
   .dropdown-menu {
     top: -100%;
     left: 0;

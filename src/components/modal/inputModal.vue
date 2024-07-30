@@ -17,7 +17,7 @@
           @focus="handleFocus"
           @blur="handleBlur"
           :placeholder="placeholder"
-          class="w-full p-1 bg-transparent border-0 border-b-2 border-black dark:border-white outline-none placeholder-black dark:placeholder-white placeholder-opacity-50"
+          class="w-full p-1 bg-transparent border-0 border-b-[1px] border-black dark:border-white outline-none placeholder-black dark:placeholder-white placeholder-opacity-50"
         />
         <span
           v-if="showCharCount"

@@ -13,10 +13,6 @@ interface NotesState {
   deletedNotes: Note[];
   selectedNoteId: number | null;
   searchQuery: string;
-  editing: boolean;
-  showNoteModal: boolean;
-  showNoteSidebar: boolean;
-  isLoading: boolean;
 }
 
 export const useNotesStore = defineStore('notes', {
@@ -25,10 +21,6 @@ export const useNotesStore = defineStore('notes', {
     deletedNotes: [],
     selectedNoteId: null as number | null,
     searchQuery: '',
-    editing: false,
-    showNoteModal: false,
-    showNoteSidebar: false,
-    isLoading: true,
   }),
 
   getters: {
@@ -289,7 +281,6 @@ export const useNotesStore = defineStore('notes', {
     },
 
     async loadNotes() {
-      this.isLoading = true;
       if (authStore.isLoggedIn) {
         const firebaseNotes = await firebaseStore.getAllNotesFromFirebase(
           authStore.user!.uid
@@ -339,7 +330,6 @@ export const useNotesStore = defineStore('notes', {
         }
       }
       this.reorderNotes();
-      this.isLoading = false;
     },
 
     reorderNotes() {
@@ -398,10 +388,6 @@ export const useNotesStore = defineStore('notes', {
 
     setSelectedNote(noteId: number | null) {
       this.selectedNoteId = noteId;
-    },
-
-    setEditing(value: boolean) {
-      this.editing = value;
     },
   },
 });

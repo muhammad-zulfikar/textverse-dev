@@ -3,22 +3,21 @@
 import { defineStore } from 'pinia';
 import { notesStore } from './stores';
 
-export interface NoteLayout {
-  id: number;
-}
-
 interface UIState {
   theme: 'light' | 'dark' | 'system';
   viewType: 'card' | 'table' | 'mail' | 'folder';
   columns: number;
   folderViewType: 'grid' | 'list';
   currentTheme: string;
-  isFullScreen: boolean;
+  isExpanded: boolean;
   activeDropdown: string | null;
   showToast: boolean;
   toastMessage: string;
   toastTimeoutId: number | null;
   isAlertOpen: boolean;
+  isNoteCardOpen: boolean;
+  isNoteSidebarOpen: boolean;
+  isEditing: boolean;
   isCreatingNote: boolean;
 }
 
@@ -36,12 +35,15 @@ export const useUIStore = defineStore('ui', {
       localStorage.getItem('columns') || (window.innerWidth < 640 ? '2' : '4')
     ),
     folderViewType: 'grid',
-    isFullScreen: false,
+    isExpanded: false,
     activeDropdown: null,
     showToast: false,
     toastMessage: '',
     toastTimeoutId: null,
     isAlertOpen: false,
+    isNoteCardOpen: false,
+    isNoteSidebarOpen: false,
+    isEditing: false,
     isCreatingNote: false,
   }),
 
@@ -66,8 +68,8 @@ export const useUIStore = defineStore('ui', {
       this.folderViewType = viewType;
     },
 
-    toggleFullScreen() {
-      this.isFullScreen = !this.isFullScreen;
+    toggleExpand() {
+      this.isExpanded = !this.isExpanded;
     },
 
     applyTheme() {
@@ -122,30 +124,16 @@ export const useUIStore = defineStore('ui', {
       }, 3000);
     },
 
-    showNoteModal() {
-      if (this.viewType !== 'table') {
-        notesStore.showNoteModal = true;
-        document.body.classList.add('modal-open');
-      }
-    },
-
-    closeNoteModal() {
-      if (this.viewType !== 'table') {
-        notesStore.showNoteModal = false;
-        document.body.classList.remove('modal-open');
-      }
-    },
-
     openNote(noteId: number | null) {
       notesStore.selectedNoteId = noteId;
       switch (this.viewType) {
         case 'card':
         case 'folder':
-          notesStore.showNoteModal = true;
+          this.isNoteCardOpen = true;
           document.body.classList.add('modal-open');
           break;
         case 'table':
-          notesStore.showNoteSidebar = true;
+          this.isNoteSidebarOpen = true;
           document.body.classList.add('modal-open');
           break;
         case 'mail':
@@ -162,11 +150,11 @@ export const useUIStore = defineStore('ui', {
       switch (this.viewType) {
         case 'card':
         case 'folder':
-          notesStore.showNoteModal = false;
+          this.isNoteCardOpen = false;
           document.body.classList.remove('modal-open');
           break;
         case 'table':
-          notesStore.showNoteSidebar = false;
+          this.isNoteSidebarOpen = false;
           document.body.classList.remove('modal-open');
           break;
         case 'mail':

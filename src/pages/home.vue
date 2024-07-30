@@ -7,27 +7,27 @@
     <NoteList :notes="notesStore.filteredNotes" />
 
     <div
-      v-if="notesStore.showNoteModal && uiStore.viewType !== 'table'"
+      v-if="uiStore.isNoteCardOpen && uiStore.viewType !== 'table'"
       class="fixed inset-0 bg-black bg-opacity-50 z-40"
-      @click="closeNoteModal"
+      @click="closeNote"
     ></div>
     <NoteModal
       v-if="uiStore.viewType !== 'table'"
-      :is-open="notesStore.showNoteModal"
+      :is-open="uiStore.isNoteCardOpen"
       :note-id="notesStore.selectedNoteId ?? undefined"
-      @close="closeNoteModal"
+      @close="closeNote"
     />
 
     <div
-      v-if="notesStore.showNoteSidebar && uiStore.viewType === 'table'"
+      v-if="uiStore.isNoteSidebarOpen && uiStore.viewType === 'table'"
       class="fixed inset-0 bg-black bg-opacity-50 z-40"
-      @click="closeSidebar"
+      @click="closeNote"
     ></div>
     <Transition name="slide">
       <NoteSidebar
-        v-if="uiStore.viewType === 'table' && notesStore.showNoteSidebar"
+        v-if="uiStore.viewType === 'table' && uiStore.isNoteSidebarOpen"
         :note-id="notesStore.selectedNoteId"
-        @close="closeSidebar"
+        @close="closeNote"
       />
     </Transition>
   </div>
@@ -39,15 +39,12 @@
   import Toolbar from '@/components/toolbar/toolbar.vue';
   import NoteList from '@/components/notes/noteView.vue';
   import NoteModal from '@/components/modal/noteModal.vue';
-  import NoteSidebar from '@/components/noteSidebar.vue';
+  import NoteSidebar from '@/components/modal/noteSidebar.vue';
 
-  const closeNoteModal = () => {
+  const closeNote = () => {
     notesStore.selectedNoteId = null;
-    notesStore.showNoteModal = false;
-    uiStore.closeNote();
-  };
-
-  const closeSidebar = () => {
+    uiStore.isNoteCardOpen = false;
+    uiStore.isNoteSidebarOpen = false;
     uiStore.closeNote();
   };
 </script>

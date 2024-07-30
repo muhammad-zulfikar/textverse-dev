@@ -31,7 +31,9 @@
 </template>
 
 <script setup lang="ts">
-  defineProps<{
+  import { watch } from 'vue';
+
+  const props = defineProps<{
     isOpen: boolean;
     message: string;
   }>();
@@ -40,4 +42,15 @@
     (e: 'cancel'): void;
     (e: 'confirm'): void;
   }>();
+
+  watch(
+    () => props.isOpen,
+    (newValue) => {
+      if (newValue) {
+        document.body.classList.add('modal-open');
+      } else {
+        document.body.classList.remove('modal-open');
+      }
+    }
+  );
 </script>

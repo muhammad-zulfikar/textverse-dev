@@ -39,7 +39,7 @@
     <Transition name="zoom">
       <div
         v-if="dropdownOpen"
-        class="custom-card z-50 origin-top-left absolute left-0 mt-2 w-fit ml-[-30px]"
+        class="custom-card z-50 origin-top-left absolute left-0 mt-2 w-[125px] ml-[-30px]"
       >
         <div class="py-1" role="menu" aria-orientation="vertical">
           <a
@@ -70,20 +70,20 @@
           >
             <a
               @click.stop="decreaseColumns"
-              class="block px-1 pb-1 text-xl cursor-pointer"
+              class="block cursor-pointer"
               role="menuitem"
             >
-              -
+            <img src="@/assets/icons/minus.svg" class="h-4 w-4">
             </a>
-            <span class="px-1 text-sm whitespace-nowrap">
+            <span class="mx-2 text-sm whitespace-nowrap">
               {{ uiStore.columns }} Columns
             </span>
             <a
               @click.stop="increaseColumns"
-              class="block px-1 pb-1 text-xl cursor-pointer"
+              class="block cursor-pointer"
               role="menuitem"
             >
-              +
+              <img src="@/assets/icons/plus.svg" class="h-4 w-4">
             </a>
           </div>
           <a

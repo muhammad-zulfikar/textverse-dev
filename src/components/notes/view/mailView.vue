@@ -25,7 +25,7 @@
             {{ truncateContent(note.content) }}
           </p>
           <div
-            class="flex justify-between text-[10px] md:text-xs text-gray-500 dark:text-gray-400 mt-2"
+            class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2"
           >
             <span
               class="hover:underline"

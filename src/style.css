@@ -16,8 +16,8 @@ body {
   @apply bg-cream dark:bg-gray-750 border-[1px] border-dashed border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
-.custom-card-no-rounded {
-  @apply bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-white shadow-lg hover:shadow-2xl transition-all duration-300;
+.custom-card-no-rounded-border {
+  @apply bg-cream dark:bg-gray-750 shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
 .custom-card-transparent {

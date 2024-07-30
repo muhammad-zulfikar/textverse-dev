@@ -127,9 +127,12 @@
                 />
                 <button
                   @click.stop="openSidebar(note.id)"
-                  class="custom-card text-sm ml-2 px-2 py-1 absolute right-2 top-1/2 transform -translate-y-1/2 group-hover:inline-block md:group-hover:inline-block md:hidden"
+                  class="bg-[#ebdfc0] dark:bg-gray-800 rounded-lg border-[1px] border-black dark:border-white shadow-md hover:shadow-xl transition-all duration-300 text-sm ml-2 px-2 py-1 absolute right-2 top-1/2 transform -translate-y-1/2 group-hover:inline-block md:group-hover:inline-block md:hidden"
                 >
-                  Open
+                  <img
+                    src="@/assets/icons/sidebar.svg"
+                    class="h-6 w-6 dark:invert"
+                  />
                 </button>
               </div>
             </td>
@@ -191,7 +194,7 @@
   import { Note } from '@/store/types';
   import { uiStore, notesStore, folderStore } from '@/store/stores';
   import AlertModal from '@/components/modal/alertModal.vue';
-  import NoteSidebar from '@/components/noteSidebar.vue';
+  import NoteSidebar from '@/components/modal/noteSidebar.vue';
 
   const { notes } = defineProps<{
     notes: Note[];

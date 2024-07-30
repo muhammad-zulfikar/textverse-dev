@@ -86,9 +86,13 @@
       </div>
     </div>
     <div class="bg-black dark:bg-white h-px transition-all duration-300"></div>
+    <div
+      v-if="showSignoutConfirmation"
+      class="fixed inset-0 bg-black bg-opacity-50 z-40"
+    ></div>
     <AlertModal
       :is-open="showSignoutConfirmation"
-      :message="'Are you sure you want to sign out? You will be logged out of your account.'"
+      :message="`Are you sure you want to sign out? You won't be able to sync your notes.`"
       @cancel="showSignoutConfirmation = false"
       @confirm="signout"
     />
@@ -125,12 +129,12 @@
   };
 
   const toggleNav = () => {
-    isUserDropdownOpen.value = false; // Close user dropdown if nav dropdown is toggled
+    isUserDropdownOpen.value = false;
     isNavOpen.value = !isNavOpen.value;
   };
 
   const toggleUserDropdown = () => {
-    isNavOpen.value = false; // Close nav dropdown if user dropdown is toggled
+    isNavOpen.value = false;
     isUserDropdownOpen.value = !isUserDropdownOpen.value;
   };
 
@@ -189,7 +193,6 @@
     router.push('/settings');
   };
 
-  // Utility function to determine if the current route is active
   const isActive = (route: string) => {
     return router.currentRoute.value.path === route;
   };

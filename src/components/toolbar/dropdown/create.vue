@@ -73,7 +73,7 @@
 
 <script setup lang="ts">
   import { ref, onMounted, onUnmounted, watch } from 'vue';
-  import { notesStore, uiStore, folderStore } from '@/store/stores';
+  import { uiStore, folderStore } from '@/store/stores';
   import InputModal from '@/components/modal/inputModal.vue';
 
   const dropdownOpen = ref(false);
@@ -122,17 +122,6 @@
 
   onMounted(() => document.addEventListener('click', handleClickOutside));
   onUnmounted(() => document.removeEventListener('click', handleClickOutside));
-
-  watch(
-    () => notesStore.editing,
-    (newValue) => {
-      if (newValue) {
-        document.body.classList.add('modal-open');
-      } else {
-        document.body.classList.remove('modal-open');
-      }
-    }
-  );
 
   watch(
     () => uiStore.activeDropdown,

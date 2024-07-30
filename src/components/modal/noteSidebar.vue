@@ -8,19 +8,21 @@
       <div
         ref="sidebarContainer"
         :class="[
-          'fixed inset-y-0 right-0',
-          sidebarWidthClass,
-          'bg-cream dark:bg-gray-800 shadow-lg overflow-y-auto font-serif',
+          'fixed inset-y-0 right-0 overflow-y-auto',
+          {
+            'custom-card-no-rounded-border w-full': uiStore.isExpanded,
+            'custom-card w-3/4 md:w-2/5': !uiStore.isExpanded,
+          },
         ]"
       >
         <div class="p-6">
           <div class="flex justify-end items-center mb-4">
             <div>
               <button
-                @click="toggleExpand"
+                @click="uiStore.toggleExpand"
                 class="text-gray-600 dark:text-gray-300 hover:underline mr-4 text-sm md:text-md"
               >
-                {{ isExpanded ? 'Collapse' : 'Expand' }}
+                {{ uiStore.isExpanded ? 'Collapse' : 'Expand' }}
               </button>
               <button
                 v-if="isEditMode"
@@ -49,14 +51,6 @@
               placeholder="Title"
               class="text-2xl md:text-3xl font-bold w-full bg-transparent mb-1 outline-none placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
             />
-            <span
-              :class="[
-                'flex justify-end font-normal text-gray-500 text-sm mt-1',
-                { 'text-red-500': editedNote.title.length > 30 },
-              ]"
-            >
-              {{ editedNote.title.length }} / 30
-            </span>
           </div>
           <div
             class="flex justify-between items-center text-sm mb-4 whitespace-nowrap"
@@ -156,14 +150,6 @@
             class="w-full mt-4 bg-transparent resize-none outline-none flex-grow text-base placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
             :style="{ height: textareaHeight }"
           ></textarea>
-          <span
-            :class="[
-              'flex justify-end text-gray-500 text-sm mt-1',
-              { 'text-red-500': editedNote.content.length > 100000 },
-            ]"
-          >
-            {{ editedNote.content.length }} / 100000
-          </span>
         </div>
       </div>
 
@@ -179,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, watch, onMounted } from 'vue';
+  import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
   import { Note } from '@/store/types';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { DEFAULT_FOLDERS } from '@/store/constants';
@@ -209,7 +195,6 @@
   const isDropdownOpen = ref(false);
   const textareaHeight = ref('auto');
   const sidebarContainer = ref<HTMLElement | null>(null);
-  const isExpanded = ref(false);
   const creatingFolder = ref(false);
   const newFolderName = ref('');
   const alertMessage = ref('');
@@ -242,6 +227,8 @@
   function attemptClose() {
     if (!hasChanges.value) {
       closeSidebar();
+    } else {
+      uiStore.showToastMessage('You have unsaved changes.');
     }
   }
 
@@ -258,10 +245,6 @@
 
   function toggleDropdown() {
     isDropdownOpen.value = !isDropdownOpen.value;
-  }
-
-  function toggleExpand() {
-    isExpanded.value = !isExpanded.value;
   }
 
   function createNewFolder() {
@@ -340,13 +323,14 @@
     if (sidebarContainer.value) {
       textareaHeight.value = `${sidebarContainer.value.clientHeight - 248}px`;
     }
+    if (sidebarOpen.value) {
+      document.body.classList.add('modal-open');
+    }
   });
 
-  const sidebarWidthClass = computed(() =>
-    isExpanded.value
-      ? 'w-full custom-card-no-rounded'
-      : 'w-3/4 md:w-2/5 custom-card'
-  );
+  onUnmounted(() => {
+    document.body.classList.remove('modal-open');
+  });
 </script>
 
 <style scoped>
