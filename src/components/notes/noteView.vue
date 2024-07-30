@@ -17,64 +17,64 @@
 </template>
 
 <script lang="ts" setup>
-import { authStore, notesStore, folderStore, uiStore } from '@/store/stores';
-import cardView from './view/cardView.vue';
-import tableView from './view/tableView.vue';
-import mailView from './view/mailView.vue';
-import folderView from './view/folderView.vue';
-import { ref, onMounted, watch, computed } from 'vue';
+  import { authStore, notesStore, folderStore, uiStore } from '@/store/stores';
+  import cardView from './view/cardView.vue';
+  import tableView from './view/tableView.vue';
+  import mailView from './view/mailView.vue';
+  import folderView from './view/folderView.vue';
+  import { ref, onMounted, watch, computed } from 'vue';
 
-const isLoading = ref(true);
+  const isLoading = ref(true);
 
-const filteredNotes = computed(() =>
-  notesStore.filteredNotes(folderStore.currentFolder)
-);
+  const filteredNotes = computed(() =>
+    notesStore.filteredNotes(folderStore.currentFolder)
+  );
 
-const loadNotes = async () => {
-  isLoading.value = true;
-  await notesStore.loadNotes();
-  isLoading.value = false;
-};
+  const loadNotes = async () => {
+    isLoading.value = true;
+    await notesStore.loadNotes();
+    isLoading.value = false;
+  };
 
-onMounted(async () => {
-  await loadNotes();
-});
-
-watch(
-  () => authStore.user,
-  async () => {
+  onMounted(async () => {
     await loadNotes();
-  }
-);
+  });
 
-const currentView = computed(() => {
-  switch (uiStore.viewType) {
-    case 'card':
-      return cardView;
-    case 'table':
-      return tableView;
-    case 'email':
-      return mailView;
-    case 'folder':
-      return folderView;
-    default:
-      return null;
-  }
-});
+  watch(
+    () => authStore.user,
+    async () => {
+      await loadNotes();
+    }
+  );
+
+  const currentView = computed(() => {
+    switch (uiStore.viewType) {
+      case 'card':
+        return cardView;
+      case 'table':
+        return tableView;
+      case 'email':
+        return mailView;
+      case 'folder':
+        return folderView;
+      default:
+        return null;
+    }
+  });
 </script>
 
 <style scoped>
-.break-inside-avoid {
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: all 0.5s ease;
-}
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  opacity: 0;
-  transform: translateY(20px);
-}
+  .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .slide-fade-enter-active,
+  .slide-fade-leave-active {
+    transition: all 0.5s ease;
+  }
+  .slide-fade-enter-from,
+  .slide-fade-leave-to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
 </style>

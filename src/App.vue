@@ -4,7 +4,9 @@
     <LoadingSpinner v-if="isLoading" />
     <template v-else>
       <router-view />
-      <Toast v-if="uiStore.showToast" :message="uiStore.toastMessage" />
+      <Transition name="toast-slide">
+        <Toast v-if="uiStore.showToast" :message="uiStore.toastMessage" />
+      </Transition>
     </template>
   </div>
 </template>

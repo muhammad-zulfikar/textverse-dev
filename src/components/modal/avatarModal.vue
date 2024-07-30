@@ -1,58 +1,60 @@
 <template>
-  <div
-    v-if="isOpen"
-    class="fixed inset-0 z-40 flex items-center justify-center"
-  >
+  <transition name="zoom">
     <div
-      @click="closeModal"
-      class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-[2px]"
-    ></div>
-    <div
-      @click.stop
-      class="z-50 font-serif custom-card p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3"
+      v-if="isOpen"
+      class="fixed inset-0 z-40 flex items-center justify-center"
     >
-      <h1 class="text-xl font-bold mb-4">Select Avatar</h1>
-      <div class="flex flex-col items-center mb-4 relative">
-        <img
-          v-if="avatarUrl"
-          :src="avatarUrl"
-          class="w-32 h-32 rounded-full custom-card-transparent-avatar mb-4"
-          alt="Avatar"
-        />
-        <div
-          @dragover.prevent
-          @drop.prevent="handleDrop"
-          class="custom-card-border-dashed w-full h-32 md:h-52 flex flex-col items-center justify-center text-gray-600 dark:text-gray-400 cursor-pointer"
-          @click="triggerFilePicker"
-        >
-          <p class="text-sm">Drag & Drop your image here</p>
-          <p class="text-xs">or click to select a file</p>
+      <div
+        @click="closeModal"
+        class="absolute inset-0 bg-black bg-opacity-50"
+      ></div>
+      <div
+        @click.stop
+        class="z-50 font-serif custom-card p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3"
+      >
+        <h1 class="text-xl font-bold mb-4">Select Avatar</h1>
+        <div class="flex flex-col items-center mb-4 relative">
+          <img
+            v-if="avatarUrl"
+            :src="avatarUrl"
+            class="w-32 h-32 rounded-full custom-card-transparent-avatar mb-4"
+            alt="Avatar"
+          />
+          <div
+            @dragover.prevent
+            @drop.prevent="handleDrop"
+            class="custom-card-border-dashed w-full h-32 md:h-52 flex flex-col items-center justify-center text-gray-600 dark:text-gray-400 cursor-pointer"
+            @click="triggerFilePicker"
+          >
+            <p class="text-sm">Drag & Drop your image here</p>
+            <p class="text-xs">or click to select a file</p>
+          </div>
+          <input
+            type="file"
+            @change="handleFileChange"
+            class="hidden"
+            ref="fileInput"
+            accept="image/*"
+          />
         </div>
-        <input
-          type="file"
-          @change="handleFileChange"
-          class="hidden"
-          ref="fileInput"
-          accept="image/*"
-        />
-      </div>
-      <div class="flex justify-end mt-6">
-        <button
-          @click.prevent="closeModal"
-          class="hover:underline dark:hover:bg-transparent outline-none mr-6 cursor-pointer text-sm"
-        >
-          Cancel
-        </button>
-        <button
-          :disabled="!avatarUrl"
-          @click.prevent="confirmSelection"
-          class="dark:hover:bg-transparent outline-none text-sm"
-        >
-          Select
-        </button>
+        <div class="flex justify-end mt-6">
+          <button
+            @click.prevent="closeModal"
+            class="hover:underline dark:hover:bg-transparent outline-none mr-6 cursor-pointer text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            :disabled="!avatarUrl"
+            @click.prevent="confirmSelection"
+            class="dark:hover:bg-transparent outline-none text-sm"
+          >
+            Select
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script setup lang="ts">

@@ -1,58 +1,60 @@
 <!-- inputModal.vue -->
 <template>
-  <div
-    v-if="isOpen"
-    class="fixed inset-0 z-40 flex items-center justify-center"
-  >
+  <transition name="zoom">
     <div
-      @click="closeModal"
-      class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-[2px]"
-    ></div>
-    <form
-      @submit.prevent="handleSubmit"
-      @click.stop
-      class="z-50 font-serif custom-card p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3"
+      v-if="isOpen"
+      class="fixed inset-0 z-40 flex items-center justify-center"
     >
-      <h1 class="text-xl font-bold mb-4">{{ modalTitle }}</h1>
-      <input
-        v-model="inputValue"
-        @focus="handleFocus"
-        @blur="handleBlur"
-        :placeholder="placeholder"
-        class="w-full p-1 bg-transparent border-0 border-b-2 border-black dark:border-white outline-none placeholder-black dark:placeholder-white placeholder-opacity-50"
-      />
-      <span
-        v-if="showCharCount"
-        :class="[
-          'flex justify-end font-normal text-gray-500 text-sm mt-1',
-          { 'text-red-500': inputValue.length > maxLength },
-        ]"
+      <div
+        @click="closeModal"
+        class="absolute inset-0 bg-black bg-opacity-50"
+      ></div>
+      <form
+        @submit.prevent="handleSubmit"
+        @click.stop
+        class="z-50 font-serif custom-card p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3"
       >
-        {{ inputValue.length }} / {{ maxLength }}
-      </span>
-      <div class="flex justify-end mt-6">
-        <button
-          @click.prevent="closeModal"
-          class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none mr-6 cursor-pointer"
-        >
-          <span class="text-sm">Cancel</span>
-        </button>
-        <button
-          :disabled="!isValid"
-          type="submit"
+        <h1 class="text-xl font-bold mb-4">{{ modalTitle }}</h1>
+        <input
+          v-model="inputValue"
+          @focus="handleFocus"
+          @blur="handleBlur"
+          :placeholder="placeholder"
+          class="w-full p-1 bg-transparent border-0 border-b-2 border-black dark:border-white outline-none placeholder-black dark:placeholder-white placeholder-opacity-50"
+        />
+        <span
+          v-if="showCharCount"
           :class="[
-            'dark:hover:bg-transparent outline-none text-sm',
-            {
-              'hover:underline cursor-pointer': isValid,
-              'text-gray-500': !isValid,
-            },
+            'flex justify-end font-normal text-gray-500 text-sm mt-1',
+            { 'text-red-500': inputValue.length > maxLength },
           ]"
         >
-          <span class="text-sm">Save</span>
-        </button>
-      </div>
-    </form>
-  </div>
+          {{ inputValue.length }} / {{ maxLength }}
+        </span>
+        <div class="flex justify-end mt-6">
+          <button
+            @click.prevent="closeModal"
+            class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none mr-6 cursor-pointer"
+          >
+            <span class="text-sm">Cancel</span>
+          </button>
+          <button
+            :disabled="!isValid"
+            type="submit"
+            :class="[
+              'dark:hover:bg-transparent outline-none text-sm',
+              {
+                'hover:underline cursor-pointer': isValid,
+                'text-gray-500': !isValid,
+              },
+            ]"
+          >
+            <span class="text-sm">Save</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </transition>
 </template>
 
 <script setup lang="ts">

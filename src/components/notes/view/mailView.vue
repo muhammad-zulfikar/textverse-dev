@@ -10,39 +10,39 @@
         v-if="!isMobileView || !selectedNoteId"
         class="w-full md:w-1/4 overflow-y-auto rounded-l-lg select-none"
       >
-      <transition-group name="list" tag="div">
-        <div
-          v-for="(note, index) in notes"
-          :key="`${note.id}-${note.pinned}-${note.last_edited}`"
-          @click="selectNote(note.id)"
-          @contextmenu.prevent="(event) => showContextMenu(event, note)"
-          class="p-4 cursor-pointer hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
-          :class="{
-            'bg-[#ebdfc0] dark:bg-gray-700':
-              isContextMenuOpenForNote(note.id) || selectedNoteId === note.id,
-            'border-b border-black dark:border-white':
-              index !== notes.length - 1,
-          }"
-        >
-          <h3 class="font-bold truncate">{{ note.title }}</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-300 truncate">
-            {{ truncateContent(note.content) }}
-          </p>
+        <transition-group name="list" tag="div">
           <div
-            class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2"
+            v-for="(note, index) in notes"
+            :key="`${note.id}-${note.pinned}-${note.last_edited}`"
+            @click="selectNote(note.id)"
+            @contextmenu.prevent="(event) => showContextMenu(event, note)"
+            class="p-4 cursor-pointer hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
+            :class="{
+              'bg-[#ebdfc0] dark:bg-gray-700':
+                isContextMenuOpenForNote(note.id) || selectedNoteId === note.id,
+              'border-b border-black dark:border-white':
+                index !== notes.length - 1,
+            }"
           >
-            <span>{{ note.folder }}</span>
-            <span v-if="note.pinned">Pinned</span>
-            <span>
-              {{ notesStore.localeDate(note.last_edited || note.time_created) }}
-            </span>
+            <h3 class="font-bold truncate">{{ note.title }}</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300 truncate">
+              {{ truncateContent(note.content) }}
+            </p>
+            <div
+              class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2"
+            >
+              <span>{{ note.folder }}</span>
+              <span v-if="note.pinned">Pinned</span>
+              <span>
+                {{
+                  notesStore.localeDate(note.last_edited || note.time_created)
+                }}
+              </span>
+            </div>
           </div>
-        </div>
         </transition-group>
       </div>
 
-      <!-- Main content -->
-      <transition name="fade" mode="out-in">
       <div
         v-if="(!isMobileView || selectedNoteId) && editedNote"
         class="w-full md:w-3/4 p-6 overflow-y-auto md:border-l border-black dark:border-white rounded-r-lg relative"
@@ -165,7 +165,6 @@
           ></textarea>
         </div>
       </div>
-      </transition>
     </div>
     <contextMenu
       v-if="editedNote"
@@ -349,16 +348,3 @@
     window.removeEventListener('resize', handleResize);
   });
 </script>
-
-<style scoped>
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-  </style>

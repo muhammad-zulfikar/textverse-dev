@@ -77,13 +77,3 @@
 <script setup>
   import Navbar from '@/components/navbar/navbar.vue';
 </script>
-
-<style scoped>
-  .custom-card {
-    border: 1px solid black;
-  }
-
-  .dark .custom-card {
-    border-color: white;
-  }
-</style>

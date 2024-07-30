@@ -34,49 +34,49 @@
       </span>
     </button>
     <Transition name="zoom">
-    <div
-      v-if="dropdownOpen"
-      class="custom-card z-50 origin-top-right absolute mt-2 w-56 ml-[-56px]"
-    >
-      <div class="py-1" role="menu" aria-orientation="vertical">
-        <template v-for="folder in sortedFolders" :key="folder">
-          <div
-            @click.stop="selectFolder(folder)"
-            class="block px-4 py-2 text-sm flex justify-between items-center"
-            role="menuitem"
-          >
-            <span
-              :class="
-                folder === selectedFolder ? 'underline dark:text-white' : ''
-              "
-              class="hover:underline cursor-pointer"
-            >
-              {{ folder }} ({{ notesCountByFolder[folder] || 0 }})
-            </span>
+      <div
+        v-if="dropdownOpen"
+        class="custom-card z-50 origin-top-right absolute mt-2 w-56 ml-[-56px]"
+      >
+        <div class="py-1" role="menu" aria-orientation="vertical">
+          <template v-for="folder in sortedFolders" :key="folder">
             <div
-              v-if="
-                folder !== DEFAULT_FOLDERS.ALL_NOTES &&
-                folder !== DEFAULT_FOLDERS.UNCATEGORIZED
-              "
-              class="flex items-center space-x-2"
+              @click.stop="selectFolder(folder)"
+              class="block px-4 py-2 text-sm flex justify-between items-center"
+              role="menuitem"
             >
-              <button
-                @click.stop="openRenameModal(folder)"
-                class="text-xs text-blue-500 cursor-pointer hover:underline mr-2"
+              <span
+                :class="
+                  folder === selectedFolder ? 'underline dark:text-white' : ''
+                "
+                class="hover:underline cursor-pointer"
               >
-                Rename
-              </button>
-              <button
-                @click.stop="openDeleteAlert(folder)"
-                class="text-xs text-red-500 cursor-pointer hover:underline"
+                {{ folder }} ({{ notesCountByFolder[folder] || 0 }})
+              </span>
+              <div
+                v-if="
+                  folder !== DEFAULT_FOLDERS.ALL_NOTES &&
+                  folder !== DEFAULT_FOLDERS.UNCATEGORIZED
+                "
+                class="flex items-center space-x-2"
               >
-                Delete
-              </button>
+                <button
+                  @click.stop="openRenameModal(folder)"
+                  class="text-xs text-blue-500 cursor-pointer hover:underline mr-2"
+                >
+                  Rename
+                </button>
+                <button
+                  @click.stop="openDeleteAlert(folder)"
+                  class="text-xs text-red-500 cursor-pointer hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
-          </div>
-        </template>
+          </template>
+        </div>
       </div>
-    </div>
     </Transition>
   </div>
   <InputModal

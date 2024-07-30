@@ -35,113 +35,113 @@
       </span>
     </button>
     <Transition name="zoom">
-    <div
-      v-if="dropdownOpen"
-      class="custom-card z-50 origin-top-left absolute left-0 mt-2 w-fit ml-[-30px]"
-    >
-      <div class="py-1" role="menu" aria-orientation="vertical">
-        <a
-          @click.stop="toggleCardView"
-          :class="{ underline: uiStore.viewType === 'card' }"
-          class="block px-4 py-2 text-sm cursor-pointer hover:underline flex justify-between items-center"
-          role="menuitem"
-        >
-          Card
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 ml-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              :d="columnsExpanded ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'"
-            />
-          </svg>
-        </a>
-        <div
-          v-if="columnsExpanded"
-          class="flex items-center justify-center mx-2"
-        >
+      <div
+        v-if="dropdownOpen"
+        class="custom-card z-50 origin-top-left absolute left-0 mt-2 w-fit ml-[-30px]"
+      >
+        <div class="py-1" role="menu" aria-orientation="vertical">
           <a
-            @click.stop="decreaseColumns"
-            class="block px-1 pb-1 text-xl cursor-pointer"
+            @click.stop="toggleCardView"
+            :class="{ underline: uiStore.viewType === 'card' }"
+            class="block px-4 py-2 text-sm cursor-pointer hover:underline flex justify-between items-center"
             role="menuitem"
           >
-            -
+            Card
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 ml-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                :d="columnsExpanded ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'"
+              />
+            </svg>
           </a>
-          <span class="px-1 text-sm whitespace-nowrap">
-            {{ uiStore.columns }} Columns
-          </span>
-          <a
-            @click.stop="increaseColumns"
-            class="block px-1 pb-1 text-xl cursor-pointer"
-            role="menuitem"
+          <div
+            v-if="columnsExpanded"
+            class="flex items-center justify-center mx-2"
           >
-            +
-          </a>
-        </div>
-        <a
-          @click.stop="setViewType('table')"
-          :class="{ underline: uiStore.viewType === 'table' }"
-          class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-          role="menuitem"
-        >
-          Table
-        </a>
-        <a
-          @click.stop="setViewType('email')"
-          :class="{ underline: uiStore.viewType === 'email' }"
-          class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-          role="menuitem"
-        >
-          Mail
-        </a>
-        <a
-          @click.stop="toggleFolderView"
-          :class="{ underline: uiStore.viewType === 'folder' }"
-          class="block px-4 py-2 text-sm cursor-pointer hover:underline flex justify-between items-center"
-          role="menuitem"
-        >
-          Folder
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 ml-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              :d="folderViewExpanded ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'"
-            />
-          </svg>
-        </a>
-        <div v-if="folderViewExpanded" class="">
+            <a
+              @click.stop="decreaseColumns"
+              class="block px-1 pb-1 text-xl cursor-pointer"
+              role="menuitem"
+            >
+              -
+            </a>
+            <span class="px-1 text-sm whitespace-nowrap">
+              {{ uiStore.columns }} Columns
+            </span>
+            <a
+              @click.stop="increaseColumns"
+              class="block px-1 pb-1 text-xl cursor-pointer"
+              role="menuitem"
+            >
+              +
+            </a>
+          </div>
           <a
-            @click.stop="setFolderViewType('grid')"
-            :class="{ underline: uiStore.folderViewType === 'grid' }"
+            @click.stop="setViewType('table')"
+            :class="{ underline: uiStore.viewType === 'table' }"
             class="block px-4 py-2 text-sm cursor-pointer hover:underline"
             role="menuitem"
           >
-            - Grid
+            Table
           </a>
           <a
-            @click.stop="setFolderViewType('list')"
-            :class="{ underline: uiStore.folderViewType === 'list' }"
+            @click.stop="setViewType('email')"
+            :class="{ underline: uiStore.viewType === 'email' }"
             class="block px-4 py-2 text-sm cursor-pointer hover:underline"
             role="menuitem"
           >
-            - List
+            Mail
           </a>
+          <a
+            @click.stop="toggleFolderView"
+            :class="{ underline: uiStore.viewType === 'folder' }"
+            class="block px-4 py-2 text-sm cursor-pointer hover:underline flex justify-between items-center"
+            role="menuitem"
+          >
+            Folder
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 ml-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                :d="folderViewExpanded ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'"
+              />
+            </svg>
+          </a>
+          <div v-if="folderViewExpanded" class="">
+            <a
+              @click.stop="setFolderViewType('grid')"
+              :class="{ underline: uiStore.folderViewType === 'grid' }"
+              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+              role="menuitem"
+            >
+              - Grid
+            </a>
+            <a
+              @click.stop="setFolderViewType('list')"
+              :class="{ underline: uiStore.folderViewType === 'list' }"
+              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+              role="menuitem"
+            >
+              - List
+            </a>
+          </div>
         </div>
       </div>
-    </div>
     </Transition>
   </div>
 </template>

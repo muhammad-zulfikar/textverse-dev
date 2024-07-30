@@ -34,28 +34,28 @@
       </span>
     </button>
     <Transition name="zoom">
-    <div
-      v-if="dropdownOpen"
-      class="custom-card z-50 origin-top-right absolute mt-2 w-[6.4rem] ml-[-15px]"
-    >
-      <div class="py-1" role="menu" aria-orientation="vertical">
-        <a
-          @click.stop="openNoteForm"
-          class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-          role="menuitem"
-        >
-          Note
-        </a>
-        <a
-          @click.stop="openFolderForm"
-          class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-          role="menuitem"
-        >
-          Folder
-        </a>
+      <div
+        v-if="dropdownOpen"
+        class="custom-card z-50 origin-top-right absolute mt-2 w-[6.4rem] ml-[-15px]"
+      >
+        <div class="py-1" role="menu" aria-orientation="vertical">
+          <a
+            @click.stop="openNoteForm"
+            class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+            role="menuitem"
+          >
+            Note
+          </a>
+          <a
+            @click.stop="openFolderForm"
+            class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+            role="menuitem"
+          >
+            Folder
+          </a>
+        </div>
       </div>
-    </div>
-  </Transition>
+    </Transition>
   </div>
   <InputModal
     :is-open="isFolderFormOpen"

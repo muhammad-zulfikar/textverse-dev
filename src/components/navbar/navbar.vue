@@ -9,32 +9,34 @@
         <button @click="toggleNav" class="hover:underline nav-dropdown-trigger">
           Menu
         </button>
-        <div
-          v-if="isNavOpen"
-          class="absolute left-0 custom-card mt-2 w-28 z-50"
-        >
-          <router-link
-            to="/"
-            class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-            @click="toggleNav"
+        <transition name="zoom">
+          <div
+            v-if="isNavOpen"
+            class="absolute left-0 custom-card mt-2 w-28 z-50"
           >
-            Home
-          </router-link>
-          <router-link
-            to="/about"
-            class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-            @click="toggleNav"
-          >
-            About
-          </router-link>
-          <router-link
-            to="/settings"
-            class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-            @click="toggleNav"
-          >
-            Settings
-          </router-link>
-        </div>
+            <router-link
+              to="/"
+              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+              @click="toggleNav"
+            >
+              Home
+            </router-link>
+            <router-link
+              to="/about"
+              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+              @click="toggleNav"
+            >
+              About
+            </router-link>
+            <router-link
+              to="/settings"
+              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+              @click="toggleNav"
+            >
+              Settings
+            </router-link>
+          </div>
+        </transition>
       </div>
       <div class="nav-links">
         <button v-if="deferredPrompt" @click="showInstallPrompt">
@@ -61,23 +63,25 @@
             class="w-8 h-8 custom-card-transparent-avatar rounded-full object-cover"
           />
         </button>
-        <div
-          v-if="isUserDropdownOpen"
-          class="absolute right-0 custom-card mt-2 w-28 z-50"
-        >
-          <a
-            @click="navigateToSettings"
-            class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+        <transition name="zoom">
+          <div
+            v-if="isUserDropdownOpen"
+            class="absolute right-0 custom-card mt-2 w-28 z-50"
           >
-            Settings
-          </a>
-          <a
-            @click="confirmSignout"
-            class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-          >
-            Sign out
-          </a>
-        </div>
+            <a
+              @click="navigateToSettings"
+              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+            >
+              Settings
+            </a>
+            <a
+              @click="confirmSignout"
+              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+            >
+              Sign out
+            </a>
+          </div>
+        </transition>
       </div>
     </div>
     <div class="bg-black dark:bg-white h-px transition-all duration-300"></div>
@@ -92,7 +96,7 @@
 
 <script setup lang="ts">
   import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-  import { useRoute, useRouter } from 'vue-router';
+  import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/store/authStore';
   import AlertModal from '@/components/modal/alertModal.vue';
 
@@ -100,10 +104,7 @@
   const isNavOpen = ref(false);
   const isUserDropdownOpen = ref(false);
   const router = useRouter();
-  const route = useRoute();
   const loading = ref(true);
-
-  const isRootPath = computed(() => route.path === '/');
   const showSignoutConfirmation = ref(false);
 
   const signout = async () => {

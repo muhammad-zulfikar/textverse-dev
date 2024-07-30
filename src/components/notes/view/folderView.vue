@@ -5,39 +5,41 @@
       v-if="currentView === 'folders'"
       :class="uiStore.folderViewType === 'grid' ? 'grid-view' : 'list-view'"
     >
-      <div
-        v-for="folder in folders"
-        :key="folder"
-        @click="openFolder(folder)"
-        class="custom-card p-4 rounded-lg cursor-pointer"
-        :class="
-          uiStore.folderViewType === 'grid'
-            ? 'flex flex-col items-center'
-            : 'flex items-center mb-2'
-        "
-      >
+      <TransitionGroup name="list">
         <div
+          v-for="folder in folders"
+          :key="folder"
+          @click="openFolder(folder)"
+          class="custom-card p-4 rounded-lg cursor-pointer"
           :class="
             uiStore.folderViewType === 'grid'
-              ? 'w-8 h-8 md:w-14 md:h-14'
-              : 'w-8 h-8 mr-4'
+              ? 'flex flex-col items-center'
+              : 'flex items-center mb-2'
           "
         >
-          <img
-            :src="folderHasNotes(folder) ? folderIcon : emptyFolderIcon"
-            alt="Folder Icon"
-          />
+          <div
+            :class="
+              uiStore.folderViewType === 'grid'
+                ? 'w-8 h-8 md:w-12 md:h-14'
+                : 'w-8 h-8 mr-4'
+            "
+          >
+            <img
+              :src="folderHasNotes(folder) ? folderIcon : emptyFolderIcon"
+              alt="Folder Icon"
+            />
+          </div>
+          <span
+            :class="
+              uiStore.folderViewType === 'grid'
+                ? 'mt-2 text-sm font-medium text-center break-words w-full'
+                : 'text-sm font-medium'
+            "
+          >
+            {{ folder }}
+          </span>
         </div>
-        <span
-          :class="
-            uiStore.folderViewType === 'grid'
-              ? 'mt-2 text-sm font-medium text-center break-words w-full'
-              : 'text-sm font-medium'
-          "
-        >
-          {{ folder }}
-        </span>
-      </div>
+      </TransitionGroup>
     </div>
     <!-- Notes view -->
     <div
@@ -70,46 +72,47 @@
       >
         <p class="text-gray-500">No notes yet</p>
       </div>
-      <div
-        v-else
-        v-for="note in folderNotes"
-        :key="note.id"
-        @click="uiStore.openNote(note.id)"
-        class="custom-card p-4 rounded-lg cursor-pointer"
-        :class="
-          uiStore.folderViewType === 'grid'
-            ? 'flex flex-col items-center'
-            : 'flex items-center mb-2'
-        "
-      >
+      <TransitionGroup name="list" v-else>
         <div
+          v-for="note in folderNotes"
+          :key="note.id"
+          @click="uiStore.openNote(note.id)"
+          class="custom-card p-4 rounded-lg cursor-pointer"
           :class="
             uiStore.folderViewType === 'grid'
-              ? 'w-8 h-8 md:w-14 md:h-14 mb-2'
-              : 'w-8 h-8 mr-4'
+              ? 'flex flex-col items-center'
+              : 'flex items-center mb-2'
           "
         >
-          <img src="@/assets/icons/file.svg" alt="File Icon" />
+          <div
+            :class="
+              uiStore.folderViewType === 'grid'
+                ? 'w-8 h-8 md:w-12 md:h-12 mb-2'
+                : 'w-8 h-8 mr-4'
+            "
+          >
+            <img src="@/assets/icons/file.svg" alt="File Icon" />
+          </div>
+          <h3
+            :class="
+              uiStore.folderViewType === 'grid'
+                ? 'text-sm font-medium text-center break-words w-full'
+                : 'text-sm font-medium flex-grow'
+            "
+          >
+            {{ note.title }}
+          </h3>
+          <span
+            :class="
+              uiStore.folderViewType === 'grid'
+                ? 'text-xs mt-2'
+                : 'text-xs ml-auto'
+            "
+          >
+            {{ notesStore.localeDate(note.last_edited || note.time_created) }}
+          </span>
         </div>
-        <h3
-          :class="
-            uiStore.folderViewType === 'grid'
-              ? 'text-sm font-medium text-center break-words w-full'
-              : 'text-sm font-medium flex-grow'
-          "
-        >
-          {{ note.title }}
-        </h3>
-        <span
-          :class="
-            uiStore.folderViewType === 'grid'
-              ? 'text-xs mt-2'
-              : 'text-xs ml-auto'
-          "
-        >
-          {{ notesStore.localeDate(note.last_edited || note.time_created) }}
-        </span>
-      </div>
+      </TransitionGroup>
     </div>
   </div>
 </template>

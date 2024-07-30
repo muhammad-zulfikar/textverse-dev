@@ -1,6 +1,8 @@
 <template>
   <div class="w-11/12 mx-auto mt-10">
-    <transition-group name="list" tag="ul"
+    <transition-group
+      name="list"
+      tag="ul"
       :class="[
         {
           'columns-1 md:max-w-xl': uiStore.columns === 1,
@@ -25,7 +27,9 @@
         @click="() => uiStore.openNote(note.id)"
       >
         <div class="flex justify-between items-start">
-          <h1 class="font-bold text-sl font-serif cursor-pointer dark:text-white">
+          <h1
+            class="font-bold text-sl font-serif cursor-pointer dark:text-white"
+          >
             {{ note.title }}
           </h1>
         </div>
@@ -65,19 +69,21 @@
         </div>
       </li>
     </transition-group>
-    <ContextMenu
-      v-if="selectedNote"
-      :visible="showMenu"
-      :position="menuPosition"
-      :note="selectedNote"
-      :noteId="selectedNote.id"
-      @hideMenu="hideContextMenu"
-      @edit="uiStore.openNote"
-      @delete="openDeleteAlert"
-      @download="notesStore.downloadNote"
-      @pin="notesStore.pinNote"
-      @unpin="notesStore.unpinNote"
-    />
+    <Transition name="zoom">
+      <ContextMenu
+        v-if="selectedNote"
+        :visible="showMenu"
+        :position="menuPosition"
+        :note="selectedNote"
+        :noteId="selectedNote.id"
+        @hideMenu="hideContextMenu"
+        @edit="uiStore.openNote"
+        @delete="openDeleteAlert"
+        @download="notesStore.downloadNote"
+        @pin="notesStore.pinNote"
+        @unpin="notesStore.unpinNote"
+      />
+    </Transition>
     <AlertModal
       :is-open="isAlertOpen"
       :message="alertMessage"
@@ -130,10 +136,11 @@
     selectedNote.value = null;
   };
 
-  const openDeleteAlert = () => {
+  const openDeleteAlert = (noteId: number) => {
     hideContextMenu();
-    if (selectedNote.value) {
-      alertMessage.value = `Are you sure you want to delete the note "${selectedNote.value.title}"?`;
+    const noteToDelete = props.notes.find((note) => note.id === noteId);
+    if (noteToDelete) {
+      alertMessage.value = `Are you sure you want to delete the note "${noteToDelete.title}"?`;
       isAlertOpen.value = true;
     }
   };
@@ -145,7 +152,7 @@
   const confirmDelete = async () => {
     try {
       if (selectedNote.value) {
-        notesStore.deleteNote(selectedNote.value.id);
+        await notesStore.deleteNote(selectedNote.value.id);
       }
     } catch (error) {
       console.error('Error deleting note:', error);
@@ -156,22 +163,6 @@
 </script>
 
 <style scoped>
-  .dark .icon {
-    filter: invert(1) brightness(2);
-  }
-
-  .option-icon {
-    display: none;
-  }
-
-  .group:hover .option-icon {
-    display: block;
-  }
-
-  .underline {
-    text-decoration: underline;
-  }
-
   .shadow {
     box-shadow:
       0 30px 60px -15px rgba(0, 0, 0, 0.3),

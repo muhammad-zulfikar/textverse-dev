@@ -1,177 +1,177 @@
 <!-- noteModal.vue -->
 
 <template>
-<transition name="zoom">
-  <div
-    v-if="isOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center font-serif"
-  >
+  <transition name="zoom">
     <div
-      @click="handleOutsideClick"
-      class="absolute inset-0 bg-black bg-opacity-30 backdrop-blur-[2px]"
-    ></div>
-    <div
-      @click.stop
-      :class="[
-        'p-5 relative flex flex-col',
-        {
-          'custom-card-no-transition w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3':
-            !uiStore.isFullScreen,
-          'custom-card-no-transition-rounded w-full h-full rounded-none border-none':
-            uiStore.isFullScreen,
-        },
-      ]"
+      v-if="isOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center font-serif"
     >
-      <div class="absolute top-0 right-1 flex text-sm p-4 select-none">
-        <button
-          class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none mr-6"
-          @click="uiStore.toggleFullScreen"
-        >
-          {{ uiStore.isFullScreen ? 'Collapse' : 'Expand' }}
-        </button>
-        <button
-          class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none"
-          @click="closeModal"
-        >
-          Close
-        </button>
-      </div>
-      <h1 class="text-xl font-bold mb-4 mt-8">
-        <input
-          v-model="editedNote.title"
-          placeholder="Title"
-          class="w-full bg-transparent p-1 border-0 border-b-[1px] md:border-b-2 border-black dark:border-white outline-none placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
-        />
-        <span
-          :class="[
-            'flex justify-end font-normal text-gray-500 text-sm mt-1',
-            { 'text-red-500': editedNote.title.length > 30 },
-          ]"
-        >
-          {{ editedNote.title.length }} / 30
-        </span>
-      </h1>
-      <textarea
-        v-model="editedNote.content"
-        placeholder="Content"
-        class="w-full p-2 bg-transparent resize-none border-[1px] md:border-2 border-black dark:border-white rounded focus:outline-none flex-grow placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
-        rows="5"
-      ></textarea>
-      <div class="flex justify-between">
-        <div
-          v-if="isEditMode"
-          class="flex justify-end mt-1 select-none text-gray-500 text-sm"
-        >
-          {{ formattedDate }}
-        </div>
-        <span
-          :class="[
-            'flex justify-end text-gray-500 text-sm mt-1 select-none',
-            { 'text-red-500': editedNote.content.length > 100000 },
-          ]"
-        >
-          {{ editedNote.content.length }} / 100000
-        </span>
-      </div>
-      <div class="flex justify-between mt-6 select-none text-sm">
-        <div class="relative inline-block text-left" ref="dropdownRef">
+      <div
+        @click="handleOutsideClick"
+        class="absolute inset-0 bg-black bg-opacity-50"
+      ></div>
+      <div
+        @click.stop
+        :class="[
+          'p-5 relative flex flex-col',
+          {
+            'custom-card w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3':
+              !uiStore.isFullScreen,
+            'custom-card w-full h-full rounded-none border-none':
+              uiStore.isFullScreen,
+          },
+        ]"
+      >
+        <div class="absolute top-0 right-1 flex text-sm p-4 select-none">
           <button
-            @click.stop="toggleDropdown"
-            :class="{ 'z-50': isOpen }"
-            type="button"
-            class="hover:underline outline-none flex items-center relative cursor-pointer"
+            class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none mr-6"
+            @click="uiStore.toggleFullScreen"
           >
-            <div v-if="selectedFolder === DEFAULT_FOLDERS.ALL_NOTES">
-              {{ DEFAULT_FOLDERS.UNCATEGORIZED }}
-            </div>
-            <div v-else>{{ selectedFolder }}</div>
-            <span class="ml-1">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  v-if="isDropdownOpen"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M5 15l7-7 7 7"
-                />
-                <path
-                  v-else
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </span>
+            {{ uiStore.isFullScreen ? 'Collapse' : 'Expand' }}
           </button>
-          <div
-            v-if="isDropdownOpen"
-            class="dropdown-menu w-fit custom-card z-50 absolute mt-2 whitespace-nowrap"
+          <button
+            class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none"
+            @click="closeModal"
           >
-            <div class="py-1" role="menu" aria-orientation="vertical">
-              <div
-                @click.stop="createNewFolder"
-                class="block px-4 py-2 text-sm cursor-pointer"
-                role="menuitem"
-              >
-                <span v-if="!creatingFolder" class="hover:underline">
-                  + Create folder
-                </span>
-                <input
-                  v-else
-                  v-model="newFolderName"
-                  @blur="saveNewFolder"
-                  @keyup.enter="saveNewFolder"
-                  class="bg-transparent border-b border-black dark:border-white outline-none w-full"
-                />
+            Close
+          </button>
+        </div>
+        <h1 class="text-xl font-bold mb-4 mt-8">
+          <input
+            v-model="editedNote.title"
+            placeholder="Title"
+            class="w-full bg-transparent p-1 border-0 border-b-[1px] md:border-b-2 border-black dark:border-white outline-none placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
+          />
+          <span
+            :class="[
+              'flex justify-end font-normal text-gray-500 text-sm mt-1',
+              { 'text-red-500': editedNote.title.length > 30 },
+            ]"
+          >
+            {{ editedNote.title.length }} / 30
+          </span>
+        </h1>
+        <textarea
+          v-model="editedNote.content"
+          placeholder="Content"
+          class="w-full p-2 bg-transparent resize-none border-[1px] md:border-2 border-black dark:border-white rounded focus:outline-none flex-grow placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
+          rows="5"
+        ></textarea>
+        <div class="flex justify-between">
+          <div
+            v-if="isEditMode"
+            class="flex justify-end mt-1 select-none text-gray-500 text-sm"
+          >
+            {{ formattedDate }}
+          </div>
+          <span
+            :class="[
+              'flex justify-end text-gray-500 text-sm mt-1 select-none',
+              { 'text-red-500': editedNote.content.length > 100000 },
+            ]"
+          >
+            {{ editedNote.content.length }} / 100000
+          </span>
+        </div>
+        <div class="flex justify-between mt-6 select-none text-sm">
+          <div class="relative inline-block text-left" ref="dropdownRef">
+            <button
+              @click.stop="toggleDropdown"
+              :class="{ 'z-50': isOpen }"
+              type="button"
+              class="hover:underline outline-none flex items-center relative cursor-pointer"
+            >
+              <div v-if="selectedFolder === DEFAULT_FOLDERS.ALL_NOTES">
+                {{ DEFAULT_FOLDERS.UNCATEGORIZED }}
               </div>
-              <template v-for="folder in availableFolders" :key="folder">
+              <div v-else>{{ selectedFolder }}</div>
+              <span class="ml-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    v-if="isDropdownOpen"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 15l7-7 7 7"
+                  />
+                  <path
+                    v-else
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div
+              v-if="isDropdownOpen"
+              class="dropdown-menu w-fit custom-card z-50 absolute mt-2 whitespace-nowrap"
+            >
+              <div class="py-1" role="menu" aria-orientation="vertical">
                 <div
-                  @click.stop="selectFolder(folder)"
+                  @click.stop="createNewFolder"
                   class="block px-4 py-2 text-sm cursor-pointer"
                   role="menuitem"
                 >
-                  <span
-                    :class="
-                      folder === selectedFolder
-                        ? 'underline dark:text-white'
-                        : ''
-                    "
-                    class="hover:underline"
-                  >
-                    {{ folder }}
+                  <span v-if="!creatingFolder" class="hover:underline">
+                    + Create folder
                   </span>
+                  <input
+                    v-else
+                    v-model="newFolderName"
+                    @blur="saveNewFolder"
+                    @keyup.enter="saveNewFolder"
+                    class="bg-transparent border-b border-black dark:border-white outline-none w-full"
+                  />
                 </div>
-              </template>
+                <template v-for="folder in availableFolders" :key="folder">
+                  <div
+                    @click.stop="selectFolder(folder)"
+                    class="block px-4 py-2 text-sm cursor-pointer"
+                    role="menuitem"
+                  >
+                    <span
+                      :class="
+                        folder === selectedFolder
+                          ? 'underline dark:text-white'
+                          : ''
+                      "
+                      class="hover:underline"
+                    >
+                      {{ folder }}
+                    </span>
+                  </div>
+                </template>
+              </div>
             </div>
           </div>
-        </div>
-        <div>
-          <button
-            :disabled="!isValid || (isEditMode && !hasChanges)"
-            @click="saveNote"
-            :class="[
-              'dark:hover:bg-transparent outline-none text-sm',
-              {
-                'hover:underline cursor-pointer':
-                  isValid && (!isEditMode || hasChanges),
-                'text-gray-500': !isValid || (isEditMode && !hasChanges),
-              },
-            ]"
-          >
-            <span>Save</span>
-          </button>
+          <div>
+            <button
+              :disabled="!isValid || (isEditMode && !hasChanges)"
+              @click="saveNote"
+              :class="[
+                'dark:hover:bg-transparent outline-none text-sm',
+                {
+                  'hover:underline cursor-pointer':
+                    isValid && (!isEditMode || hasChanges),
+                  'text-gray-500': !isValid || (isEditMode && !hasChanges),
+                },
+              ]"
+            >
+              <span>Save</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</transition>
+  </transition>
 </template>
 
 <script setup lang="ts">

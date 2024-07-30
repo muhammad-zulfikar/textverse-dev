@@ -169,7 +169,7 @@
     />
     <div
       v-if="sidebarOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 z-40 backdrop-blur-[2px]"
+      class="fixed inset-0 bg-black bg-opacity-50 z-40"
       @click="closeSidebar"
     ></div>
     <transition name="slide">
