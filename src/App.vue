@@ -39,24 +39,25 @@ watch(
   { immediate: true }
 );
 
+watch(() => authStore.isLoggedIn, (newValue) => {
+  if (newValue) {
+    console.log('User logged in, updating layout');
+  }
+});
+
 onMounted(async () => {
-  console.log('App mounted');
   try {
     await authStore.fetchCurrentUser();
-    console.log('Current user fetched');
     
     if (authStore.isLoggedIn) {
-      console.log('User is logged in, navigating to home');
+      uiStore.showToastMessage('You are already signed in, navigating to home.')
       router.push('/');
     }
     
     await notesStore.loadNotes();
     await folderStore.loadFolders();
   } catch (error) {
-    console.error('Error during initialization:', error);
-    uiStore.showToastMessage(
-      'An error occurred while loading the app. Please try again.'
-    );
+    uiStore.showToastMessage('An error occurred while loading the app. Please try again.');
   }
 });
 </script>

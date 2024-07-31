@@ -15,7 +15,6 @@ import {
   signOut,
   GoogleAuthProvider,
   GithubAuthProvider,
-  signInWithRedirect,
   onAuthStateChanged,
   User,
   updateProfile,
@@ -57,6 +56,7 @@ export const useAuthStore = defineStore('auth', {
           this.isLoading = false;
         }, 1000);
       }
+      window.location.reload();
       await this.syncFolders();
     },
 
@@ -96,6 +96,7 @@ export const useAuthStore = defineStore('auth', {
           this.isLoading = false;
         }, 1000);
       }
+      window.location.reload();
       await this.syncFolders();
     },
 
@@ -104,6 +105,7 @@ export const useAuthStore = defineStore('auth', {
       const userCredential = await signInWithPopup(auth, provider);
       this.user = userCredential.user;
       this.avatarUrl = this.user.photoURL || '';
+      window.location.reload();
     },
 
     async signInWithGitHub() {
@@ -111,6 +113,7 @@ export const useAuthStore = defineStore('auth', {
       const userCredential = await signInWithPopup(auth, provider);
       this.user = userCredential.user;
       this.avatarUrl = this.user.photoURL || '';
+      window.location.reload();
     },
 
     async fetchCurrentUser() {
