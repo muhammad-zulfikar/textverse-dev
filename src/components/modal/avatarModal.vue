@@ -113,7 +113,6 @@ const confirmSelection = () => {
       emit('select', avatarUrl.value);
       closeModal();
     } catch (error) {
-      console.error('Failed to update avatar:', error);
       uiStore.showToastMessage('Failed to update avatar');
     }
   }

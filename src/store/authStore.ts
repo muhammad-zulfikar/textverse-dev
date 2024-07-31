@@ -1,5 +1,3 @@
-// authStore.ts
-
 import { defineStore } from 'pinia';
 import {
   getStorage,
@@ -52,11 +50,8 @@ export const useAuthStore = defineStore('auth', {
         this.showToast('Sign in failed. Please check your credentials.');
         throw error;
       } finally {
-        setTimeout(() => {
-          this.isLoading = false;
-        }, 1000);
+        this.isLoading = false;
       }
-      window.location.reload();
       await this.syncFolders();
     },
 
@@ -75,9 +70,7 @@ export const useAuthStore = defineStore('auth', {
         this.showToast('Sign up failed. Please try again.');
         throw error;
       } finally {
-        setTimeout(() => {
-          this.isLoading = false;
-        }, 1000);
+        this.isLoading = false;
       }
     },
 
@@ -92,11 +85,8 @@ export const useAuthStore = defineStore('auth', {
         this.showToast('Sign out failed. Please try again.');
         throw error;
       } finally {
-        setTimeout(() => {
-          this.isLoading = false;
-        }, 1000);
+        this.isLoading = false;
       }
-      window.location.reload();
       await this.syncFolders();
     },
 
@@ -105,7 +95,6 @@ export const useAuthStore = defineStore('auth', {
       const userCredential = await signInWithPopup(auth, provider);
       this.user = userCredential.user;
       this.avatarUrl = this.user.photoURL || '';
-      window.location.reload();
     },
 
     async signInWithGitHub() {
@@ -113,20 +102,16 @@ export const useAuthStore = defineStore('auth', {
       const userCredential = await signInWithPopup(auth, provider);
       this.user = userCredential.user;
       this.avatarUrl = this.user.photoURL || '';
-      window.location.reload();
     },
 
     async fetchCurrentUser() {
       this.isLoading = true;
-      console.log('Fetching current user');
       return new Promise<void>((resolve) => {
         onAuthStateChanged(auth, async (user) => {
           if (user) {
-            console.log('User is signed in:', user);
             this.user = user;
             this.avatarUrl = user.photoURL || '/avatar.png';
           } else {
-            console.log('No user signed in');
             this.user = null;
             this.avatarUrl = '';
           }
@@ -148,18 +133,14 @@ export const useAuthStore = defineStore('auth', {
           const imageRef = storageRef(storage, `avatars/${this.user.uid}`);
 
           if (newAvatarUrl === '/avatar.png') {
-            // Remove the existing avatar from storage if it exists
             try {
               await deleteObject(imageRef);
             } catch (error) {
-              // Ignore error if file doesn't exist
             }
             
-            // Set photoURL to null
             await updateProfile(this.user, { photoURL: null });
-            this.avatarUrl = '/avatar.png'; // Update the store's avatarUrl
+            this.avatarUrl = '/avatar.png';
           } else {
-            // Upload new avatar
             await uploadString(imageRef, newAvatarUrl, 'data_url');
             const downloadURL = await getDownloadURL(imageRef);
             await updateProfile(this.user, { photoURL: downloadURL });

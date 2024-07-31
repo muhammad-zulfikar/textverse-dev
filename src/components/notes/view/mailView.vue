@@ -324,14 +324,12 @@
             selectNote(newNoteId);
           }
         } catch (error) {
-          console.error('Error adding new note:', error);
           uiStore.showToastMessage('Failed to add new note. Please try again.');
         }
       } else {
         try {
           await notesStore.updateNote(editedNote.value);
         } catch (error) {
-          console.error('Error updating note:', error);
           uiStore.showToastMessage('Failed to update note. Please try again.');
         }
       }
@@ -354,7 +352,6 @@
         deselectNote();
       }
     } catch (error) {
-      console.error('Error deleting note:', error);
       uiStore.showToastMessage('Failed to delete note. Please try again.');
     }
     closeAlert();
@@ -390,7 +387,9 @@
     updateTextareaHeight();
   }
 
-  function selectNewestNote() {
+  function selectNewestNote(): number | null {
+    if (props.notes.length === 0) return null;
+    
     const newestNote = props.notes.reduce((newest, current) => {
       const newestDate = new Date(newest.last_edited || newest.time_created);
       const currentDate = new Date(current.last_edited || current.time_created);
@@ -399,7 +398,10 @@
 
     if (newestNote) {
       selectNote(newestNote.id);
+      return newestNote.id;
     }
+    
+    return null;
   }
 
   watch(selectedNoteId, updateTextareaHeight);
@@ -407,8 +409,13 @@
   onMounted(() => {
     window.addEventListener('resize', handleResize);
     handleResize();
+    
     if (!isMobileView.value) {
-      selectNewestNote();
+      const newestNoteId = selectNewestNote();
+      if (newestNoteId !== null) {
+        selectedNoteId.value = newestNoteId;
+        editedNote.value = props.notes.find(note => note.id === newestNoteId) || null;
+      }
     }
   });
 

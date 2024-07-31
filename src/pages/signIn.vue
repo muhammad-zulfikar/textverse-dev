@@ -1,172 +1,160 @@
 <template>
   <div
-    class="font-serif custom-card max-w-xs sm:max-w-sm md:max-w-md px-12 py-8 md:p-8 relative flex flex-col mx-auto mt-20 md:mt-14"
+    class="font-serif custom-card max-w-xs sm:max-w-sm md:max-w-md px-10 py-8 md:p-8 relative flex flex-col mx-auto mt-20 md:mt-18 h-[470px]"
   >
-    <div class="absolute top-0 right-1 flex text-sm p-4 select-none">
-      <button
-        class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none"
-        @click="closeForm"
-      >
-        Back
-      </button>
-    </div>
-    <h2 class="text-2xl font-bold mb-4 mt-4 flex justify-center">
-      {{ isSignUp ? 'Sign up' : 'Sign in' }}
-    </h2>
-    <form
-      @submit.prevent="isSignUp ? handleSignUp() : handleLogin()"
-      class="space-y-4"
-    >
-      <div>
-        <label for="email" class="block">Email</label>
-        <input
-          type="email"
-          id="email"
-          v-model="email"
-          required
-          class="w-full bg-transparent p-1 border-0 border-b-[1px] md:border-b-2 border-black dark:border-white outline-none"
-        />
+    <transition :name="transitionName" mode="out-in">
+      <div :key="isSignUp ? 'signup' : 'signin'">
+        <h2 class="text-2xl font-bold mb-4 flex justify-center">
+          {{ isSignUp ? 'Sign up' : 'Sign in' }}
+        </h2>
+        <form
+          @submit.prevent="isSignUp ? handleSignUp() : handleLogin()"
+        >
+          <div>
+            <label for="email" class="block">Email</label>
+            <input
+              type="email"
+              id="email"
+              v-model="email"
+              required
+              class="w-full bg-transparent p-1 border-0 border-b-[1px] md:border-b-2 border-black dark:border-white outline-none mb-4"
+            />
+          </div>
+          <div>
+            <label for="password" class="block mb-1">Password</label>
+            <input
+              type="password"
+              id="password"
+              v-model="password"
+              required
+              class="w-full bg-transparent p-1 border-0 border-b-[1px] md:border-b-2 border-black dark:border-white outline-none mb-4"
+            />
+          </div>
+          <div v-if="isSignUp">
+            <label for="confirmPassword" class="block mb-1">Confirm Password</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              v-model="confirmPassword"
+              required
+              class="w-full mb-4 bg-transparent p-1 border-0 border-b-[1px] md:border-b-2 border-black dark:border-white outline-none"
+            />
+          </div>
+          <button type="submit" class="flex w-full md:w-fit flex items-center justify-center px-4 py-2 mt-4 mx-auto custom-card">
+            {{ isSignUp ? 'Sign up' : 'Sign in' }}
+          </button>
+        </form>
+        <p v-if="!isSignUp" class="text-center my-4">or</p>
+        <div v-if="!isSignUp">
+          <button
+            @click="signInWithGoogle"
+            class="w-full md:w-fit custom-card text-gray-700 dark:text-white py-2 px-4 rounded flex items-center justify-center mb-6 mx-auto"
+          >
+            <img
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt="Google logo"
+              class="w-5 h-5 mr-2"
+            />
+            Sign in with Google
+          </button>
+        </div>
+        <p v-if="error" class="text-red-500 mt-4 text-center">{{ error }}</p>
+        <p class="text-center mt-5 text-gray-500 dark:text-gray-400 text-sm">
+          {{ isSignUp ? 'Already have an account?' : "Don't have an account?" }}
+          <button class="hover:underline font-bold text-[13px]" @click="toggleForm">
+            {{ isSignUp ? 'Sign in' : 'Sign up' }}
+          </button>
+        </p>
       </div>
-      <div>
-        <label for="password" class="block mb-1">Password</label>
-        <input
-          type="password"
-          id="password"
-          v-model="password"
-          required
-          class="w-full bg-transparent p-1 border-0 border-b-[1px] md:border-b-2 border-black dark:border-white outline-none"
-        />
-      </div>
-      <div v-if="isSignUp">
-        <label for="confirmPassword" class="block mb-1">Confirm Password</label>
-        <input
-          type="password"
-          id="confirmPassword"
-          v-model="confirmPassword"
-          required
-          class="w-full bg-transparent p-1 border-0 border-b-[1px] md:border-b-2 border-black dark:border-white outline-none"
-        />
-      </div>
-      <button type="submit" class="flex w-fit px-4 py-2 mx-auto custom-card">
-        {{ isSignUp ? 'Sign up' : 'Sign in' }}
-      </button>
-    </form>
-    <p v-if="!isSignUp" class="text-center my-4">or</p>
-    <div v-if="!isSignUp">
-      <button
-        @click="signInWithGoogle"
-        class="custom-card text-gray-700 dark:text-white py-2 px-4 rounded flex items-center justify-center mb-4 mx-auto"
-      >
-        <img
-          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-          alt="Google logo"
-          class="w-5 h-5 mr-2"
-        />
-        Sign in with Google
-      </button>
-      <button
-        @click="signInWithGitHub"
-        class="custom-card text-gray-700 dark:text-white py-2 px-4 rounded flex items-center justify-center mx-auto"
-      >
-        <img
-          src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
-          alt="GitHub logo"
-          class="w-5 h-5 mr-2"
-        />
-        Sign in with GitHub
-      </button>
-    </div>
-    <p v-if="error" class="text-red-500 mt-4 text-center">{{ error }}</p>
-    <p class="text-center mt-5 text-gray-500 dark:text-gray-400 text-sm">
-      {{ isSignUp ? 'Already have an account?' : "Don't have an account?" }}
-      <button class="hover:underline font-bold text-xs" @click="toggleForm">
-        {{ isSignUp ? 'Sign in' : 'Sign up' }}
-      </button>
-    </p>
+    </transition>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { authStore, uiStore } from '@/store/stores';
+import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { authStore, uiStore } from '@/store/stores';
 
-  const router = useRouter();
+const router = useRouter();
 
-  const email = ref('');
-  const password = ref('');
-  const confirmPassword = ref('');
-  const isSignUp = ref(false);
-  const error = ref('');
+const email = ref('');
+const password = ref('');
+const confirmPassword = ref('');
+const isSignUp = ref(false);
+const slideDirection = ref('right');
+const transitionName = computed(() => `slide-${slideDirection.value}`);
+const error = ref('');
 
-  const handleLogin = async () => {
-    try {
-      await authStore.login(email.value, password.value);
-      router.push('/');
-    } catch (err) {
+const handleLogin = async () => {
+  try {
+    await authStore.login(email.value, password.value);
+    router.push('/');
+  } catch (err) {
+    uiStore.showToastMessage('Invalid email or password');
+  }
+};
+
+const handleSignUp = async () => {
+  if (password.value !== confirmPassword.value) {
+    uiStore.showToastMessage('Passwords do not match');
+    return;
+  }
+  try {
+    await authStore.signUp(email.value, password.value);
+    router.push('/');
+  } catch (err) {
+    if (err instanceof Error) {
+      uiStore.showToastMessage(err.message);
+    } else {
       uiStore.showToastMessage('Invalid email or password');
     }
-  };
+  }
+};
 
-  const handleSignUp = async () => {
-    if (password.value !== confirmPassword.value) {
-      uiStore.showToastMessage('Password do not match');
-      return;
-    }
-    try {
-      await authStore.signUp(email.value, password.value);
-      router.push('/');
-    } catch (err) {
-      if (err instanceof Error) {
-        uiStore.showToastMessage(err.message);
-      } else {
-        uiStore.showToastMessage('Invalid email or password');
-      }
-    }
-  };
-
-  const signInWithGoogle = async () => {
+const signInWithGoogle = async () => {
   try {
-    console.log('Attempting to sign in with Google');
     await authStore.signInWithGoogle();
     if (authStore.isLoggedIn) {
-      console.log('Google sign-in successful, navigating to home');
+      uiStore.showToastMessage('Google sign-in successful, navigating to home');
       router.push('/');
     }
   } catch (err) {
-    console.error('Google sign-in failed:', err);
     uiStore.showToastMessage('Google sign-in failed');
   }
 };
 
-const signInWithGitHub = async () => {
-  try {
-    console.log('Attempting to sign in with GitHub');
-    await authStore.signInWithGitHub();
-    if (authStore.isLoggedIn) {
-      console.log('GitHub sign-in successful, navigating to home');
-      router.push('/');
-    }
-  } catch (err) {
-    console.error('GitHub sign-in failed:', err);
-    uiStore.showToastMessage('GitHub sign-in failed');
-  }
+const toggleForm = () => {
+  slideDirection.value = isSignUp.value ? 'right' : 'left';
+  isSignUp.value = !isSignUp.value;
+  error.value = '';
 };
-
-  const toggleForm = () => {
-    isSignUp.value = !isSignUp.value;
-    error.value = '';
-  };
-
-  const closeForm = () => {
-    router.push('/');
-  };
-
-  onMounted(() => {
-  console.log('Sign-in component mounted');
-  if (authStore.isLoggedIn) {
-    console.log('User is already logged in, navigating to home');
-    router.push('/');
-  }
-});
 </script>
+
+<style scoped>
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-left-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.slide-right-enter-from {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+</style>

@@ -318,9 +318,7 @@
     }
     selectedNotes.value = [];
     showDeleteConfirmation.value = false;
-    uiStore.showToastMessage(
-      `${notesToDeleteCount} note(s) deleted successfully!`
-    );
+    uiStore.showToastMessage(`${notesToDeleteCount} note(s) deleted successfully!`);
   };
 
   const handleClickOutside = (event: MouseEvent) => {

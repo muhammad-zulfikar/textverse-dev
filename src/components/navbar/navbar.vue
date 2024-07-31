@@ -1,3 +1,5 @@
+<!-- navbar.vue -->
+
 <template>
   <div>
     <div
@@ -36,6 +38,12 @@
             >
               Settings
             </router-link>
+            <a
+              @click="openTrash"
+              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+            >
+              Trash
+            </a>
           </div>
         </transition>
       </div>
@@ -87,7 +95,7 @@
     </div>
     <div class="bg-black dark:bg-white h-px transition-all duration-300"></div>
     <div
-      v-if="showSignoutConfirmation"
+      v-if="showSignoutConfirmation || isTrashModalOpen"
       class="fixed inset-0 bg-black bg-opacity-50 z-40"
     ></div>
     <AlertModal
@@ -96,6 +104,7 @@
       @cancel="showSignoutConfirmation = false"
       @confirm="signout"
     />
+    <TrashModal :is-open="isTrashModalOpen" @close="closeTrashModal" />
   </div>
 </template>
 
@@ -105,6 +114,7 @@
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/store/authStore';
   import AlertModal from '@/components/modal/alertModal.vue';
+  import TrashModal from '@/components/modal/trashModal.vue';
 
   const authStore = useAuthStore();
   const isNavOpen = ref(false);
@@ -114,13 +124,9 @@
   const showSignoutConfirmation = ref(false);
 
   const signout = async () => {
-    try {
       await authStore.logout();
       showSignoutConfirmation.value = false;
       router.push('/');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
   };
 
   const confirmSignout = () => {
@@ -189,6 +195,17 @@
   const navigateToSettings = () => {
     isUserDropdownOpen.value = false;
     router.push('/settings');
+  };
+
+  const isTrashModalOpen = ref(false);
+
+  const openTrash = () => {
+    isNavOpen.value = false;
+    isTrashModalOpen.value = true;
+  };
+
+  const closeTrashModal = () => {
+    isTrashModalOpen.value = false;
   };
 
   const isActive = (route: string) => {

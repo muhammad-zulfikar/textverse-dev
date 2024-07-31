@@ -83,6 +83,10 @@
         @unpin="notesStore.unpinNote"
       />
     </Transition>
+    <div
+      v-if="isAlertOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 z-40"
+    ></div>
     <AlertModal
       :is-open="isAlertOpen"
       :message="alertMessage"
@@ -132,7 +136,6 @@
 
   const hideContextMenu = () => {
     showMenu.value = false;
-    selectedNote.value = null;
   };
 
   const openDeleteAlert = (noteId: number) => {
@@ -154,7 +157,6 @@
         await notesStore.deleteNote(selectedNote.value.id);
       }
     } catch (error) {
-      console.error('Error deleting note:', error);
       uiStore.showToastMessage('Failed to delete note. Please try again.');
     }
     closeAlert();

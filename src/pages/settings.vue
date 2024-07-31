@@ -37,39 +37,17 @@
               <button
                 v-if="authStore.isLoggedIn"
                 @click="confirmSignout"
-                class="w-full md:w-auto text-sm md:text-base custom-card py-2 px-4 mt-4 md:mt-0"
+                class="w-full md:w-auto flex justify-center text-sm md:text-base custom-card py-2 px-4 mt-4 md:mt-0"
               >
                 Sign out
               </button>
-            </div>
-            <div
-              v-if="!authStore.isLoggedIn"
-              class="flex gap-2 text-sm md:text-base justify-center w-full mb-3"
-            >
-              <button
-                @click="signInWithGoogle"
-                class="custom-card py-2 px-4 rounded flex items-center justify-center w-1/2"
+              <router-link
+                v-if="!authStore.isLoggedIn"
+                to="/sign-in"
+                class="w-full md:w-auto flex justify-center text-sm md:text-base custom-card py-2 px-4 mt-4 md:mt-0"
               >
-                <img
-                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                  alt="Google logo"
-                  class="w-5 h-5 mr-2"
-                />
-                <span class="hidden md:inline">Sign in with&nbsp;</span>
-                Google
-              </button>
-              <button
-                @click="signInWithGitHub"
-                class="custom-card py-2 px-4 rounded flex items-center justify-center w-1/2"
-              >
-                <img
-                  src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
-                  alt="GitHub logo"
-                  class="w-5 h-5 mr-2"
-                />
-                <span class="hidden md:inline">Sign in with&nbsp;</span>
-                GitHub
-              </button>
+                Sign in
+              </router-link>
             </div>
             <div
               class="flex flex-col md:flex-row items-start md:items-center md:justify-between"
@@ -287,7 +265,7 @@
                 @click="confirmDeleteAllNotes"
                 class="w-full md:w-auto text-sm md:text-base text-red-600 dark:text-red-500 custom-card py-2 px-4 mt-4 md:mt-0"
               >
-                Delete all notes
+                Delete all data
               </button>
             </div>
           </div>
@@ -354,7 +332,7 @@
 
     <AlertModal
       :is-open="showDeleteAllNotesConfirmation"
-      :message="'Are you sure you want to delete all notes? This action cannot be undone.'"
+      :message="'Are you sure you want to delete all of your data? This action cannot be undone.'"
       @cancel="showDeleteAllNotesConfirmation = false"
       @confirm="deleteAllNotes"
     />
@@ -456,7 +434,6 @@ const removeAvatar = async () => {
     showAvatarPicker.value = false;
     uiStore.showToastMessage('Avatar removed successfully');
   } catch (error) {
-    console.error('Error removing avatar:', error);
     uiStore.showToastMessage('Failed to remove avatar. Please try again.');
   }
 };
@@ -475,16 +452,13 @@ const removeAvatar = async () => {
     }
   };
 
-  const signInWithGoogle = () => authStore.signInWithGoogle();
-  const signInWithGitHub = () => authStore.signInWithGitHub();
-
   const signout = async () => {
     try {
       await authStore.logout();
       showSignoutConfirmation.value = false;
       router.push('/');
     } catch (error) {
-      console.error('Error logging out:', error);
+      uiStore.showToastMessage('Error logging out, please try again later');
     }
   };
 

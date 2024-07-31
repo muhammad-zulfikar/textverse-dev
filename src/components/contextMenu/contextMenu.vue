@@ -208,11 +208,6 @@
     emit('hideMenu');
   };
 
-  // const downloadNote = () => {
-  //   emit('download', props.note);
-  //   emit('hideMenu');
-  // };
-
   const pinNote = () => {
     emit('pin', props.noteId);
     emit('hideMenu');

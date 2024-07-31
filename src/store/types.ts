@@ -8,6 +8,7 @@ export interface Note {
   last_edited: string | Date;
   pinned: boolean;
   folder: string;
+  time_deleted?: string | Date;
 }
 
 export interface Folder {

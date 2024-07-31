@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="app-container">
     <LoadingSpinner v-if="authStore.isLoading" />
     <template v-else>
       <Navbar />
-      <div>
+      <div class="scrollable-container">
         <router-view v-slot="{ Component, route }">
           <transition :name="transitionName" mode="out-in">
             <component :is="Component" :key="route.path"></component>
@@ -39,25 +39,32 @@ watch(
   { immediate: true }
 );
 
-watch(() => authStore.isLoggedIn, (newValue) => {
-  if (newValue) {
-    console.log('User logged in, updating layout');
-  }
-});
-
 onMounted(async () => {
   try {
     await authStore.fetchCurrentUser();
-    
-    if (authStore.isLoggedIn) {
-      uiStore.showToastMessage('You are already signed in, navigating to home.')
-      router.push('/');
-    }
-    
     await notesStore.loadNotes();
     await folderStore.loadFolders();
+    await notesStore.loadDeletedNotes();
   } catch (error) {
     uiStore.showToastMessage('An error occurred while loading the app. Please try again.');
   }
 });
 </script>
+
+<style>
+html, body, #app {
+  height: 100%;
+  margin: 0;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.scrollable-container {
+  flex: 1;
+  overflow-y: auto;
+}
+</style>

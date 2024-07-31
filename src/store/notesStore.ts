@@ -105,17 +105,68 @@ export const useNotesStore = defineStore('notes', {
       const index = this.notes.findIndex((n) => n.id === noteId);
       if (index !== -1) {
         const deletedNote = this.notes.splice(index, 1)[0];
+        deletedNote.time_deleted = new Date().toISOString();
         this.deletedNotes.push(deletedNote);
+    
+        if (authStore.isLoggedIn) {
+          await firebaseStore.moveNoteToTrash(authStore.user!.uid, deletedNote);
+        } else {
+          this.saveNotes();
+          this.saveDeletedNotes();
+        }
+    
+        uiStore.showToastMessage('Note moved to trash');
+      }
+    },
+
+    async restoreNote(noteId: number) {
+      const index = this.deletedNotes.findIndex((n) => n.id === noteId);
+      if (index !== -1) {
+        const { time_deleted, ...restoredNote } = this.deletedNotes[index];
+        this.deletedNotes.splice(index, 1);
+        this.notes.unshift(restoredNote);
+    
+        if (authStore.isLoggedIn) {
+          await firebaseStore.restoreNoteFromTrash(authStore.user!.uid, restoredNote);
+        } else {
+          this.saveNotes();
+          this.saveDeletedNotes();
+        }
+    
+        uiStore.showToastMessage('Note restored successfully');
+      }
+    },
+
+    async permanentlyDeleteNote(noteId: number) {
+      const index = this.deletedNotes.findIndex((n) => n.id === noteId);
+      if (index !== -1) {
+        this.deletedNotes.splice(index, 1);
 
         if (authStore.isLoggedIn) {
-          await firebaseStore.deleteNoteFromFirebase(
-            authStore.user!.uid,
-            noteId
-          );
+          await firebaseStore.permanentlyDeleteNoteFromTrash(authStore.user!.uid, noteId);
+        } else {
+          this.saveDeletedNotes();
         }
 
-        this.saveNotes();
-        uiStore.showToastMessage('Note deleted successfully!');
+        uiStore.showToastMessage('Note permanently deleted');
+      }
+    },
+
+    saveDeletedNotes() {
+      if (!authStore.isLoggedIn) {
+        localStorage.setItem('deletedNotes', JSON.stringify(this.deletedNotes));
+      }
+    },
+
+    async loadDeletedNotes() {
+      if (authStore.isLoggedIn) {
+        const deletedNotes = await firebaseStore.getDeletedNotesFromFirebase(authStore.user!.uid);
+        this.deletedNotes = Object.values(deletedNotes);
+      } else {
+        const savedDeletedNotes = localStorage.getItem('deletedNotes');
+        if (savedDeletedNotes) {
+          this.deletedNotes = JSON.parse(savedDeletedNotes);
+        }
       }
     },
 
@@ -181,17 +232,22 @@ export const useNotesStore = defineStore('notes', {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = '.json';
-
+    
       input.onchange = async (event) => {
         const file = (event.target as HTMLInputElement).files?.[0];
         if (file) {
+          if (file.type !== 'application/json') {
+            uiStore.showToastMessage('Please select a JSON file.');
+            return;
+          }
+    
           const reader = new FileReader();
           reader.onload = async (e) => {
             try {
               const importedNotes = JSON.parse(
                 e.target?.result as string
               ) as Note[];
-
+    
               const importedFolders = new Set<string>(
                 importedNotes
                   .map((note: Note) => note.folder)
@@ -199,7 +255,7 @@ export const useNotesStore = defineStore('notes', {
                     (folder): folder is string => typeof folder === 'string'
                   )
               );
-
+    
               for (const folder of importedFolders) {
                 if (
                   folder !== DEFAULT_FOLDERS.ALL_NOTES &&
@@ -208,7 +264,7 @@ export const useNotesStore = defineStore('notes', {
                   await folderStore.addFolder(folder);
                 }
               }
-
+    
               if (authStore.isLoggedIn) {
                 for (const note of importedNotes) {
                   const validId = this.generateValidFirebaseKey();
@@ -222,24 +278,19 @@ export const useNotesStore = defineStore('notes', {
                 this.notes = [...this.notes, ...importedNotes];
                 this.saveNotes();
               }
-
+    
               await this.loadNotes();
-              uiStore.showToastMessage(
-                'Notes and folders imported successfully!'
-              );
+              uiStore.showToastMessage('Notes and folders imported successfully!');
             } catch (error) {
-              console.error('Error importing notes:', error);
-              uiStore.showToastMessage(
-                'Failed to import notes. Please try again.'
-              );
+              uiStore.showToastMessage('Failed to import notes. Please try again.');
             }
           };
           reader.readAsText(file);
         }
       };
-
+    
       input.click();
-    },
+    },    
 
     async downloadBackup() {
       let notesToBackup;
@@ -269,16 +320,24 @@ export const useNotesStore = defineStore('notes', {
     async deleteAllNotes() {
       if (authStore.isLoggedIn) {
         const notesRef = ref(db, `users/${authStore.user!.uid}/notes`);
+        const folderRef = ref(db, `users/${authStore.user!.uid}/folders`);
         await remove(notesRef);
+        await remove(folderRef);
       } else {
         localStorage.removeItem('notes');
+        localStorage.removeItem('folders');
         this.deletedNotes.push(...this.notes);
       }
-
+    
       this.notes = [];
       this.saveNotes();
-      uiStore.showToastMessage('All notes deleted successfully!');
-    },
+      
+      folderStore.folders = [DEFAULT_FOLDERS.ALL_NOTES, DEFAULT_FOLDERS.UNCATEGORIZED];
+      folderStore.currentFolder = DEFAULT_FOLDERS.ALL_NOTES;
+      folderStore.saveFolders();
+      
+      uiStore.showToastMessage('All notes and folders deleted successfully!');
+    },    
 
     async loadNotes() {
       if (authStore.isLoggedIn) {
@@ -357,8 +416,7 @@ export const useNotesStore = defineStore('notes', {
           .then(() => {
             uiStore.showToastMessage('Note content copied to clipboard!');
           })
-          .catch((err) => {
-            console.error('Failed to copy text: ', err);
+          .catch(() => {
             uiStore.showToastMessage('Failed to copy note content');
           });
       }

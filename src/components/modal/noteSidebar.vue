@@ -285,7 +285,6 @@
       await notesStore.deleteNote(editedNote.value.id);
       emit('close');
     } catch (error) {
-      console.error('Error deleting note:', error);
       uiStore.showToastMessage('Failed to delete note. Please try again.');
     }
     closeAlert();

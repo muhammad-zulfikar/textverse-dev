@@ -79,3 +79,35 @@ export const updateNoteFolderInFirebase = async (
   const noteRef = ref(db, `users/${userId}/notes/${noteId}`);
   await update(noteRef, { folder: newFolder });
 };
+
+export const moveNoteToTrash = async (
+  userId: string,
+  note: Note
+): Promise<void> => {
+  const noteRef = ref(db, `users/${userId}/trash/${note.id}`);
+  await set(noteRef, note);
+  await deleteNoteFromFirebase(userId, note.id);
+};
+
+export const restoreNoteFromTrash = async (
+  userId: string,
+  note: Note
+): Promise<void> => {
+  await saveNoteToFirebase(userId, note);
+  await remove(ref(db, `users/${userId}/trash/${note.id}`));
+};
+
+export const permanentlyDeleteNoteFromTrash = async (
+  userId: string,
+  noteId: number
+): Promise<void> => {
+  await remove(ref(db, `users/${userId}/trash/${noteId}`));
+};
+
+export const getDeletedNotesFromFirebase = async (
+  userId: string
+): Promise<Record<number, Note>> => {
+  const trashRef = ref(db, `users/${userId}/trash`);
+  const snapshot = await get(trashRef);
+  return (snapshot.val() as Record<number, Note>) || {};
+};

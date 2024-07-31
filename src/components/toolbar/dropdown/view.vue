@@ -73,7 +73,7 @@
               class="block cursor-pointer"
               role="menuitem"
             >
-            <img src="@/assets/icons/minus.svg" class="h-4 w-4">
+            <img src="@/assets/icons/minus.svg" class="h-4 w-4 dark:invert">
             </a>
             <span class="mx-2 text-sm whitespace-nowrap">
               {{ uiStore.columns }} Columns
@@ -83,7 +83,7 @@
               class="block cursor-pointer"
               role="menuitem"
             >
-              <img src="@/assets/icons/plus.svg" class="h-4 w-4">
+              <img src="@/assets/icons/plus.svg" class="h-4 w-4 dark:invert">
             </a>
           </div>
           <a
