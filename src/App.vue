@@ -40,12 +40,16 @@ watch(
 );
 
 onMounted(async () => {
+  console.log('App mounted');
   try {
     await authStore.fetchCurrentUser();
-    const redirectResult = await authStore.handleRedirectResult();
-    if (redirectResult) {
+    console.log('Current user fetched');
+    
+    if (authStore.isLoggedIn) {
+      console.log('User is logged in, navigating to home');
       router.push('/');
     }
+    
     await notesStore.loadNotes();
     await folderStore.loadFolders();
   } catch (error) {

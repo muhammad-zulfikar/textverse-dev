@@ -16,7 +16,6 @@ import {
   GoogleAuthProvider,
   GithubAuthProvider,
   signInWithRedirect,
-  getRedirectResult,
   onAuthStateChanged,
   User,
   updateProfile,
@@ -31,6 +30,7 @@ export const useAuthStore = defineStore('auth', {
     user: null as User | null,
     avatarUrl: '' as string,
     isLoading: false,
+    pendingRedirect: false,
   }),
   actions: {
     showToast(message: string) {
@@ -99,88 +99,36 @@ export const useAuthStore = defineStore('auth', {
       await this.syncFolders();
     },
 
-    async signInWithProvider(providerName: 'Google' | 'GitHub') {
-      this.isLoading = true;
-      try {
-        const provider =
-          providerName === 'Google'
-            ? new GoogleAuthProvider()
-            : new GithubAuthProvider();
-    
-        if (this.isMobile()) {
-          // Store the intended provider in localStorage
-          localStorage.setItem('authProvider', providerName);
-          await signInWithRedirect(auth, provider);
-        } else {
-          const userCredential = await signInWithPopup(auth, provider);
-          this.user = userCredential.user;
-          this.avatarUrl = this.user.photoURL || '';
-          this.showToast(`Signed in with ${providerName} successfully`);
-          await this.syncFolders();
-        }
-      } catch (error: any) {
-        this.showToast(`${providerName} sign-in failed: ${error.message}`);
-        throw error;
-      } finally {
-        this.isLoading = false;
-      }
-    },
-    
-    async handleRedirectResult() {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          this.user = result.user;
-          this.avatarUrl = this.user.photoURL || '';
-          const provider = localStorage.getItem('authProvider');
-          this.showToast(`Signed in with ${provider || 'provider'} successfully`);
-          await this.syncFolders();
-          localStorage.removeItem('authProvider'); // Clear the stored provider
-          return true; // Indicate successful sign-in
-        }
-      } catch (error: any) {
-        this.showToast(`Sign-in failed: ${error.message}`);
-        throw error;
-      }
-      return false; // Indicate no redirect result
-    },
-
     async signInWithGoogle() {
-      return this.signInWithProvider('Google');
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      this.user = userCredential.user;
+      this.avatarUrl = this.user.photoURL || '';
     },
 
     async signInWithGitHub() {
-      return this.signInWithProvider('GitHub');
-    },
-
-    isMobile() {
-      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      );
+      const provider = new GithubAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      this.user = userCredential.user;
+      this.avatarUrl = this.user.photoURL || '';
     },
 
     async fetchCurrentUser() {
       this.isLoading = true;
+      console.log('Fetching current user');
       return new Promise<void>((resolve) => {
         onAuthStateChanged(auth, async (user) => {
           if (user) {
+            console.log('User is signed in:', user);
             this.user = user;
             this.avatarUrl = user.photoURL || '/avatar.png';
           } else {
-            const result = await getRedirectResult(auth);
-            if (result && result.user) {
-              this.user = result.user;
-              this.avatarUrl = result.user.photoURL || '';
-              this.showToast('Signed in successfully');
-            } else {
-              this.user = null;
-              this.avatarUrl = '';
-            }
+            console.log('No user signed in');
+            this.user = null;
+            this.avatarUrl = '';
           }
-          setTimeout(() => {
-            this.isLoading = false;
-            resolve();
-          }, 500);
+          this.isLoading = false;
+          resolve();
         });
       });
     },

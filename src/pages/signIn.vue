@@ -126,22 +126,32 @@
   };
 
   const signInWithGoogle = async () => {
-    try {
-      await authStore.signInWithGoogle();
+  try {
+    console.log('Attempting to sign in with Google');
+    await authStore.signInWithGoogle();
+    if (authStore.isLoggedIn) {
+      console.log('Google sign-in successful, navigating to home');
       router.push('/');
-    } catch (err) {
-      uiStore.showToastMessage('Google sign-in failed');
     }
-  };
+  } catch (err) {
+    console.error('Google sign-in failed:', err);
+    uiStore.showToastMessage('Google sign-in failed');
+  }
+};
 
-  const signInWithGitHub = async () => {
-    try {
-      await authStore.signInWithGitHub();
+const signInWithGitHub = async () => {
+  try {
+    console.log('Attempting to sign in with GitHub');
+    await authStore.signInWithGitHub();
+    if (authStore.isLoggedIn) {
+      console.log('GitHub sign-in successful, navigating to home');
       router.push('/');
-    } catch (err) {
-      uiStore.showToastMessage('GitHub sign-in failed');
     }
-  };
+  } catch (err) {
+    console.error('GitHub sign-in failed:', err);
+    uiStore.showToastMessage('GitHub sign-in failed');
+  }
+};
 
   const toggleForm = () => {
     isSignUp.value = !isSignUp.value;
@@ -153,7 +163,9 @@
   };
 
   onMounted(() => {
+  console.log('Sign-in component mounted');
   if (authStore.isLoggedIn) {
+    console.log('User is already logged in, navigating to home');
     router.push('/');
   }
 });
