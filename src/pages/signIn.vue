@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { onMounted, ref } from 'vue';
   import { useRouter } from 'vue-router';
   import { authStore, uiStore } from '@/store/stores';
 
@@ -151,4 +151,10 @@
   const closeForm = () => {
     router.push('/');
   };
+
+  onMounted(() => {
+  if (authStore.isLoggedIn) {
+    router.push('/');
+  }
+});
 </script>

@@ -108,6 +108,8 @@ export const useAuthStore = defineStore('auth', {
             : new GithubAuthProvider();
     
         if (this.isMobile()) {
+          // Store the intended provider in localStorage
+          localStorage.setItem('authProvider', providerName);
           await signInWithRedirect(auth, provider);
         } else {
           const userCredential = await signInWithPopup(auth, provider);
@@ -130,13 +132,17 @@ export const useAuthStore = defineStore('auth', {
         if (result) {
           this.user = result.user;
           this.avatarUrl = this.user.photoURL || '';
-          this.showToast('Signed in successfully');
+          const provider = localStorage.getItem('authProvider');
+          this.showToast(`Signed in with ${provider || 'provider'} successfully`);
           await this.syncFolders();
+          localStorage.removeItem('authProvider'); // Clear the stored provider
+          return true; // Indicate successful sign-in
         }
       } catch (error: any) {
         this.showToast(`Sign-in failed: ${error.message}`);
         throw error;
       }
+      return false; // Indicate no redirect result
     },
 
     async signInWithGoogle() {

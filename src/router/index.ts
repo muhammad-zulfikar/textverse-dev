@@ -25,19 +25,24 @@ const routes: Array<RouteRecordRaw> = [
     path: '/sign-in',
     name: 'Sign In',
     component: signIn,
-    beforeEnter: (_to, _from, next) => {
-      if (authStore.isLoggedIn) {
-        next('/');
-      } else {
-        next();
-      }
-    },
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach((to, _from, next) => {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  
+  if (requiresAuth && !authStore.isLoggedIn) {
+    next('/sign-in');
+  } else if (to.path === '/sign-in' && authStore.isLoggedIn) {
+    next('/');
+  } else {
+    next();
+  }
 });
 
 export default router;
