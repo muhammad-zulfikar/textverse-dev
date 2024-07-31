@@ -100,6 +100,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async signInWithProvider(providerName: 'Google' | 'GitHub') {
+      this.isLoading = true;
       try {
         const provider =
           providerName === 'Google'
@@ -113,13 +114,16 @@ export const useAuthStore = defineStore('auth', {
           this.user = userCredential.user;
           this.avatarUrl = this.user.photoURL || '';
           this.showToast(`Signed in with ${providerName} successfully`);
+          await this.syncFolders();
         }
       } catch (error: any) {
         this.showToast(`${providerName} sign-in failed: ${error.message}`);
         throw error;
+      } finally {
+        this.isLoading = false;
       }
     },
-
+    
     async handleRedirectResult() {
       try {
         const result = await getRedirectResult(auth);
