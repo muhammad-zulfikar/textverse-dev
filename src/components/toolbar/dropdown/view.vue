@@ -106,7 +106,7 @@
       v-if="folderViewExpanded"
       class="flex items-center justify-center mx-4"
     >
-    <a
+      <a
         @click.stop="setFolderViewType('grid')"
         :class="{ underline: uiStore.folderViewType === 'grid' }"
         class="block px-4 mb-2 text-sm cursor-pointer hover:underline"
@@ -127,81 +127,81 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue';
-import { uiStore } from '@/store/stores';
-import Dropdown from '@/components/dropdown.vue';
+  import { ref, onMounted, onUnmounted, watch } from 'vue';
+  import { uiStore } from '@/store/stores';
+  import Dropdown from '@/components/dropdown.vue';
 
-const isMobile = ref(window.innerWidth < 640);
-const columnsExpanded = ref(false);
-const folderViewExpanded = ref(false);
+  const isMobile = ref(window.innerWidth < 640);
+  const columnsExpanded = ref(false);
+  const folderViewExpanded = ref(false);
 
-const setViewType = (viewType: 'card' | 'table' | 'mail' | 'folder') => {
-  uiStore.setViewType(viewType);
-  uiStore.setActiveDropdown(null);
-};
+  const setViewType = (viewType: 'card' | 'table' | 'mail' | 'folder') => {
+    uiStore.setViewType(viewType);
+    uiStore.setActiveDropdown(null);
+  };
 
-const toggleCardView = () => {
-  columnsExpanded.value = !columnsExpanded.value;
-};
+  const toggleCardView = () => {
+    columnsExpanded.value = !columnsExpanded.value;
+  };
 
-const increaseColumns = () => {
-  if (uiStore.columns < (isMobile.value ? 2 : 5)) {
-    uiStore.setColumns(uiStore.columns + 1);
-  }
-};
-
-const decreaseColumns = () => {
-  if (uiStore.columns > 1) {
-    uiStore.setColumns(uiStore.columns - 1);
-  }
-};
-
-const toggleFolderView = () => {
-  folderViewExpanded.value = !folderViewExpanded.value;
-};
-
-const setFolderViewType = (viewType: 'grid' | 'list') => {
-  uiStore.setFolderViewType(viewType);
-  uiStore.setActiveDropdown(null);
-};
-
-const handleResize = () => {
-  const newIsMobile = window.innerWidth < 640;
-  if (newIsMobile !== isMobile.value) {
-    isMobile.value = newIsMobile;
-    if (isMobile.value && uiStore.columns > 2) {
-      uiStore.setColumns(2);
-    } else if (!isMobile.value && uiStore.columns < 3) {
-      uiStore.setColumns(4);
+  const increaseColumns = () => {
+    if (uiStore.columns < (isMobile.value ? 2 : 5)) {
+      uiStore.setColumns(uiStore.columns + 1);
     }
-  }
-};
+  };
 
-onMounted(() => {
-  window.addEventListener('resize', handleResize);
-  handleResize();
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
-});
-
-watch(
-  () => uiStore.viewType,
-  (newValue) => {
-    if (newValue !== 'card') {
-      columnsExpanded.value = false;
+  const decreaseColumns = () => {
+    if (uiStore.columns > 1) {
+      uiStore.setColumns(uiStore.columns - 1);
     }
-    if (newValue !== 'folder') {
-      folderViewExpanded.value = false;
+  };
+
+  const toggleFolderView = () => {
+    folderViewExpanded.value = !folderViewExpanded.value;
+  };
+
+  const setFolderViewType = (viewType: 'grid' | 'list') => {
+    uiStore.setFolderViewType(viewType);
+    uiStore.setActiveDropdown(null);
+  };
+
+  const handleResize = () => {
+    const newIsMobile = window.innerWidth < 640;
+    if (newIsMobile !== isMobile.value) {
+      isMobile.value = newIsMobile;
+      if (isMobile.value && uiStore.columns > 2) {
+        uiStore.setColumns(2);
+      } else if (!isMobile.value && uiStore.columns < 3) {
+        uiStore.setColumns(4);
+      }
     }
-  }
-);
+  };
+
+  onMounted(() => {
+    window.addEventListener('resize', handleResize);
+    handleResize();
+  });
+
+  onUnmounted(() => {
+    window.removeEventListener('resize', handleResize);
+  });
+
+  watch(
+    () => uiStore.viewType,
+    (newValue) => {
+      if (newValue !== 'card') {
+        columnsExpanded.value = false;
+      }
+      if (newValue !== 'folder') {
+        folderViewExpanded.value = false;
+      }
+    }
+  );
 </script>
 
 <style scoped>
-svg:active {
-  transform: scale(0.8);
-  transition-duration: 200ms;
-}
+  svg:active {
+    transform: scale(0.8);
+    transition-duration: 200ms;
+  }
 </style>

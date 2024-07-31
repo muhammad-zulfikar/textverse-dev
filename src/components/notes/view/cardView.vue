@@ -4,6 +4,7 @@
       name="list"
       tag="ul"
       :class="[
+        'relative min-w-[300px]',
         {
           'columns-1 md:max-w-xl': uiStore.columns === 1,
           'columns-2 md:gap-7 md:max-w-4xl': uiStore.columns === 2,
@@ -18,10 +19,12 @@
       <li
         v-for="note in props.notes"
         :key="note.id"
-        class="custom-card break-inside-avoid h-min mb-6 md:mb-8 p-2 flex flex-col overflow-x-auto cursor-pointer relative group select-none"
+        class="break-inside-avoid h-min mb-6 md:mb-8 p-2 flex flex-col overflow-x-auto cursor-pointer relative group select-none"
         :class="{
           'z-50': showMenu && selectedNote?.id === note.id,
           shadow: note.pinned,
+          'custom-card-blur': uiStore.blurEnabled,
+          'custom-card': !uiStore.blurEnabled,
         }"
         @contextmenu.prevent="(event) => showContextMenu(event, note)"
         @click="() => uiStore.openNote(note.id)"
@@ -54,8 +57,7 @@
                 {{ note.folder }}
               </p>
             </div>
-            <div v-else class="w-1/3">
-            </div>
+            <div v-else class="w-1/3"></div>
 
             <div class="w-1/3 text-center text-[10px] md:text-xs">
               <p v-if="note.pinned">Pinned</p>
@@ -84,7 +86,8 @@
     </Transition>
     <div
       v-if="isAlertOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 z-40"
+      class="fixed inset-0 bg-black bg-opacity-40 z-40"
+      :class="{ 'backdrop-blur-[2px]': uiStore.blurEnabled }"
     ></div>
     <AlertModal
       :is-open="isAlertOpen"

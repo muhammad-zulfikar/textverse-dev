@@ -10,8 +10,14 @@
         :class="[
           'fixed inset-y-0 right-0 overflow-y-auto',
           {
-            'custom-card-no-rounded-border w-full': uiStore.isExpanded,
-            'custom-card w-3/4 md:w-2/5': !uiStore.isExpanded,
+            'custom-card-no-rounded-border w-full':
+              uiStore.isExpanded && !uiStore.blurEnabled,
+            'custom-card-blur-no-rounded-border w-full':
+              uiStore.isExpanded && uiStore.blurEnabled,
+            'custom-card w-3/4 md:w-2/5':
+              !uiStore.isExpanded && !uiStore.blurEnabled,
+            'custom-card-blur w-3/4 md:w-2/5':
+              !uiStore.isExpanded && uiStore.blurEnabled,
           },
         ]"
       >
@@ -61,10 +67,7 @@
           <div
             class="flex justify-between items-center text-sm mb-4 whitespace-nowrap"
           >
-            <FolderDropdown 
-              v-model="editedNote.folder" 
-              direction="down" 
-            />
+            <FolderDropdown v-model="editedNote.folder" direction="down" />
             <span
               v-if="isEditMode"
               class="ml-4 text-gray-600 dark:text-gray-300"
@@ -104,7 +107,7 @@
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { DEFAULT_FOLDERS } from '@/store/constants';
   import AlertModal from '@/components/modal/alertModal.vue';
-  import FolderDropdown from '../folderDropdown.vue';
+  import FolderDropdown from '@/components/folderDropdown.vue';
 
   const props = defineProps<{
     noteId: number | null;

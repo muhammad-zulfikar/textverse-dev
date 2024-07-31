@@ -6,7 +6,10 @@
     <div
       ref="menuRef"
       :style="menuStyle"
-      class="custom-card-no-transition p-4 z-60"
+      class="p-4 z-60"
+      :class="[
+        uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card-no-transition',
+      ]"
     >
       <ul class="font-serif text-sm w-[100px]">
         <li
@@ -92,7 +95,7 @@
 
 <script setup lang="ts">
   import { ref, computed, onMounted, onUnmounted } from 'vue';
-  import { notesStore, folderStore } from '@/store/stores';
+  import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
 
   import { CSSProperties } from 'vue';

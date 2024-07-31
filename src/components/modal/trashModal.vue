@@ -7,9 +7,10 @@
       <div @click="closeModal" class="absolute inset-0"></div>
       <div
         @click.stop
-        class="z-50 font-serif custom-card p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 max-h-[90vh] overflow-y-auto"
+        class="z-50 font-serif p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 max-h-[90vh] overflow-y-auto"
+        :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
       >
-        <div class="flex justify-between mt-2 mb-4">
+        <div class="flex justify-between mb-4">
           <h1 class="text-xl font-bold">Trash</h1>
           <button @click="closeModal" class="hover:underline text-sm">
             Close
@@ -36,7 +37,7 @@
               Restore Selected
             </button>
             <button
-              @click="deleteSelectedNotes"
+              @click="confirmDeleteSelectedNotes"
               class="hover:underline text-sm text-red-500 cursor-pointer"
               :disabled="!hasSelectedNotes"
             >
@@ -90,7 +91,7 @@
                       Restore
                     </button>
                     <button
-                      @click="deleteNote(note.id)"
+                      @click="confirmDeleteNote(note.id)"
                       class="flex-1 p-2 custom-card text-sm hover:underline text-red-500 mb-4"
                     >
                       Delete
@@ -104,12 +105,29 @@
       </div>
     </div>
   </transition>
+  <div
+    v-if="showDeleteConfirmation || showDeleteSelectedConfirmation"
+    class="fixed inset-0 bg-black bg-opacity-40 z-40"
+    :class="{ 'backdrop-blur-[2px]': uiStore.blurEnabled }"
+  ></div>
+  <AlertModal
+    :is-open="showDeleteConfirmation"
+    :message="`Are you sure you want to delete this note?`"
+    @cancel="showDeleteConfirmation = false"
+    @confirm="deleteNote"
+  />
+  <AlertModal
+    :is-open="showDeleteSelectedConfirmation"
+    :message="`Are you sure you want to delete ${selectedNotes.length} note(s)?`"
+    @cancel="showDeleteSelectedConfirmation = false"
+    @confirm="deleteSelectedNotes"
+  />
 </template>
 
 <script setup lang="ts">
   import { ref, computed } from 'vue';
-  import { useNotesStore } from '@/store/notesStore';
-  import { useUIStore } from '@/store/uiStore';
+  import { notesStore, uiStore } from '@/store/stores';
+  import AlertModal from '@/components/modal/alertModal.vue';
 
   const props = defineProps<{
     isOpen: boolean;
@@ -119,12 +137,21 @@
     (e: 'close'): void;
   }>();
 
-  const notesStore = useNotesStore();
-  const uiStore = useUIStore();
-
   const selectedNotes = ref<number[]>([]);
   const showCheckboxes = ref(false);
   const expandedNoteId = ref<number | null>(null);
+  const showDeleteConfirmation = ref(false);
+  const showDeleteSelectedConfirmation = ref(false);
+  const noteToDelete = ref<number | null>(null);
+
+  const confirmDeleteNote = (noteId: number) => {
+    noteToDelete.value = noteId;
+    showDeleteConfirmation.value = true;
+  };
+
+  const confirmDeleteSelectedNotes = () => {
+    showDeleteSelectedConfirmation.value = true;
+  };
 
   const deletedNotes = computed(() => notesStore.deletedNotes);
 
@@ -161,9 +188,13 @@
     uiStore.showToastMessage('Note restored successfully');
   };
 
-  const deleteNote = async (noteId: number) => {
-    await notesStore.permanentlyDeleteNote(noteId);
-    uiStore.showToastMessage('Note permanently deleted');
+  const deleteNote = async () => {
+    if (noteToDelete.value !== null) {
+      await notesStore.permanentlyDeleteNote(noteToDelete.value);
+      uiStore.showToastMessage('Note permanently deleted');
+      showDeleteConfirmation.value = false;
+      noteToDelete.value = null;
+    }
   };
 
   const restoreSelectedNotes = async () => {
@@ -180,6 +211,7 @@
     }
     selectedNotes.value = [];
     uiStore.showToastMessage('Selected notes permanently deleted');
+    showDeleteConfirmation.value = false;
   };
 
   function formatDate(date?: string | Date): string {

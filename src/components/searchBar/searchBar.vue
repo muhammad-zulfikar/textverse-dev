@@ -18,8 +18,7 @@
       <div
         class="hidden md:flex absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none transition-all duration-300"
       >
-        <span v-if="loading" class="skeleton w-full h-5 rounded-md"></span>
-        <span v-else class="text-sm text-gray-500 dark:text-gray-300">
+        <span class="text-sm text-gray-500 dark:text-gray-300">
           <kbd
             class="p-1 px-2 pb-1.5 mr-[6px] font-serif shadow-md bg-cream text-gray-700 rounded dark:bg-gray-750 dark:text-gray-300"
           >
@@ -40,7 +39,6 @@
 <script setup>
   import { ref, computed, onMounted, onUnmounted } from 'vue';
 
-  const loading = ref(true);
   const searchQuery = ref('');
   const searchInput = ref(null);
   const isFocused = ref(false);

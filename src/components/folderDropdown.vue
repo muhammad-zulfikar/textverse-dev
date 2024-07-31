@@ -1,7 +1,6 @@
-<!-- folderDropdown.vue -->
-
 <template>
   <Dropdown
+    ref="dropdownRef"
     dropdownId="folderDropdown"
     contentWidth="fit-content"
     :direction="direction"
@@ -31,28 +30,45 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { folderStore, uiStore } from '@/store/stores';
-import { DEFAULT_FOLDERS } from '@/store/constants';
-import Dropdown from '@/components/dropdown.vue';
+  import { computed, ref, onMounted, onUnmounted } from 'vue';
+  import { folderStore, uiStore } from '@/store/stores';
+  import { DEFAULT_FOLDERS } from '@/store/constants';
+  import Dropdown from '@/components/dropdown.vue';
+  import { onClickOutside } from '@vueuse/core';
 
-const props = defineProps<{
-  modelValue: string;
-  direction?: 'up' | 'down';
-}>();
+  const props = defineProps<{
+    modelValue: string;
+    direction?: 'up' | 'down';
+  }>();
 
-const emit = defineEmits(['update:modelValue']);
+  const emit = defineEmits(['update:modelValue']);
 
-const availableFolders = computed(() => {
-  return [
-    ...folderStore.folders.filter(
-      (folder) => folder !== DEFAULT_FOLDERS.ALL_NOTES
-    ),
-  ];
-});
+  const availableFolders = computed(() => {
+    return [
+      ...folderStore.folders.filter(
+        (folder) => folder !== DEFAULT_FOLDERS.ALL_NOTES
+      ),
+    ];
+  });
 
-const selectFolder = (folder: string) => {
-  emit('update:modelValue', folder);
-  uiStore.setActiveDropdown(null);
-};
+  const selectFolder = (folder: string) => {
+    emit('update:modelValue', folder);
+    uiStore.setActiveDropdown(null);
+  };
+
+  // Ref for the dropdown element
+  const dropdownRef = ref<HTMLElement | null>(null);
+
+  // Setup onClickOutside to detect clicks outside the dropdown
+  onMounted(() => {
+    if (dropdownRef.value) {
+      onClickOutside(dropdownRef.value, () => {
+        uiStore.setActiveDropdown(null);
+      });
+    }
+  });
+
+  onUnmounted(() => {
+    // Clean up if needed
+  });
 </script>

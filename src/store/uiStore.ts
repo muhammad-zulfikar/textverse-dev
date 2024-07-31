@@ -91,31 +91,35 @@ export const useUIStore = defineStore('ui', {
       const message = enabled ? 'Blur effect enabled' : 'Blur effect disabled';
       this.showToastMessage(message);
       localStorage.setItem('blurEnabled', enabled.toString());
-    },   
+    },
 
     loadUISettings() {
-      const savedTheme = localStorage.getItem('theme') as UIState['theme'] | null;
+      const savedTheme = localStorage.getItem('theme') as
+        | UIState['theme']
+        | null;
       if (savedTheme) {
         this.theme = savedTheme;
       }
-    
+
       const savedColumns = localStorage.getItem('columns');
       if (savedColumns) {
         this.columns = parseInt(savedColumns, 10);
       }
-    
-      const savedViewType = localStorage.getItem('viewType') as UIState['viewType'] | null;
+
+      const savedViewType = localStorage.getItem('viewType') as
+        | UIState['viewType']
+        | null;
       if (savedViewType) {
         this.viewType = savedViewType;
       }
-    
+
       const savedBlurEnabled = localStorage.getItem('blurEnabled');
       if (savedBlurEnabled) {
         this.blurEnabled = savedBlurEnabled === 'true';
       }
-    
+
       this.applyTheme();
-    },    
+    },
 
     setActiveDropdown(dropdown: string | null) {
       this.activeDropdown = dropdown;

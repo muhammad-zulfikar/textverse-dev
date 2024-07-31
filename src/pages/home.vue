@@ -8,7 +8,8 @@
 
     <div
       v-if="uiStore.isNoteCardOpen && uiStore.viewType !== 'table'"
-      class="fixed inset-0 bg-black bg-opacity-50 z-40"
+      class="fixed inset-0 bg-black bg-opacity-40 z-40"
+      :class="{ 'backdrop-blur-[2px]': uiStore.blurEnabled }"
       @click="closeNote"
     ></div>
     <NoteModal
@@ -19,7 +20,8 @@
 
     <div
       v-if="uiStore.isNoteSidebarOpen && uiStore.viewType === 'table'"
-      class="fixed inset-0 bg-black bg-opacity-50 z-40"
+      class="fixed inset-0 bg-black bg-opacity-40 z-40"
+      :class="{ 'backdrop-blur-[2px]': uiStore.blurEnabled }"
       @click="closeNote"
     ></div>
     <Transition name="slide">

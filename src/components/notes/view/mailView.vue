@@ -98,66 +98,7 @@
             />
           </div>
           <div class="flex justify-between items-center text-sm mb-4">
-            <div class="relative inline-block text-left">
-              <button
-                @click="toggleDropdown"
-                class="hover:underline outline-none flex items-center text-gray-600 dark:text-gray-300"
-              >
-                <div v-if="selectedFolder === DEFAULT_FOLDERS.ALL_NOTES">
-                  {{ DEFAULT_FOLDERS.UNCATEGORIZED }}
-                </div>
-                <div v-else>{{ selectedFolder }}</div>
-                <span class="ml-1">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      v-if="isDropdownOpen"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 15l7-7 7 7"
-                    />
-                    <path
-                      v-else
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </span>
-              </button>
-              <div
-                v-if="isDropdownOpen"
-                class="dropdown-menu w-fit custom-card z-50 absolute mt-2"
-              >
-                <div class="py-1" role="menu" aria-orientation="vertical">
-                  <template v-for="folder in availableFolders" :key="folder">
-                    <div
-                      @click="selectFolder(folder)"
-                      class="block px-4 py-2 text-sm cursor-pointer"
-                      role="menuitem"
-                    >
-                      <span
-                        :class="
-                          folder === selectedFolder
-                            ? 'underline dark:text-white'
-                            : ''
-                        "
-                        class="hover:underline"
-                      >
-                        {{ folder }}
-                      </span>
-                    </div>
-                  </template>
-                </div>
-              </div>
-            </div>
+            <FolderDropdown v-model="editedNote.folder" direction="down" />
             <span class="ml-4 text-gray-600 dark:text-gray-300">
               Last edited:
               {{
@@ -193,6 +134,7 @@
   import alertModal from '@/components/modal/alertModal.vue';
   import { Note } from '@/store/types';
   import { DEFAULT_FOLDERS } from '@/store/constants';
+  import FolderDropdown from '@/components/folderDropdown.vue';
 
   const props = defineProps<{
     notes: Note[];
@@ -426,8 +368,8 @@
 </script>
 
 <style scoped>
-.list:active {
-  transform: scale(0.98);
-  transition-duration: 200ms;
-}
+  .list:active {
+    transform: scale(0.98);
+    transition-duration: 200ms;
+  }
 </style>

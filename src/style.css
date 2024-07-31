@@ -17,15 +17,23 @@ body {
 }
 
 .custom-card-blur {
-  @apply bg-cream/30 dark:bg-gray-750/30 border-[1px] backdrop-blur-[5px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+  @apply bg-cream/50 dark:bg-gray-900/50 border-[1px] backdrop-blur-[5px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
 .custom-card-no-rounded-border {
   @apply bg-cream dark:bg-gray-750 shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
+.custom-card-blur-no-rounded-border {
+  @apply bg-cream/50 dark:bg-gray-900/50 backdrop-blur-[5px] shadow-lg hover:shadow-2xl transition-all duration-300;
+}
+
 .custom-card-transparent {
   @apply bg-transparent border-[1px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+}
+
+.custom-card-switch {
+  @apply border-[1px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
 .custom-card-transparent-avatar {
@@ -73,15 +81,20 @@ body {
   transform: scale(1);
 }
 
+.list-move,
 .list-enter-active,
 .list-leave-active {
-  transition: all 0.5s;
+  transition: all 0.3s ease;
 }
 
 .list-enter-from,
 .list-leave-to {
   opacity: 0;
   transform: translateY(30px);
+}
+
+.list-leave-active {
+  position: absolute;
 }
 
 .fade-enter-active,

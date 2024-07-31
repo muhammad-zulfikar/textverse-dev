@@ -24,10 +24,11 @@
       Folder
     </a>
   </Dropdown>
-  
+
   <div
     v-if="isFolderFormOpen"
-    class="fixed inset-0 bg-black bg-opacity-50 z-40"
+    class="fixed inset-0 bg-black bg-opacity-40 z-40"
+    :class="{ 'backdrop-blur-[2px]': uiStore.blurEnabled }"
     @click="closeFolderForm"
   ></div>
   <InputModal
@@ -40,29 +41,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { uiStore, folderStore } from '@/store/stores';
-import Dropdown from '@/components/dropdown.vue';
-import InputModal from '@/components/modal/inputModal.vue';
+  import { ref } from 'vue';
+  import { uiStore, folderStore } from '@/store/stores';
+  import Dropdown from '@/components/dropdown.vue';
+  import InputModal from '@/components/modal/inputModal.vue';
 
-const isFolderFormOpen = ref(false);
+  const isFolderFormOpen = ref(false);
 
-const openNoteForm = () => {
-  uiStore.openNote(null);
-  uiStore.setActiveDropdown(null);
-};
+  const openNoteForm = () => {
+    uiStore.openNote(null);
+    uiStore.setActiveDropdown(null);
+  };
 
-const openFolderForm = () => {
-  isFolderFormOpen.value = true;
-  uiStore.setActiveDropdown(null);
-};
+  const openFolderForm = () => {
+    isFolderFormOpen.value = true;
+    uiStore.setActiveDropdown(null);
+  };
 
-const closeFolderForm = () => {
-  isFolderFormOpen.value = false;
-};
+  const closeFolderForm = () => {
+    isFolderFormOpen.value = false;
+  };
 
-const handleFolderSubmit = (folderName: string) => {
-  folderStore.addFolder(folderName);
-  closeFolderForm();
-};
+  const handleFolderSubmit = (folderName: string) => {
+    folderStore.addFolder(folderName);
+    closeFolderForm();
+  };
 </script>

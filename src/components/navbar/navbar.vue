@@ -13,6 +13,7 @@
           <div
             v-if="isNavOpen"
             class="absolute left-0 custom-card mt-2 w-28 z-50"
+            :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
           >
             <router-link
               to="/"
@@ -96,7 +97,8 @@
     <div class="bg-black dark:bg-white h-px transition-all duration-300"></div>
     <div
       v-if="showSignoutConfirmation || isTrashModalOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 z-40"
+      class="fixed inset-0 bg-black bg-opacity-40 z-40"
+      :class="{ 'backdrop-blur-[2px]': uiStore.blurEnabled }"
     ></div>
     <AlertModal
       :is-open="showSignoutConfirmation"
@@ -113,10 +115,12 @@
   import { ref, onMounted, onBeforeUnmount } from 'vue';
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/store/authStore';
+  import { useUIStore } from '@/store/uiStore';
   import AlertModal from '@/components/modal/alertModal.vue';
   import TrashModal from '@/components/modal/trashModal.vue';
 
   const authStore = useAuthStore();
+  const uiStore = useUIStore();
   const isNavOpen = ref(false);
   const isUserDropdownOpen = ref(false);
   const router = useRouter();

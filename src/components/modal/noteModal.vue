@@ -12,9 +12,14 @@
         :class="[
           'p-5 relative flex flex-col',
           {
+            'custom-card-no-rounded-border w-full h-full':
+              uiStore.isExpanded && !uiStore.blurEnabled,
+            'custom-card-blur-no-rounded-border w-full h-full':
+              uiStore.isExpanded && uiStore.blurEnabled,
             'custom-card w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3':
-              !uiStore.isExpanded,
-            'custom-card-no-rounded-border w-full h-full': uiStore.isExpanded,
+              !uiStore.isExpanded && !uiStore.blurEnabled,
+            'custom-card-blur w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3':
+              !uiStore.isExpanded && uiStore.blurEnabled,
           },
         ]"
       >
@@ -51,10 +56,7 @@
           </div>
         </div>
         <div class="flex justify-between mt-6 select-none text-sm">
-          <FolderDropdown 
-            v-model="editedNote.folder" 
-            direction="up" 
-          />
+          <FolderDropdown v-model="editedNote.folder" direction="up" />
           <div>
             <button
               @click="saveNote"

@@ -6,7 +6,7 @@
       class="max-w-xl md:max-w-2xl p-8 m-8 flex flex-col mx-auto gap-8 overflow-y-auto font-serif"
     >
       <div class="flex-grow flex flex-col gap-8">
-        <div class="p-4" :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']">
+        <div class="p-4 custom-card">
           <h2 class="text-2xl font-semibold mb-4">Sync your notes</h2>
           <div class="flex flex-col gap-4">
             <div
@@ -38,7 +38,9 @@
                 v-if="authStore.isLoggedIn"
                 @click="confirmSignout"
                 class="w-full md:w-auto flex justify-center text-sm md:text-base py-2 px-4 mt-4 md:mt-0"
-                :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
+                :class="[
+                  uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
+                ]"
               >
                 Sign out
               </button>
@@ -46,7 +48,9 @@
                 v-if="!authStore.isLoggedIn"
                 to="/sign-in"
                 class="w-full md:w-auto flex justify-center text-sm md:text-base py-2 px-4 mt-4 md:mt-0"
-                :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
+                :class="[
+                  uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
+                ]"
               >
                 Sign in
               </router-link>
@@ -66,7 +70,9 @@
               <button
                 @click="importNotes"
                 class="w-full md:w-auto text-sm md:text-base py-2 px-4 mt-4 md:mt-0"
-                :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
+                :class="[
+                  uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
+                ]"
               >
                 Import notes
               </button>
@@ -74,7 +80,7 @@
           </div>
         </div>
 
-        <div class="p-4" :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']">
+        <div class="p-4 custom-card">
           <h2 class="text-2xl font-semibold mb-4">Appearance</h2>
           <div class="flex flex-col gap-4">
             <div
@@ -94,7 +100,7 @@
                 :class="[
                   'mt-2 md:mt-0 text-sm md:text-base px-4 py-2 flex items-center relative',
                   { 'z-50': dropdownOpen },
-                  uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card'
+                  uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
                 ]"
               >
                 {{ darkModeText }}
@@ -127,7 +133,9 @@
                 <div
                   v-if="dropdownOpen"
                   class="mt-[-5px] md:mt-1 z-50 origin-top-right absolute w-[5.8rem] md:w-30 top-full right-0"
-                  :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
+                  :class="[
+                    uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
+                  ]"
                 >
                   <div class="py-1" role="menu" aria-orientation="vertical">
                     <a
@@ -156,120 +164,133 @@
               </Transition>
             </div>
 
-            <div class="flex items-center justify-between relative" ref="viewTypeDropdownRef">
-      <div class="mr-6">
-        <label for="viewType" class="text-lg font-semibold mb-1">
-          View Type
-        </label>
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-          Choose how your notes are displayed.
-        </p>
-      </div>
-      <button
-        @click.stop="toggleViewTypeDropdown"
-        :class="[
-          'mt-2 md:mt-0 text-sm md:text-base px-4 py-2 flex items-center relative whitespace-nowrap',
-          { 'z-60': viewTypeDropdownOpen },
-          uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card'
-        ]"
-      >
-        {{ viewTypeText }}
-        <span class="ml-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              v-if="viewTypeDropdownOpen"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 15l7-7 7 7"
-            />
-            <path
-              v-else
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </span>
-      </button>
-      <Transition name="zoom">
-        <div
-          v-if="viewTypeDropdownOpen"
-          class="mt-[-5px] md:mt-1 z-50 origin-top-right absolute w-[6.4rem] md:w-30 top-full right-0"
-          :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
-        >
-          <div class="py-1" role="menu" aria-orientation="vertical">
-            <a
-              @click.stop="setViewType('card')"
-              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-              role="menuitem"
+            <div
+              class="flex items-center justify-between relative"
+              ref="viewTypeDropdownRef"
             >
-              Card
-            </a>
-            <a
-              @click.stop="setViewType('table')"
-              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-              role="menuitem"
-            >
-              Table
-            </a>
-            <a
-              @click.stop="setViewType('mail')"
-              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-              role="menuitem"
-            >
-              Mail
-            </a>
-            <a
-              @click.stop="setViewType('folder')"
-              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-              role="menuitem"
-            >
-              Folder
-            </a>
+              <div class="mr-6">
+                <label for="viewType" class="text-lg font-semibold mb-1">
+                  View Type
+                </label>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  Choose how your notes are displayed.
+                </p>
+              </div>
+              <button
+                @click.stop="toggleViewTypeDropdown"
+                :class="[
+                  'mt-2 md:mt-0 text-sm md:text-base px-4 py-2 flex items-center relative whitespace-nowrap',
+                  { 'z-60': viewTypeDropdownOpen },
+                  uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
+                ]"
+              >
+                {{ viewTypeText }}
+                <span class="ml-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      v-if="viewTypeDropdownOpen"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 15l7-7 7 7"
+                    />
+                    <path
+                      v-else
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </span>
+              </button>
+              <Transition name="zoom">
+                <div
+                  v-if="viewTypeDropdownOpen"
+                  class="mt-[-5px] md:mt-1 z-50 origin-top-right absolute w-[6.4rem] md:w-30 top-full right-0"
+                  :class="[
+                    uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
+                  ]"
+                >
+                  <div class="py-1" role="menu" aria-orientation="vertical">
+                    <a
+                      @click.stop="setViewType('card')"
+                      class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+                      role="menuitem"
+                    >
+                      Card
+                    </a>
+                    <a
+                      @click.stop="setViewType('table')"
+                      class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+                      role="menuitem"
+                    >
+                      Table
+                    </a>
+                    <a
+                      @click.stop="setViewType('mail')"
+                      class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+                      role="menuitem"
+                    >
+                      Mail
+                    </a>
+                    <a
+                      @click.stop="setViewType('folder')"
+                      class="block px-4 py-2 text-sm cursor-pointer hover:underline"
+                      role="menuitem"
+                    >
+                      Folder
+                    </a>
+                  </div>
+                </div>
+              </Transition>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div>
+                <label for="blur" class="text-lg font-semibold mb-1">
+                  Blur Effect
+                </label>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  Enable blur effect for cards
+                </p>
+              </div>
+              <div class="mt-2 md:mt-0 flex items-center">
+                <input
+                  type="checkbox"
+                  id="blur"
+                  v-model="uiStore.blurEnabled"
+                  @click="toggleBlur"
+                  class="hidden"
+                />
+                <label
+                  for="blur"
+                  :class="{
+                    'bg-cream dark:bg-gray-700': !uiStore.blurEnabled,
+                    'bg-[#ebdfc0] dark:bg-gray-800': uiStore.blurEnabled,
+                  }"
+                  class="relative inline-block custom-card-switch w-16 h-9 cursor-pointer transition-colors duration-300"
+                >
+                  <span
+                    :class="{
+                      'translate-x-0': !uiStore.blurEnabled,
+                      'translate-x-[30px]': uiStore.blurEnabled,
+                    }"
+                    class="absolute left-0 top-0 bottom-0 w-8 h-[34px] custom-card shadow-md transform transition-transform duration-300"
+                  ></span>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
-      </Transition>
-    </div>
 
-    <div class="flex items-center justify-between mt-4">
-      <div>
-        <label for="blur" class="text-lg font-semibold mb-1">Blur Effect</label>
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-          Enable blur effect for cards
-        </p>
-      </div>
-      <div class="mt-2 md:mt-0 flex items-center">
-        <input
-          type="checkbox"
-          id="blur"
-          v-model="uiStore.blurEnabled"
-          @click="toggleBlur"
-          class="hidden"
-        />
-        <label
-          for="blur"
-          :class="{
-            'bg-gray-200 dark:bg-gray-700': !uiStore.blurEnabled,
-            'bg-blue-600': uiStore.blurEnabled,
-          }"
-          class="relative inline-block w-10 h-6 rounded-full cursor-pointer transition-colors duration-300"
-        >
-          <span
-            :class="{
-              'translate-x-0': !uiStore.blurEnabled,
-              'translate-x-4': uiStore.blurEnabled,
-            }"
-            class="absolute left-0 top-0 bottom-0 w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300"
-          ></span>
-        </label>
-      </div>
-    </div>
-          </div>
-        </div>
-
-        <div class="p-4 z-10" :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']">
+        <div class="p-4 custom-card">
           <h2 class="text-2xl font-semibold mb-4">Manage your data</h2>
           <div class="flex flex-col gap-4">
             <div
@@ -284,7 +305,9 @@
               <button
                 @click="downloadBackup"
                 class="w-full md:w-auto text-sm md:text-base py-2 px-4 mt-4 md:mt-0"
-                :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
+                :class="[
+                  uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
+                ]"
               >
                 Download a backup
               </button>
@@ -301,7 +324,9 @@
               <button
                 @click="confirmDeleteAllNotes"
                 class="w-full md:w-auto text-sm md:text-base text-red-600 dark:text-red-500 py-2 px-4 mt-4 md:mt-0"
-                :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
+                :class="[
+                  uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
+                ]"
               >
                 Delete all data
               </button>
@@ -309,7 +334,7 @@
           </div>
         </div>
 
-        <div v-if="authStore.isLoggedIn" class="p-4" :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']">
+        <div v-if="authStore.isLoggedIn" class="p-4 custom-card">
           <h2 class="text-2xl font-semibold mb-4">User Settings</h2>
           <div class="flex flex-col items-center">
             <img
@@ -328,21 +353,27 @@
               <button
                 @click="openAvatarPicker"
                 class="py-2 px-4 text-sm md:text-base w-full sm:w-auto"
-                :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
+                :class="[
+                  uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
+                ]"
               >
                 Change Avatar
               </button>
               <button
                 @click="openNameEditor"
                 class="py-2 px-4 text-sm md:text-base w-full sm:w-auto"
-                :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
+                :class="[
+                  uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
+                ]"
               >
                 Rename
               </button>
               <button
                 @click="confirmDeleteAccount"
                 class="text-red-600 dark:text-red-500 py-2 px-4 text-sm md:text-base w-full sm:w-auto"
-                :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
+                :class="[
+                  uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
+                ]"
               >
                 Delete Account
               </button>
@@ -361,7 +392,8 @@
         showAvatarViewer ||
         showNameEditor
       "
-      class="fixed inset-0 bg-black bg-opacity-50"
+      class="fixed inset-0 bg-black bg-opacity-40 z-40"
+      :class="{ 'backdrop-blur-[2px]': uiStore.blurEnabled }"
     ></div>
 
     <AlertModal
