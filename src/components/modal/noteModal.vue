@@ -51,84 +51,10 @@
           </div>
         </div>
         <div class="flex justify-between mt-6 select-none text-sm">
-          <div class="relative inline-block text-left" ref="dropdownRef">
-            <button
-              @click.stop="toggleDropdown"
-              :class="{ 'z-50': uiStore.isNoteCardOpen }"
-              type="button"
-              class="hover:underline outline-none flex items-center relative cursor-pointer"
-            >
-              <div v-if="selectedFolder === DEFAULT_FOLDERS.ALL_NOTES">
-                {{ DEFAULT_FOLDERS.UNCATEGORIZED }}
-              </div>
-              <div v-else>{{ selectedFolder }}</div>
-              <span class="ml-1">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    v-if="isDropdownOpen"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 15l7-7 7 7"
-                  />
-                  <path
-                    v-else
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </span>
-            </button>
-            <div
-              v-if="isDropdownOpen"
-              class="dropdown-menu w-fit custom-card z-50 absolute mt-2 whitespace-nowrap"
-            >
-              <div class="py-1" role="menu" aria-orientation="vertical">
-                <div
-                  @click.stop="createNewFolder"
-                  class="block px-4 py-2 text-sm cursor-pointer"
-                  role="menuitem"
-                >
-                  <span v-if="!creatingFolder" class="hover:underline">
-                    + Create folder
-                  </span>
-                  <input
-                    v-else
-                    v-model="newFolderName"
-                    @blur="saveNewFolder"
-                    @keyup.enter="saveNewFolder"
-                    class="bg-transparent border-b border-black dark:border-white outline-none w-full"
-                  />
-                </div>
-                <template v-for="folder in availableFolders" :key="folder">
-                  <div
-                    @click.stop="selectFolder(folder)"
-                    class="block px-4 py-2 text-sm cursor-pointer"
-                    role="menuitem"
-                  >
-                    <span
-                      :class="
-                        folder === selectedFolder
-                          ? 'underline dark:text-white'
-                          : ''
-                      "
-                      class="hover:underline"
-                    >
-                      {{ folder }}
-                    </span>
-                  </div>
-                </template>
-              </div>
-            </div>
-          </div>
+          <FolderDropdown 
+            v-model="editedNote.folder" 
+            direction="up" 
+          />
           <div>
             <button
               @click="saveNote"
@@ -152,10 +78,11 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, watch, onMounted, onUnmounted, PropType } from 'vue';
+  import { ref, computed, watch, PropType } from 'vue';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
   import { DEFAULT_FOLDERS } from '@/store/constants';
+  import FolderDropdown from '@/components/folderDropdown.vue';
 
   const props = defineProps({
     isOpen: {
@@ -167,8 +94,6 @@
       default: null,
     },
   });
-
-  const emit = defineEmits(['close']);
 
   const editedNote = ref<Note>({
     id: Date.now(),
@@ -183,10 +108,6 @@
   const originalNote = ref<Note | null>(null);
   const isEditMode = computed(() => props.noteId !== null);
   const selectedFolder = ref(DEFAULT_FOLDERS.UNCATEGORIZED);
-  const isDropdownOpen = ref(false);
-  const creatingFolder = ref(false);
-  const newFolderName = ref('');
-  const dropdownRef = ref<HTMLElement | null>(null);
 
   const isValid = computed(() => {
     return (
@@ -201,14 +122,6 @@
     return notesStore.hasChanged(originalNote.value, editedNote.value);
   });
 
-  const availableFolders = computed(() => {
-    return [
-      ...folderStore.folders.filter(
-        (folder) => folder !== DEFAULT_FOLDERS.ALL_NOTES
-      ),
-    ];
-  });
-
   const formattedDate = computed(() => {
     if (!editedNote.value) return '';
     const date = new Date(
@@ -216,30 +129,6 @@
     );
     return notesStore.localeDate(date);
   });
-
-  const toggleDropdown = () => {
-    isDropdownOpen.value = !isDropdownOpen.value;
-  };
-
-  const selectFolder = (folder: string) => {
-    selectedFolder.value = folder;
-    editedNote.value.folder = folder;
-    isDropdownOpen.value = false;
-  };
-
-  const createNewFolder = () => {
-    creatingFolder.value = true;
-    newFolderName.value = '';
-  };
-
-  const saveNewFolder = () => {
-    if (newFolderName.value.trim().length > 0) {
-      folderStore.addFolder(newFolderName.value.trim());
-      selectFolder(newFolderName.value.trim());
-    }
-    creatingFolder.value = false;
-    isDropdownOpen.value = false;
-  };
 
   const saveNote = async () => {
     if (!isValid.value) {
@@ -276,19 +165,7 @@
   };
 
   const closeModal = () => {
-    emit('close');
-  };
-
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      dropdownRef.value &&
-      !dropdownRef.value.contains(event.target as Node)
-    ) {
-      isDropdownOpen.value = false;
-      if (creatingFolder.value) {
-        saveNewFolder();
-      }
-    }
+    uiStore.isNoteCardOpen = false;
   };
 
   watch(
@@ -327,20 +204,4 @@
       }
     }
   );
-
-  onMounted(() => {
-    document.addEventListener('click', handleClickOutside);
-  });
-
-  onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside);
-  });
 </script>
-
-<style scoped>
-  .dropdown-menu {
-    top: -100%;
-    left: 0;
-    transform: translateY(-100%);
-  }
-</style>

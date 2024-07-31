@@ -15,7 +15,6 @@
       v-if="uiStore.viewType !== 'table'"
       :is-open="uiStore.isNoteCardOpen"
       :note-id="notesStore.selectedNoteId ?? undefined"
-      @close="closeNote"
     />
 
     <div
@@ -43,7 +42,6 @@
 
   const closeNote = () => {
     notesStore.selectedNoteId = null;
-    uiStore.isNoteCardOpen = false;
     uiStore.isNoteSidebarOpen = false;
     uiStore.closeNote();
   };

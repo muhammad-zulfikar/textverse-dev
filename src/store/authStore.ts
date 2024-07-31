@@ -135,9 +135,8 @@ export const useAuthStore = defineStore('auth', {
           if (newAvatarUrl === '/avatar.png') {
             try {
               await deleteObject(imageRef);
-            } catch (error) {
-            }
-            
+            } catch (error) {}
+
             await updateProfile(this.user, { photoURL: null });
             this.avatarUrl = '/avatar.png';
           } else {

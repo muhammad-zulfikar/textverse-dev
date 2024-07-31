@@ -7,9 +7,7 @@
         <h2 class="text-2xl font-bold mb-4 flex justify-center">
           {{ isSignUp ? 'Sign up' : 'Sign in' }}
         </h2>
-        <form
-          @submit.prevent="isSignUp ? handleSignUp() : handleLogin()"
-        >
+        <form @submit.prevent="isSignUp ? handleSignUp() : handleLogin()">
           <div>
             <label for="email" class="block">Email</label>
             <input
@@ -31,7 +29,9 @@
             />
           </div>
           <div v-if="isSignUp">
-            <label for="confirmPassword" class="block mb-1">Confirm Password</label>
+            <label for="confirmPassword" class="block mb-1">
+              Confirm Password
+            </label>
             <input
               type="password"
               id="confirmPassword"
@@ -40,7 +40,10 @@
               class="w-full mb-4 bg-transparent p-1 border-0 border-b-[1px] md:border-b-2 border-black dark:border-white outline-none"
             />
           </div>
-          <button type="submit" class="flex w-full md:w-fit flex items-center justify-center px-4 py-2 mt-4 mx-auto custom-card">
+          <button
+            type="submit"
+            class="flex w-full md:w-fit flex items-center justify-center px-4 py-2 mt-4 mx-auto custom-card"
+          >
             {{ isSignUp ? 'Sign up' : 'Sign in' }}
           </button>
         </form>
@@ -61,7 +64,10 @@
         <p v-if="error" class="text-red-500 mt-4 text-center">{{ error }}</p>
         <p class="text-center mt-5 text-gray-500 dark:text-gray-400 text-sm">
           {{ isSignUp ? 'Already have an account?' : "Don't have an account?" }}
-          <button class="hover:underline font-bold text-[13px]" @click="toggleForm">
+          <button
+            class="hover:underline font-bold text-[13px]"
+            @click="toggleForm"
+          >
             {{ isSignUp ? 'Sign in' : 'Sign up' }}
           </button>
         </p>
@@ -71,90 +77,92 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { authStore, uiStore } from '@/store/stores';
+  import { computed, ref } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { authStore, uiStore } from '@/store/stores';
 
-const router = useRouter();
+  const router = useRouter();
 
-const email = ref('');
-const password = ref('');
-const confirmPassword = ref('');
-const isSignUp = ref(false);
-const slideDirection = ref('right');
-const transitionName = computed(() => `slide-${slideDirection.value}`);
-const error = ref('');
+  const email = ref('');
+  const password = ref('');
+  const confirmPassword = ref('');
+  const isSignUp = ref(false);
+  const slideDirection = ref('right');
+  const transitionName = computed(() => `slide-${slideDirection.value}`);
+  const error = ref('');
 
-const handleLogin = async () => {
-  try {
-    await authStore.login(email.value, password.value);
-    router.push('/');
-  } catch (err) {
-    uiStore.showToastMessage('Invalid email or password');
-  }
-};
-
-const handleSignUp = async () => {
-  if (password.value !== confirmPassword.value) {
-    uiStore.showToastMessage('Passwords do not match');
-    return;
-  }
-  try {
-    await authStore.signUp(email.value, password.value);
-    router.push('/');
-  } catch (err) {
-    if (err instanceof Error) {
-      uiStore.showToastMessage(err.message);
-    } else {
+  const handleLogin = async () => {
+    try {
+      await authStore.login(email.value, password.value);
+      router.push('/');
+    } catch (err) {
       uiStore.showToastMessage('Invalid email or password');
     }
-  }
-};
+  };
 
-const signInWithGoogle = async () => {
-  try {
-    await authStore.signInWithGoogle();
-    if (authStore.isLoggedIn) {
-      uiStore.showToastMessage('Google sign-in successful, navigating to home');
-      router.push('/');
+  const handleSignUp = async () => {
+    if (password.value !== confirmPassword.value) {
+      uiStore.showToastMessage('Passwords do not match');
+      return;
     }
-  } catch (err) {
-    uiStore.showToastMessage('Google sign-in failed');
-  }
-};
+    try {
+      await authStore.signUp(email.value, password.value);
+      router.push('/');
+    } catch (err) {
+      if (err instanceof Error) {
+        uiStore.showToastMessage(err.message);
+      } else {
+        uiStore.showToastMessage('Invalid email or password');
+      }
+    }
+  };
 
-const toggleForm = () => {
-  slideDirection.value = isSignUp.value ? 'right' : 'left';
-  isSignUp.value = !isSignUp.value;
-  error.value = '';
-};
+  const signInWithGoogle = async () => {
+    try {
+      await authStore.signInWithGoogle();
+      if (authStore.isLoggedIn) {
+        uiStore.showToastMessage(
+          'Google sign-in successful, navigating to home'
+        );
+        router.push('/');
+      }
+    } catch (err) {
+      uiStore.showToastMessage('Google sign-in failed');
+    }
+  };
+
+  const toggleForm = () => {
+    slideDirection.value = isSignUp.value ? 'right' : 'left';
+    isSignUp.value = !isSignUp.value;
+    error.value = '';
+  };
 </script>
 
 <style scoped>
-.slide-left-enter-active,
-.slide-left-leave-active,
-.slide-right-enter-active,
-.slide-right-leave-active {
-  transition: all 0.3s ease-out;
-}
+  .slide-left-enter-active,
+  .slide-left-leave-active,
+  .slide-right-enter-active,
+  .slide-right-leave-active {
+    transition: all 0.3s ease-out;
+  }
 
-.slide-left-enter-from {
-  opacity: 0;
-  transform: translateX(20px);
-}
+  .slide-left-enter-from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
 
-.slide-left-leave-to {
-  opacity: 0;
-  transform: translateX(-20px);
-}
+  .slide-left-leave-to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
 
-.slide-right-enter-from {
-  opacity: 0;
-  transform: translateX(-20px);
-}
+  .slide-right-enter-from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
 
-.slide-right-leave-to {
-  opacity: 0;
-  transform: translateX(20px);
-}
+  .slide-right-leave-to {
+    opacity: 0;
+    transform: translateX(20px);
+  }
 </style>

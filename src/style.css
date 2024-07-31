@@ -16,6 +16,10 @@ body {
   @apply bg-cream dark:bg-gray-750 border-[1px] border-dashed border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
+.custom-card-blur {
+  @apply bg-cream/30 dark:bg-gray-750/30 border-[1px] backdrop-blur-[5px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+}
+
 .custom-card-no-rounded-border {
   @apply bg-cream dark:bg-gray-750 shadow-lg hover:shadow-2xl transition-all duration-300;
 }
@@ -142,6 +146,15 @@ body {
 .slide-right-enter-to,
 .slide-right-leave-from {
   transform: translateX(0);
+}
+
+li:active,
+a:active,
+button:active,
+input:active,
+textarea:active {
+  transform: scale(0.98);
+  transition-duration: 200ms;
 }
 
 .modal-open {

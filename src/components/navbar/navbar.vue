@@ -124,9 +124,9 @@
   const showSignoutConfirmation = ref(false);
 
   const signout = async () => {
-      await authStore.logout();
-      showSignoutConfirmation.value = false;
-      router.push('/');
+    await authStore.logout();
+    showSignoutConfirmation.value = false;
+    router.push('/');
   };
 
   const confirmSignout = () => {

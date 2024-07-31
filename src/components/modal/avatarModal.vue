@@ -63,76 +63,76 @@
 </template>
 
 <script setup lang="ts">
-import { uiStore } from '@/store/stores';
-import { ref, watch } from 'vue';
+  import { uiStore } from '@/store/stores';
+  import { ref, watch } from 'vue';
 
-const props = defineProps<{
-  isOpen: boolean;
-  initialAvatarUrl?: string;
-}>();
+  const props = defineProps<{
+    isOpen: boolean;
+    initialAvatarUrl?: string;
+  }>();
 
-const emit = defineEmits<{
-  (e: 'close'): void;
-  (e: 'select', avatarUrl: string): void;
-  (e: 'remove'): void;
-}>();
+  const emit = defineEmits<{
+    (e: 'close'): void;
+    (e: 'select', avatarUrl: string): void;
+    (e: 'remove'): void;
+  }>();
 
-const avatarUrl = ref<string | null>(null);
-const fileInput = ref<HTMLInputElement | null>(null);
+  const avatarUrl = ref<string | null>(null);
+  const fileInput = ref<HTMLInputElement | null>(null);
 
-const handleFileChange = (event: Event) => {
-  const fileInput = event.target as HTMLInputElement;
-  const file = fileInput.files?.[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      avatarUrl.value = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
-};
-
-const handleDrop = (event: DragEvent) => {
-  const file = event.dataTransfer?.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      avatarUrl.value = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
-};
-
-const triggerFilePicker = () => {
-  fileInput.value?.click();
-};
-
-const confirmSelection = () => {
-  if (avatarUrl.value) {
-    try {
-      emit('select', avatarUrl.value);
-      closeModal();
-    } catch (error) {
-      uiStore.showToastMessage('Failed to update avatar');
+  const handleFileChange = (event: Event) => {
+    const fileInput = event.target as HTMLInputElement;
+    const file = fileInput.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        avatarUrl.value = reader.result as string;
+      };
+      reader.readAsDataURL(file);
     }
-  }
-};
+  };
 
-const removeAvatar = () => {
-  emit('remove');
-  uiStore.showToastMessage('Avatar removed');
-  closeModal();
-};
+  const handleDrop = (event: DragEvent) => {
+    const file = event.dataTransfer?.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        avatarUrl.value = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-const closeModal = () => {
-  avatarUrl.value = null;
-  emit('close');
-};
+  const triggerFilePicker = () => {
+    fileInput.value?.click();
+  };
 
-watch(
-  () => props.isOpen,
-  (isOpen) => {
-    document.body.classList.toggle('modal-open', isOpen);
-  }
-);
+  const confirmSelection = () => {
+    if (avatarUrl.value) {
+      try {
+        emit('select', avatarUrl.value);
+        closeModal();
+      } catch (error) {
+        uiStore.showToastMessage('Failed to update avatar');
+      }
+    }
+  };
+
+  const removeAvatar = () => {
+    emit('remove');
+    uiStore.showToastMessage('Avatar removed');
+    closeModal();
+  };
+
+  const closeModal = () => {
+    avatarUrl.value = null;
+    emit('close');
+  };
+
+  watch(
+    () => props.isOpen,
+    (isOpen) => {
+      document.body.classList.toggle('modal-open', isOpen);
+    }
+  );
 </script>

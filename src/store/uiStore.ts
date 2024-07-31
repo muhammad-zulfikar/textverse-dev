@@ -9,6 +9,7 @@ interface UIState {
   columns: number;
   folderViewType: 'grid' | 'list';
   currentTheme: string;
+  blurEnabled: boolean;
   isExpanded: boolean;
   activeDropdown: string | null;
   showToast: boolean;
@@ -35,6 +36,7 @@ export const useUIStore = defineStore('ui', {
       localStorage.getItem('columns') || (window.innerWidth < 640 ? '2' : '4')
     ),
     folderViewType: 'grid',
+    blurEnabled: JSON.parse(localStorage.getItem('blurEnabled') || 'false'),
     isExpanded: false,
     activeDropdown: null,
     showToast: false,
@@ -84,28 +86,36 @@ export const useUIStore = defineStore('ui', {
       }
     },
 
+    setBlurEnabled(enabled: boolean) {
+      this.blurEnabled = enabled;
+      const message = enabled ? 'Blur effect enabled' : 'Blur effect disabled';
+      this.showToastMessage(message);
+      localStorage.setItem('blurEnabled', enabled.toString());
+    },   
+
     loadUISettings() {
-      const savedTheme = localStorage.getItem('theme') as
-        | UIState['theme']
-        | null;
+      const savedTheme = localStorage.getItem('theme') as UIState['theme'] | null;
       if (savedTheme) {
         this.theme = savedTheme;
       }
-
+    
       const savedColumns = localStorage.getItem('columns');
       if (savedColumns) {
         this.columns = parseInt(savedColumns, 10);
       }
-
-      const savedViewType = localStorage.getItem('viewType') as
-        | UIState['viewType']
-        | null;
+    
+      const savedViewType = localStorage.getItem('viewType') as UIState['viewType'] | null;
       if (savedViewType) {
         this.viewType = savedViewType;
       }
-
+    
+      const savedBlurEnabled = localStorage.getItem('blurEnabled');
+      if (savedBlurEnabled) {
+        this.blurEnabled = savedBlurEnabled === 'true';
+      }
+    
       this.applyTheme();
-    },
+    },    
 
     setActiveDropdown(dropdown: string | null) {
       this.activeDropdown = dropdown;

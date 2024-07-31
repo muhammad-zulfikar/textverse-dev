@@ -6,9 +6,9 @@
   >
     <div class="flex items-center select-none">
       <Create />
-      <span class="mr-4 md:mr-8 md:ml-4 cursor-default">|</span>
+      <span class="mx-4 md:mx-8 cursor-default">|</span>
       <Folder />
-      <span class="mr-4 md:mr-8 md:ml-4 cursor-default">|</span>
+      <span class="mx-4 md:mx-8 cursor-default">|</span>
       <ViewDropdown />
     </div>
   </div>

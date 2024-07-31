@@ -34,8 +34,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, _from, next) => {
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+
   if (requiresAuth && !authStore.isLoggedIn) {
     next('/sign-in');
   } else if (to.path === '/sign-in' && authStore.isLoggedIn) {

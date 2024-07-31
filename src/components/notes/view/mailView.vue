@@ -12,7 +12,7 @@
           v-for="(note, index) in notesToDisplay"
           :key="note.id"
           @click="selectNote(note.id)"
-          class="p-4 cursor-pointer hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
+          class="list p-4 cursor-pointer hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
           :class="{
             'bg-[#ebdfc0] dark:bg-gray-700':
               isContextMenuOpenForNote(note.id) || selectedNoteId === note.id,
@@ -261,7 +261,7 @@
 
   function createNewNote() {
     const newNote: Note = {
-      id: Date.now(), // Temporary ID, will be replaced when saved
+      id: Date.now(),
       title: '',
       content: '',
       folder: DEFAULT_FOLDERS.UNCATEGORIZED,
@@ -389,7 +389,7 @@
 
   function selectNewestNote(): number | null {
     if (props.notes.length === 0) return null;
-    
+
     const newestNote = props.notes.reduce((newest, current) => {
       const newestDate = new Date(newest.last_edited || newest.time_created);
       const currentDate = new Date(current.last_edited || current.time_created);
@@ -400,7 +400,7 @@
       selectNote(newestNote.id);
       return newestNote.id;
     }
-    
+
     return null;
   }
 
@@ -409,12 +409,13 @@
   onMounted(() => {
     window.addEventListener('resize', handleResize);
     handleResize();
-    
+
     if (!isMobileView.value) {
       const newestNoteId = selectNewestNote();
       if (newestNoteId !== null) {
         selectedNoteId.value = newestNoteId;
-        editedNote.value = props.notes.find(note => note.id === newestNoteId) || null;
+        editedNote.value =
+          props.notes.find((note) => note.id === newestNoteId) || null;
       }
     }
   });
@@ -423,3 +424,10 @@
     window.removeEventListener('resize', handleResize);
   });
 </script>
+
+<style scoped>
+.list:active {
+  transform: scale(0.98);
+  transition-duration: 200ms;
+}
+</style>

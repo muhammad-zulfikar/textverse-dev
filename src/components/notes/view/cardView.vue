@@ -55,7 +55,6 @@
               </p>
             </div>
             <div v-else class="w-1/3">
-              <!-- Empty div to maintain layout when there's no folder -->
             </div>
 
             <div class="w-1/3 text-center text-[10px] md:text-xs">
@@ -174,5 +173,9 @@
     box-shadow:
       0 30px 60px -15px rgba(0, 0, 0, 0.3),
       0 12px 16px -8px rgba(0, 0, 0, 0.2);
+  }
+
+  li:active {
+    transform: scale(0.98);
   }
 </style>

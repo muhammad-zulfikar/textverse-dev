@@ -107,14 +107,14 @@ export const useNotesStore = defineStore('notes', {
         const deletedNote = this.notes.splice(index, 1)[0];
         deletedNote.time_deleted = new Date().toISOString();
         this.deletedNotes.push(deletedNote);
-    
+
         if (authStore.isLoggedIn) {
           await firebaseStore.moveNoteToTrash(authStore.user!.uid, deletedNote);
         } else {
           this.saveNotes();
           this.saveDeletedNotes();
         }
-    
+
         uiStore.showToastMessage('Note moved to trash');
       }
     },
@@ -125,14 +125,17 @@ export const useNotesStore = defineStore('notes', {
         const { time_deleted, ...restoredNote } = this.deletedNotes[index];
         this.deletedNotes.splice(index, 1);
         this.notes.unshift(restoredNote);
-    
+
         if (authStore.isLoggedIn) {
-          await firebaseStore.restoreNoteFromTrash(authStore.user!.uid, restoredNote);
+          await firebaseStore.restoreNoteFromTrash(
+            authStore.user!.uid,
+            restoredNote
+          );
         } else {
           this.saveNotes();
           this.saveDeletedNotes();
         }
-    
+
         uiStore.showToastMessage('Note restored successfully');
       }
     },
@@ -143,7 +146,10 @@ export const useNotesStore = defineStore('notes', {
         this.deletedNotes.splice(index, 1);
 
         if (authStore.isLoggedIn) {
-          await firebaseStore.permanentlyDeleteNoteFromTrash(authStore.user!.uid, noteId);
+          await firebaseStore.permanentlyDeleteNoteFromTrash(
+            authStore.user!.uid,
+            noteId
+          );
         } else {
           this.saveDeletedNotes();
         }
@@ -160,7 +166,9 @@ export const useNotesStore = defineStore('notes', {
 
     async loadDeletedNotes() {
       if (authStore.isLoggedIn) {
-        const deletedNotes = await firebaseStore.getDeletedNotesFromFirebase(authStore.user!.uid);
+        const deletedNotes = await firebaseStore.getDeletedNotesFromFirebase(
+          authStore.user!.uid
+        );
         this.deletedNotes = Object.values(deletedNotes);
       } else {
         const savedDeletedNotes = localStorage.getItem('deletedNotes');
@@ -232,7 +240,7 @@ export const useNotesStore = defineStore('notes', {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = '.json';
-    
+
       input.onchange = async (event) => {
         const file = (event.target as HTMLInputElement).files?.[0];
         if (file) {
@@ -240,14 +248,14 @@ export const useNotesStore = defineStore('notes', {
             uiStore.showToastMessage('Please select a JSON file.');
             return;
           }
-    
+
           const reader = new FileReader();
           reader.onload = async (e) => {
             try {
               const importedNotes = JSON.parse(
                 e.target?.result as string
               ) as Note[];
-    
+
               const importedFolders = new Set<string>(
                 importedNotes
                   .map((note: Note) => note.folder)
@@ -255,7 +263,7 @@ export const useNotesStore = defineStore('notes', {
                     (folder): folder is string => typeof folder === 'string'
                   )
               );
-    
+
               for (const folder of importedFolders) {
                 if (
                   folder !== DEFAULT_FOLDERS.ALL_NOTES &&
@@ -264,7 +272,7 @@ export const useNotesStore = defineStore('notes', {
                   await folderStore.addFolder(folder);
                 }
               }
-    
+
               if (authStore.isLoggedIn) {
                 for (const note of importedNotes) {
                   const validId = this.generateValidFirebaseKey();
@@ -278,19 +286,23 @@ export const useNotesStore = defineStore('notes', {
                 this.notes = [...this.notes, ...importedNotes];
                 this.saveNotes();
               }
-    
+
               await this.loadNotes();
-              uiStore.showToastMessage('Notes and folders imported successfully!');
+              uiStore.showToastMessage(
+                'Notes and folders imported successfully!'
+              );
             } catch (error) {
-              uiStore.showToastMessage('Failed to import notes. Please try again.');
+              uiStore.showToastMessage(
+                'Failed to import notes. Please try again.'
+              );
             }
           };
           reader.readAsText(file);
         }
       };
-    
+
       input.click();
-    },    
+    },
 
     async downloadBackup() {
       let notesToBackup;
@@ -328,16 +340,19 @@ export const useNotesStore = defineStore('notes', {
         localStorage.removeItem('folders');
         this.deletedNotes.push(...this.notes);
       }
-    
+
       this.notes = [];
       this.saveNotes();
-      
-      folderStore.folders = [DEFAULT_FOLDERS.ALL_NOTES, DEFAULT_FOLDERS.UNCATEGORIZED];
+
+      folderStore.folders = [
+        DEFAULT_FOLDERS.ALL_NOTES,
+        DEFAULT_FOLDERS.UNCATEGORIZED,
+      ];
       folderStore.currentFolder = DEFAULT_FOLDERS.ALL_NOTES;
       folderStore.saveFolders();
-      
+
       uiStore.showToastMessage('All notes and folders deleted successfully!');
-    },    
+    },
 
     async loadNotes() {
       if (authStore.isLoggedIn) {
