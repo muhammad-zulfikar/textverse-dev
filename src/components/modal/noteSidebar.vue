@@ -11,10 +11,14 @@
         :class="[
           'fixed inset-y-0 right-0 overflow-y-auto flex flex-col',
           {
-            'custom-card-no-rounded-border w-full': uiStore.isExpanded && !uiStore.blurEnabled,
-            'custom-card-blur-no-rounded-border w-full': uiStore.isExpanded && uiStore.blurEnabled,
-            'custom-card w-3/4 md:w-2/5': !uiStore.isExpanded && !uiStore.blurEnabled,
-            'custom-card-blur w-3/4 md:w-2/5': !uiStore.isExpanded && uiStore.blurEnabled,
+            'custom-card-no-rounded-border w-full':
+              uiStore.isExpanded && !uiStore.blurEnabled,
+            'custom-card-blur-no-rounded-border w-full':
+              uiStore.isExpanded && uiStore.blurEnabled,
+            'custom-card w-3/4 md:w-2/5':
+              !uiStore.isExpanded && !uiStore.blurEnabled,
+            'custom-card-blur w-3/4 md:w-2/5':
+              !uiStore.isExpanded && uiStore.blurEnabled,
           },
         ]"
       >

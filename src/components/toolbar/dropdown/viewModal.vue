@@ -1,13 +1,26 @@
 <!-- view.vue -->
 <template>
-  <button
-    @click="openModal"
-    class="flex hover:underline items-center"
-  >
-    <img v-if="uiStore.viewType === 'card'" src="@/assets/icons/view/card.svg" class="size-5 mr-2 dark:invert" />
-    <img v-else-if="uiStore.viewType === 'table'" src="@/assets/icons/view/table.svg" class="size-5 mr-2 dark:invert"/>
-    <img v-else-if="uiStore.viewType === 'mail'" src="@/assets/icons/view/mail.svg" class="size-5 mr-2 dark:invert" />
-    <img v-else-if="uiStore.viewType === 'folder'" src="@/assets/icons/view/folder.svg" class="size-5 mr-2 dark:invert" />
+  <button @click="openModal" class="flex hover:underline items-center">
+    <img
+      v-if="uiStore.viewType === 'card'"
+      src="@/assets/icons/view/card.svg"
+      class="size-5 mr-2 dark:invert"
+    />
+    <img
+      v-else-if="uiStore.viewType === 'table'"
+      src="@/assets/icons/view/table.svg"
+      class="size-5 mr-2 dark:invert"
+    />
+    <img
+      v-else-if="uiStore.viewType === 'mail'"
+      src="@/assets/icons/view/mail.svg"
+      class="size-5 mr-2 dark:invert"
+    />
+    <img
+      v-else-if="uiStore.viewType === 'folder'"
+      src="@/assets/icons/view/folder.svg"
+      class="size-5 mr-2 dark:invert"
+    />
 
     <span v-if="uiStore.viewType === 'card'">Card</span>
     <span v-else-if="uiStore.viewType === 'table'">Table</span>
@@ -40,7 +53,10 @@
                     uiStore.viewType === 'card' ? 'font-bold' : 'font-default',
                   ]"
                 >
-                  <img src="@/assets/icons/view/card.svg" class="size-5 mr-3 dark:invert" />
+                  <img
+                    src="@/assets/icons/view/card.svg"
+                    class="size-5 mr-3 dark:invert"
+                  />
                   Card
                 </button>
                 <button
@@ -119,7 +135,10 @@
               @click="setViewType('table')"
               class="w-full text-left p-3 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
             >
-              <img src="@/assets/icons/view/table.svg" class="size-5 mr-3 dark:invert" />
+              <img
+                src="@/assets/icons/view/table.svg"
+                class="size-5 mr-3 dark:invert"
+              />
               <span
                 :class="[
                   uiStore.viewType === 'table' ? 'font-bold' : 'font-default',
@@ -132,7 +151,10 @@
               @click="setViewType('mail')"
               class="w-full text-left p-3 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
             >
-              <img src="@/assets/icons/view/mail.svg" class="size-5 mr-3 dark:invert" />
+              <img
+                src="@/assets/icons/view/mail.svg"
+                class="size-5 mr-3 dark:invert"
+              />
               <span
                 :class="[
                   uiStore.viewType === 'mail' ? 'font-bold' : 'font-default',
@@ -154,7 +176,10 @@
                       : 'font-default',
                   ]"
                 >
-                  <img src="@/assets/icons/view/folder.svg" class="size-5 mr-3 dark:invert" />
+                  <img
+                    src="@/assets/icons/view/folder.svg"
+                    class="size-5 mr-3 dark:invert"
+                  />
                   Folder
                 </button>
                 <button

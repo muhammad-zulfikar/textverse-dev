@@ -26,22 +26,22 @@
       >
         <template #label>Show</template>
         <div class="px-[3px]">
-        <a
-          v-for="column in filteredColumns"
-          :key="column"
-          @click.stop="toggleColumn(column)"
-          class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
-          role="menuitem"
-        >
-          <input
-            type="checkbox"
-            :checked="visibleColumns.includes(column)"
-            class="mr-2 cursor-pointer"
+          <a
+            v-for="column in filteredColumns"
+            :key="column"
             @click.stop="toggleColumn(column)"
-          />
-          {{ column }}
-        </a>
-      </div>
+            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+            role="menuitem"
+          >
+            <input
+              type="checkbox"
+              :checked="visibleColumns.includes(column)"
+              class="mr-2 cursor-pointer"
+              @click.stop="toggleColumn(column)"
+            />
+            {{ column }}
+          </a>
+        </div>
       </Dropdown>
       <button @click="toggleSelectMode" class="ml-5 hover:underline font-serif">
         Select

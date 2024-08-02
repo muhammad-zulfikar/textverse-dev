@@ -1,10 +1,7 @@
 <!-- create.vue -->
 
 <template>
-  <button
-    @click="openModal"
-    class="flex hover:underline items-center"
-  >
+  <button @click="openModal" class="flex hover:underline items-center">
     <svg
       class="w-5 h-5 mr-2"
       fill="none"

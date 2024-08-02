@@ -15,31 +15,31 @@
         >
           <template #label>Menu</template>
           <div class="px-[3px]">
-          <router-link
-            to="/"
-            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
-          >
-            Home
-          </router-link>
-          <router-link
-            to="/about"
-            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
-          >
-            About
-          </router-link>
-          <router-link
-            to="/settings"
-            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
-          >
-            Settings
-          </router-link>
-          <a
-            @click="openTrash"
-            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
-          >
-            Trash
-          </a>
-        </div>
+            <router-link
+              to="/"
+              class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+            >
+              Home
+            </router-link>
+            <router-link
+              to="/about"
+              class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+            >
+              About
+            </router-link>
+            <router-link
+              to="/settings"
+              class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+            >
+              Settings
+            </router-link>
+            <a
+              @click="openTrash"
+              class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+            >
+              Trash
+            </a>
+          </div>
         </Dropdown>
       </div>
       <div class="nav-links">
@@ -72,19 +72,19 @@
             />
           </template>
           <div class="px-[3px]">
-          <a
-            @click="navigateToSettings"
-            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
-          >
-            Settings
-          </a>
-          <a
-            @click="confirmSignout"
-            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
-          >
-            Sign out
-          </a>
-        </div>
+            <a
+              @click="navigateToSettings"
+              class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+            >
+              Settings
+            </a>
+            <a
+              @click="confirmSignout"
+              class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+            >
+              Sign out
+            </a>
+          </div>
         </Dropdown>
       </div>
     </div>

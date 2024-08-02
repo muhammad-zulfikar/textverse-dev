@@ -1,9 +1,6 @@
 <!-- folder.vue -->
 <template>
-  <button
-    @click="openModal"
-    class="flex hover:underline items-center"
-  >
+  <button @click="openModal" class="flex hover:underline items-center">
     <div v-if="selectedFolder === DEFAULT_FOLDERS.ALL_NOTES">
       <img class="w-5 h-5 mr-2 dark:invert" src="@/assets/icons/home.svg" />
     </div>
