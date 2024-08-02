@@ -1,9 +1,10 @@
 <!-- noteModal.vue -->
 
 <template>
+  <ModalBackdrop v-model="props.isOpen" />
   <transition name="zoom">
     <div
-      v-if="uiStore.isNoteCardOpen"
+      v-if="props.isOpen"
       class="fixed inset-0 z-50 flex items-center justify-center font-serif"
     >
       <div @click="handleOutsideClick" class="absolute inset-0"></div>
@@ -32,7 +33,7 @@
           </button>
           <button
             class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none"
-            @click="closeModal"
+            @click="uiStore.closeNote"
           >
             Close
           </button>
@@ -52,7 +53,11 @@
         ></textarea>
         <div class="flex justify-end">
           <div class="flex justify-end mt-1 select-none text-gray-500 text-sm">
-            {{ formattedDate }}
+            {{
+              notesStore.localeDate(
+                editedNote.last_edited || editedNote.time_created
+              )
+            }}
           </div>
         </div>
         <div class="flex justify-between mt-6 select-none text-sm">
@@ -80,22 +85,20 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, watch, PropType } from 'vue';
-  import { notesStore, folderStore, uiStore } from '@/store/stores';
+  import { ref, computed, watch } from 'vue';
   import { Note } from '@/store/types';
+  import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { DEFAULT_FOLDERS } from '@/store/constants';
+  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
   import FolderDropdown from '@/components/folderDropdown.vue';
 
-  const props = defineProps({
-    isOpen: {
-      type: Boolean,
-      required: true,
-    },
-    noteId: {
-      type: Number as PropType<number | null | undefined>,
-      default: null,
-    },
-  });
+  const props = defineProps<{
+    noteId: number | null;
+    isOpen: boolean;
+  }>();
+
+  const isEditMode = computed(() => props.noteId !== null);
+  const originalNote = ref<Note | null>(null);
 
   const editedNote = ref<Note>({
     id: Date.now(),
@@ -106,10 +109,6 @@
     pinned: false,
     folder: DEFAULT_FOLDERS.UNCATEGORIZED,
   });
-
-  const originalNote = ref<Note | null>(null);
-  const isEditMode = computed(() => props.noteId !== null);
-  const selectedFolder = ref(DEFAULT_FOLDERS.UNCATEGORIZED);
 
   const isValid = computed(() => {
     return (
@@ -124,14 +123,6 @@
     return notesStore.hasChanged(originalNote.value, editedNote.value);
   });
 
-  const formattedDate = computed(() => {
-    if (!editedNote.value) return '';
-    const date = new Date(
-      editedNote.value.last_edited || editedNote.value.time_created
-    );
-    return notesStore.localeDate(date);
-  });
-
   const saveNote = async () => {
     if (!isValid.value) {
       showInvalidNoteToast();
@@ -143,7 +134,7 @@
     } else if (!isEditMode.value) {
       await notesStore.addNote(editedNote.value);
     }
-    closeModal();
+    uiStore.closeNote();
   };
 
   const showInvalidNoteToast = () => {
@@ -156,54 +147,39 @@
     }
   };
 
-  const handleOutsideClick = () => {
-    if (!isEditMode.value && isValid.value) {
-      uiStore.showToastMessage('You have unsaved changes!');
-    } else if (!isEditMode.value || (isEditMode.value && !hasChanges.value)) {
-      closeModal();
+  function handleOutsideClick() {
+    if (!hasChanges.value) {
+      uiStore.closeNote();
     } else {
-      uiStore.showToastMessage('You have unsaved changes!');
+      uiStore.showToastMessage('You have unsaved changes.');
     }
-  };
-
-  const closeModal = () => {
-    uiStore.isNoteCardOpen = false;
-  };
+  }
 
   watch(
-    () => props.isOpen,
-    (newValue) => {
-      if (newValue) {
-        document.body.classList.add('modal-open');
-        if (isEditMode.value) {
-          const note = notesStore.notes.find((n) => n.id === props.noteId);
-          if (note) {
-            editedNote.value = { ...note };
-            originalNote.value = { ...note };
-            selectedFolder.value = note.folder;
-          }
-        } else {
-          editedNote.value = {
-            id: Date.now(),
-            title: '',
-            content: '',
-            time_created: new Date().toISOString(),
-            last_edited: new Date().toISOString(),
-            pinned: false,
-            folder:
-              folderStore.currentFolder !== DEFAULT_FOLDERS.ALL_NOTES
-                ? folderStore.currentFolder
-                : DEFAULT_FOLDERS.UNCATEGORIZED,
-          };
-          originalNote.value = null;
-          selectedFolder.value =
-            folderStore.currentFolder !== DEFAULT_FOLDERS.ALL_NOTES
-              ? folderStore.currentFolder
-              : DEFAULT_FOLDERS.UNCATEGORIZED;
+    () => props.noteId,
+    async (newNoteId) => {
+      if (newNoteId !== null) {
+        const note = notesStore.notes.find((n) => n.id === newNoteId);
+        if (note) {
+          editedNote.value = { ...note };
+          originalNote.value = { ...note };
         }
       } else {
-        document.body.classList.remove('modal-open');
+        editedNote.value = {
+          id: Date.now(),
+          title: '',
+          content: '',
+          time_created: new Date().toISOString(),
+          last_edited: new Date().toISOString(),
+          pinned: false,
+          folder:
+            folderStore.currentFolder !== DEFAULT_FOLDERS.ALL_NOTES
+              ? folderStore.currentFolder
+              : DEFAULT_FOLDERS.UNCATEGORIZED,
+        };
+        originalNote.value = null;
       }
-    }
+    },
+    { immediate: true }
   );
 </script>

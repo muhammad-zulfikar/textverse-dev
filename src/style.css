@@ -9,15 +9,15 @@ body {
 }
 
 .custom-card {
-  @apply bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+  @apply bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
 .custom-card-border-dashed {
-  @apply bg-cream dark:bg-gray-750 border-[1px] border-dashed border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+  @apply bg-cream dark:bg-gray-750 border-[1px] border-dashed border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
 .custom-card-blur {
-  @apply bg-cream/50 dark:bg-gray-900/50 border-[1px] backdrop-blur-[5px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+  @apply bg-cream/50 dark:bg-gray-900/50 border-[1px] backdrop-blur-[5px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
 .custom-card-no-rounded-border {
@@ -29,19 +29,19 @@ body {
 }
 
 .custom-card-transparent {
-  @apply bg-transparent border-[1px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+  @apply bg-transparent border-[1px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
 .custom-card-switch {
-  @apply border-[1px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+  @apply border-[1px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
 .custom-card-transparent-avatar {
-  @apply bg-transparent border-[1px] border-black dark:border-white rounded-full shadow-lg hover:shadow-2xl transition-all duration-300;
+  @apply bg-transparent border-[1px] border-black dark:border-gray-400 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
 .custom-card-no-transition {
-  @apply bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-white rounded-lg shadow-lg hover:shadow-2xl;
+  @apply bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl;
 }
 
 .custom-card-no-transition-rounded {
@@ -122,10 +122,12 @@ body {
 .slide-leave-active {
   transition: transform 0.3s ease;
 }
+
 .slide-enter-from,
 .slide-leave-to {
   transform: translateX(100%);
 }
+
 .slide-enter-to,
 .slide-leave-from {
   transform: translateX(0%);
@@ -159,6 +161,19 @@ body {
 .slide-right-enter-to,
 .slide-right-leave-from {
   transform: translateX(0);
+}
+
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease-out;
+  max-height: 100px;
+  opacity: 1;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
 }
 
 li:active,

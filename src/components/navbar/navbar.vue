@@ -6,47 +6,41 @@
       class="flex justify-between items-center p-4 h-[52px] bg-transparent shadow-lg hover:shadow-xl transition-all duration-300 font-serif text-sm md:text-base select-none"
     >
       <div class="relative">
-        <button @click="toggleNav" class="hover:underline nav-dropdown-trigger">
-          Menu
-        </button>
-        <transition name="zoom">
-          <div
-            v-if="isNavOpen"
-            class="absolute left-0 custom-card mt-2 w-28 z-50"
-            :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
+        <Dropdown
+          label="Menu"
+          dropdownId="menu"
+          contentWidth="6.4rem"
+          showArrow="true"
+          direction="down"
+        >
+          <template #label>Menu</template>
+          <div class="px-[3px]">
+          <router-link
+            to="/"
+            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
           >
-            <router-link
-              to="/"
-              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-              :class="{ underline: isActive('/') }"
-              @click="toggleNav"
-            >
-              Home
-            </router-link>
-            <router-link
-              to="/about"
-              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-              :class="{ underline: isActive('/about') }"
-              @click="toggleNav"
-            >
-              About
-            </router-link>
-            <router-link
-              to="/settings"
-              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-              :class="{ underline: isActive('/settings') }"
-              @click="toggleNav"
-            >
-              Settings
-            </router-link>
-            <a
-              @click="openTrash"
-              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-            >
-              Trash
-            </a>
-          </div>
-        </transition>
+            Home
+          </router-link>
+          <router-link
+            to="/about"
+            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+          >
+            About
+          </router-link>
+          <router-link
+            to="/settings"
+            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+          >
+            Settings
+          </router-link>
+          <a
+            @click="openTrash"
+            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+          >
+            Trash
+          </a>
+        </div>
+        </Dropdown>
       </div>
       <div class="nav-links">
         <button v-if="deferredPrompt" @click="showInstallPrompt">
@@ -63,42 +57,39 @@
         <div>Sign in</div>
       </router-link>
       <div v-else class="relative">
-        <button
-          @click="toggleUserDropdown"
-          class="flex items-center hover:underline nav-dropdown-trigger"
+        <Dropdown
+          label="User"
+          dropdownId="user"
+          contentWidth="6.4rem"
+          contentMarginLeft="-68px"
+          direction="down"
         >
-          <img
-            :src="avatarUrl"
-            alt="User Avatar"
-            class="w-8 h-8 custom-card-transparent-avatar rounded-full object-cover"
-          />
-        </button>
-        <transition name="zoom">
-          <div
-            v-if="isUserDropdownOpen"
-            class="absolute right-0 custom-card mt-2 w-28 z-50"
+          <template #label>
+            <img
+              :src="avatarUrl"
+              alt="User Avatar"
+              class="w-8 h-8 mt-1 md:mt-2 custom-card-transparent-avatar rounded-full object-cover"
+            />
+          </template>
+          <div class="px-[3px]">
+          <a
+            @click="navigateToSettings"
+            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
           >
-            <a
-              @click="navigateToSettings"
-              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-            >
-              Settings
-            </a>
-            <a
-              @click="confirmSignout"
-              class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-            >
-              Sign out
-            </a>
-          </div>
-        </transition>
+            Settings
+          </a>
+          <a
+            @click="confirmSignout"
+            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+          >
+            Sign out
+          </a>
+        </div>
+        </Dropdown>
       </div>
     </div>
-    <div class="bg-black dark:bg-white h-px transition-all duration-300"></div>
     <div
-      v-if="showSignoutConfirmation || isTrashModalOpen"
-      class="fixed inset-0 bg-black bg-opacity-40 z-40"
-      :class="{ 'backdrop-blur-[2px]': uiStore.blurEnabled }"
+      class="bg-black dark:bg-gray-400 h-px transition-all duration-300"
     ></div>
     <AlertModal
       :is-open="showSignoutConfirmation"
@@ -106,22 +97,19 @@
       @cancel="showSignoutConfirmation = false"
       @confirm="signout"
     />
-    <TrashModal :is-open="isTrashModalOpen" @close="closeTrashModal" />
+    <TrashModal v-model:isOpen="isTrashModalOpen" />
   </div>
 </template>
 
 <script setup lang="ts">
   import { storeToRefs } from 'pinia';
-  import { ref, onMounted, onBeforeUnmount } from 'vue';
+  import { ref, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
-  import { useAuthStore } from '@/store/authStore';
-  import { useUIStore } from '@/store/uiStore';
+  import { authStore } from '@/store/stores';
+  import Dropdown from '@/components/dropdown.vue';
   import AlertModal from '@/components/modal/alertModal.vue';
   import TrashModal from '@/components/modal/trashModal.vue';
 
-  const authStore = useAuthStore();
-  const uiStore = useUIStore();
-  const isNavOpen = ref(false);
   const isUserDropdownOpen = ref(false);
   const router = useRouter();
   const loading = ref(true);
@@ -134,19 +122,7 @@
   };
 
   const confirmSignout = () => {
-    isNavOpen.value = false;
-    isUserDropdownOpen.value = false;
     showSignoutConfirmation.value = true;
-  };
-
-  const toggleNav = () => {
-    isUserDropdownOpen.value = false;
-    isNavOpen.value = !isNavOpen.value;
-  };
-
-  const toggleUserDropdown = () => {
-    isNavOpen.value = false;
-    isUserDropdownOpen.value = !isUserDropdownOpen.value;
   };
 
   interface DeferredPromptEvent extends Event {
@@ -181,20 +157,7 @@
       e.preventDefault();
       deferredPrompt.value = e as DeferredPromptEvent;
     });
-    document.addEventListener('click', handleClickOutside);
   });
-
-  onBeforeUnmount(() => {
-    document.removeEventListener('click', handleClickOutside);
-  });
-
-  const handleClickOutside = (event: MouseEvent) => {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.nav-dropdown-trigger')) {
-      isNavOpen.value = false;
-      isUserDropdownOpen.value = false;
-    }
-  };
 
   const navigateToSettings = () => {
     isUserDropdownOpen.value = false;
@@ -204,15 +167,10 @@
   const isTrashModalOpen = ref(false);
 
   const openTrash = () => {
-    isNavOpen.value = false;
     isTrashModalOpen.value = true;
   };
 
-  const closeTrashModal = () => {
-    isTrashModalOpen.value = false;
-  };
-
-  const isActive = (route: string) => {
-    return router.currentRoute.value.path === route;
-  };
+  // const isActive = (route: string) => {
+  //   return router.currentRoute.value.path === route;
+  // };
 </script>

@@ -3,6 +3,7 @@
     ref="dropdownRef"
     dropdownId="folderDropdown"
     contentWidth="fit-content"
+    showArrow="true"
     :direction="direction"
   >
     <template #label>
@@ -15,12 +16,12 @@
     <template v-for="folder in availableFolders" :key="folder">
       <div
         @click.stop="selectFolder(folder)"
-        class="block px-4 py-2 text-sm cursor-pointer"
+        class="block px-1 text-sm cursor-pointer"
         role="menuitem"
       >
         <span
           :class="folder === modelValue ? 'underline dark:text-white' : ''"
-          class="hover:underline"
+          class="hover:underline px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
           {{ folder }}
         </span>
@@ -30,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, onMounted, onUnmounted } from 'vue';
+  import { computed, ref, onMounted } from 'vue';
   import { folderStore, uiStore } from '@/store/stores';
   import { DEFAULT_FOLDERS } from '@/store/constants';
   import Dropdown from '@/components/dropdown.vue';
@@ -56,19 +57,13 @@
     uiStore.setActiveDropdown(null);
   };
 
-  // Ref for the dropdown element
   const dropdownRef = ref<HTMLElement | null>(null);
 
-  // Setup onClickOutside to detect clicks outside the dropdown
   onMounted(() => {
     if (dropdownRef.value) {
       onClickOutside(dropdownRef.value, () => {
         uiStore.setActiveDropdown(null);
       });
     }
-  });
-
-  onUnmounted(() => {
-    // Clean up if needed
   });
 </script>

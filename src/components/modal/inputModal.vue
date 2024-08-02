@@ -1,15 +1,18 @@
 <!-- inputModal.vue -->
+
 <template>
+  <ModalBackdrop v-model="props.isOpen" />
   <transition name="zoom">
     <div
-      v-if="isOpen"
+      v-if="props.isOpen"
       class="fixed inset-0 z-40 flex items-center justify-center"
     >
       <div @click="closeModal" class="absolute inset-0"></div>
       <form
         @submit.prevent="handleSubmit"
         @click.stop
-        class="z-50 font-serif custom-card p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3"
+        class="z-50 font-serif p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3"
+        :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
       >
         <h1 class="text-xl font-bold mb-4">{{ modalTitle }}</h1>
         <input
@@ -56,6 +59,8 @@
 
 <script setup lang="ts">
   import { ref, computed, watch } from 'vue';
+  import { uiStore } from '@/store/stores';
+  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
 
   const props = defineProps<{
     isOpen: boolean;
@@ -112,17 +117,6 @@
     () => props.currentValue,
     (newValue) => {
       inputValue.value = newValue || '';
-    }
-  );
-
-  watch(
-    () => props.isOpen,
-    (newValue) => {
-      if (newValue) {
-        document.body.classList.add('modal-open');
-      } else {
-        document.body.classList.remove('modal-open');
-      }
     }
   );
 </script>

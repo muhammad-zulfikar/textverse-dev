@@ -5,6 +5,7 @@
     dropdownId="view"
     contentWidth="8.8rem"
     contentMarginLeft="-42px"
+    showArrow="true"
     direction="down"
   >
     <template #label>View</template>

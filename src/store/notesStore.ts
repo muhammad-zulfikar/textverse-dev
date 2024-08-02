@@ -69,7 +69,7 @@ export const useNotesStore = defineStore('notes', {
       this.notes.unshift(note);
       this.reorderNotes();
       this.saveNotes();
-      uiStore.showToastMessage('Note added successfully!');
+      uiStore.showToastMessage(`${note.title} added`);
     },
 
     async updateNote(updatedNote: Note) {
@@ -97,7 +97,7 @@ export const useNotesStore = defineStore('notes', {
         this.reorderNotes();
         this.saveNotes();
         uiStore.closeNote();
-        uiStore.showToastMessage('Note updated successfully!');
+        uiStore.showToastMessage(`${updatedNote.title} updated`);
       }
     },
 
@@ -115,7 +115,7 @@ export const useNotesStore = defineStore('notes', {
           this.saveDeletedNotes();
         }
 
-        uiStore.showToastMessage('Note moved to trash');
+        uiStore.showToastMessage(`${deletedNote.title} moved to trash`);
       }
     },
 
@@ -136,7 +136,7 @@ export const useNotesStore = defineStore('notes', {
           this.saveDeletedNotes();
         }
 
-        uiStore.showToastMessage('Note restored successfully');
+        uiStore.showToastMessage(`${restoredNote.title} restored`);
       }
     },
 
@@ -193,7 +193,7 @@ export const useNotesStore = defineStore('notes', {
 
         this.reorderNotes();
         this.saveNotes();
-        uiStore.showToastMessage('Note pinned successfully!');
+        uiStore.showToastMessage(`${note.title} pinned`);
       }
     },
 
@@ -212,7 +212,7 @@ export const useNotesStore = defineStore('notes', {
 
         this.reorderNotes();
         this.saveNotes();
-        uiStore.showToastMessage('Note unpinned successfully!');
+        uiStore.showToastMessage(`${note.title} unpinned`);
       }
     },
 
@@ -229,6 +229,7 @@ export const useNotesStore = defineStore('notes', {
             { folder: targetFolder }
           );
         }
+        uiStore.showToastMessage(`${note.title} moved to ${targetFolder}`);
       }
     },
 
@@ -429,7 +430,7 @@ export const useNotesStore = defineStore('notes', {
         navigator.clipboard
           .writeText(note.content)
           .then(() => {
-            uiStore.showToastMessage('Note content copied to clipboard!');
+            uiStore.showToastMessage(`${note.title} copied to clipboard`);
           })
           .catch(() => {
             uiStore.showToastMessage('Failed to copy note content');

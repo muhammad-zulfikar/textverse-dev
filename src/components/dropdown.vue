@@ -1,5 +1,3 @@
-<!-- dropdown.vue -->
-
 <template>
   <div class="relative inline-block text-left font-serif" ref="dropdownRef">
     <button
@@ -8,37 +6,27 @@
       class="hover:underline outline-none flex items-center relative cursor-pointer"
     >
       <slot name="label"></slot>
-      <span class="ml-1">
+      <span v-if="showArrow === 'true'" class="ml-1">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4"
+          class="h-4 w-4 transition-transform duration-300 ease-in-out"
+          :class="{
+            'rotate-180': isOpen && direction === 'down',
+            '-rotate-180': isOpen && direction === 'up',
+          }"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
           <path
-            v-if="isOpen && direction === 'down'"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M5 15l7-7 7 7"
-          />
-          <path
-            v-if="!isOpen && direction === 'down'"
+            v-if="direction === 'down'"
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
             d="M19 9l-7 7-7-7"
           />
           <path
-            v-if="isOpen && direction === 'up'"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
-          />
-          <path
-            v-if="!isOpen && direction === 'up'"
+            v-if="direction === 'up'"
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
@@ -50,9 +38,8 @@
     <Transition name="zoom">
       <div
         v-if="isOpen"
-        class="mt-2 custom-card z-50 absolute"
         :class="[
-          'mt-2 z-50 absolute',
+          'z-50 absolute',
           uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
           {
             'origin-top-left': direction === 'down',
@@ -63,8 +50,8 @@
           width: contentWidth,
           marginLeft: contentMarginLeft,
           ...(direction === 'up'
-            ? { bottom: '100%', left: '0' }
-            : { top: '100%', left: '0' }),
+            ? { bottom: '120%', left: '0' }
+            : { top: '120%', left: '0' }),
         }"
       >
         <div class="py-1" role="menu" aria-orientation="vertical">
@@ -83,6 +70,7 @@
     dropdownId: string;
     contentWidth?: string;
     contentMarginLeft?: string;
+    showArrow?: 'true' | 'false';
     direction?: 'up' | 'down';
   }>();
 
@@ -120,3 +108,9 @@
     }
   );
 </script>
+
+<style scoped>
+  .rotate-180 {
+    transform: rotate(180deg);
+  }
+</style>

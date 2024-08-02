@@ -52,6 +52,7 @@ export const useUIStore = defineStore('ui', {
   actions: {
     setTheme(theme: 'light' | 'dark' | 'system') {
       this.theme = theme;
+      this.currentTheme = theme;
       localStorage.setItem('theme', theme);
       this.applyTheme();
     },

@@ -5,6 +5,7 @@
     dropdownId="folder"
     contentWidth="15rem"
     contentMarginLeft="-66px"
+    showArrow="true"
     direction="down"
   >
     <template #label>
@@ -52,12 +53,6 @@
     </template>
   </Dropdown>
 
-  <div
-    v-if="isModalOpen || isAlertOpen"
-    class="fixed inset-0 bg-black bg-opacity-40 z-40"
-    :class="{ 'backdrop-blur-[2px]': uiStore.blurEnabled }"
-    @click="closeModal"
-  ></div>
   <InputModal
     :is-open="isModalOpen"
     mode="folder"
@@ -66,6 +61,7 @@
     @update="handleModalSubmit"
     @close="closeModal"
   />
+
   <alertModal
     :is-open="isAlertOpen"
     :message="AlertMessage"

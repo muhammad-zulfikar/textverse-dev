@@ -84,11 +84,7 @@
         @unpin="notesStore.unpinNote"
       />
     </Transition>
-    <div
-      v-if="isAlertOpen"
-      class="fixed inset-0 bg-black bg-opacity-40 z-40"
-      :class="{ 'backdrop-blur-[2px]': uiStore.blurEnabled }"
-    ></div>
+
     <AlertModal
       :is-open="isAlertOpen"
       :message="alertMessage"

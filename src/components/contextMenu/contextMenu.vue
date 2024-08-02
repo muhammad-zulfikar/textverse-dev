@@ -6,48 +6,48 @@
     <div
       ref="menuRef"
       :style="menuStyle"
-      class="p-4 z-60"
+      class="z-60"
       :class="[
         uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card-no-transition',
       ]"
     >
-      <ul class="font-serif text-sm w-[100px]">
+      <ul class="font-serif text-sm w-[120px] p-1">
         <li
           v-if="!showFolderOptions"
           @click="editNote"
-          class="hover:underline cursor-pointer mb-4"
+          class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
           Edit
         </li>
         <li
           v-if="!showFolderOptions"
           @click="copyNote"
-          class="hover:underline cursor-pointer mt-4"
+          class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
           Copy
         </li>
         <li
           v-if="!showFolderOptions && props.note.pinned"
           @click="unpinNote"
-          class="hover:underline cursor-pointer mt-4"
+          class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
           Unpin
         </li>
         <li
           v-if="!showFolderOptions && !props.note.pinned"
           @click="pinNote"
-          class="hover:underline cursor-pointer mt-4"
+          class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
           Pin
         </li>
         <li
           v-if="!showFolderOptions"
-          class="relative inline-block text-left mt-4"
+          class="relative inline-block text-left w-full"
           ref="dropdownRef"
         >
           <button
             @click.stop="toggleFolderOptions"
-            class="hover:underline dark:hover:bg-transparent outline-none flex items-center"
+            class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
           >
             Move to
           </button>
@@ -55,20 +55,17 @@
         <li v-if="showFolderOptions">
           <ul>
             <li
-              v-for="(folder, index) in availableFolders"
+              v-for="(folder, _index) in availableFolders"
               :key="folder"
               @click.stop="moveNote(folder)"
-              :class="{
-                'mt-4': index !== 0,
-                'block text-sm cursor-pointer hover:underline': true,
-              }"
+              class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
               role="menuitem"
             >
               {{ folder }}
             </li>
             <li
               @click.stop="toggleFolderOptions"
-              class="hover:underline cursor-pointer mt-4"
+              class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
             >
               Back
             </li>
@@ -77,14 +74,14 @@
         <!-- <li
           v-if="!showFolderOptions"
           @click="downloadNote"
-          class="hover:underline cursor-pointer mt-4"
+          class=" cursor-pointer mt-4"
         >
           Download
         </li> -->
         <li
           v-if="!showFolderOptions"
           @click="deleteNote"
-          class="hover:underline cursor-pointer mt-4 text-red-500"
+          class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center text-red-500"
         >
           Delete
         </li>

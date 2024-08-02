@@ -20,15 +20,17 @@
       <Dropdown
         dropdownId="showDropdown"
         contentWidth="w-fit"
+        contentMarginLeft="-43px"
+        showArrow="true"
         direction="down"
-        class="mr-4"
       >
         <template #label>Show</template>
+        <div class="px-[3px]">
         <a
           v-for="column in filteredColumns"
           :key="column"
           @click.stop="toggleColumn(column)"
-          class="block px-4 py-2 text-sm cursor-pointer hover:underline flex items-center"
+          class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
           role="menuitem"
         >
           <input
@@ -39,8 +41,9 @@
           />
           {{ column }}
         </a>
+      </div>
       </Dropdown>
-      <button @click="toggleSelectMode" class="hover:underline font-serif">
+      <button @click="toggleSelectMode" class="ml-5 hover:underline font-serif">
         Select
       </button>
     </div>
@@ -139,11 +142,7 @@
         </transition-group>
       </table>
     </div>
-    <div
-      v-if="showDeleteConfirmation"
-      class="fixed inset-0 bg-black bg-opacity-40 z-40"
-      :class="{ 'backdrop-blur-[2px]': uiStore.blurEnabled }"
-    ></div>
+
     <AlertModal
       :is-open="showDeleteConfirmation"
       :message="`Are you sure you want to delete ${selectedNotes.length} note(s)?`"
@@ -158,14 +157,11 @@
   import { Note } from '@/store/types';
   import { uiStore, notesStore, folderStore } from '@/store/stores';
   import AlertModal from '@/components/modal/alertModal.vue';
-  import NoteSidebar from '@/components/modal/noteSidebar.vue';
   import Dropdown from '@/components/dropdown.vue';
 
   const props = defineProps<{
     notes: Note[];
   }>();
-
-  const selectedNoteId = ref<number | null>(null);
 
   const updatedNotes = ref<{
     [key: number]: Partial<Note>;
@@ -199,11 +195,9 @@
 
   const availableColumns = ['Title', 'Content', 'Folder', 'Date'];
   const visibleColumns = ref(availableColumns);
-  const showDropdownOpen = ref(false);
   const selectMode = ref(false);
   const selectedNotes = ref<number[]>([]);
   const showDeleteConfirmation = ref(false);
-  const showDropdownRef = ref<HTMLElement | null>(null);
   const isMobile = ref(window.innerWidth < 768);
 
   const filteredColumns = computed(() => {

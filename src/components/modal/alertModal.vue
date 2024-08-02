@@ -1,13 +1,15 @@
 <!-- alertModal.vue -->
 
 <template>
+  <ModalBackdrop v-model="props.isOpen" />
   <transition name="zoom">
     <div
-      v-if="isOpen"
+      v-if="props.isOpen"
       class="fixed inset-0 z-40 flex items-center justify-center"
     >
       <div
-        class="custom-card p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3 font-serif"
+        class="p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3 font-serif"
+        :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
       >
         <h1 class="text-xl font-bold mb-4 relative mt-2">Confirmation</h1>
         <p class="mb-6">{{ message }}</p>
@@ -31,7 +33,8 @@
 </template>
 
 <script setup lang="ts">
-  import { watch } from 'vue';
+  import { uiStore } from '@/store/stores';
+  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
 
   const props = defineProps<{
     isOpen: boolean;
@@ -42,15 +45,4 @@
     (e: 'cancel'): void;
     (e: 'confirm'): void;
   }>();
-
-  watch(
-    () => props.isOpen,
-    (newValue) => {
-      if (newValue) {
-        document.body.classList.add('modal-open');
-      } else {
-        document.body.classList.remove('modal-open');
-      }
-    }
-  );
 </script>

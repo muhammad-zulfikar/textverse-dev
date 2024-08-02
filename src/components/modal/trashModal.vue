@@ -1,4 +1,5 @@
 <template>
+  <ModalBackdrop v-model="props.isOpen" />
   <transition name="zoom">
     <div
       v-if="props.isOpen"
@@ -105,17 +106,14 @@
       </div>
     </div>
   </transition>
-  <div
-    v-if="showDeleteConfirmation || showDeleteSelectedConfirmation"
-    class="fixed inset-0 bg-black bg-opacity-40 z-40"
-    :class="{ 'backdrop-blur-[2px]': uiStore.blurEnabled }"
-  ></div>
+
   <AlertModal
     :is-open="showDeleteConfirmation"
     :message="`Are you sure you want to delete this note?`"
     @cancel="showDeleteConfirmation = false"
     @confirm="deleteNote"
   />
+
   <AlertModal
     :is-open="showDeleteSelectedConfirmation"
     :message="`Are you sure you want to delete ${selectedNotes.length} note(s)?`"
@@ -125,8 +123,9 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import { notesStore, uiStore } from '@/store/stores';
+  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
   import AlertModal from '@/components/modal/alertModal.vue';
 
   const props = defineProps<{
@@ -134,8 +133,22 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'close'): void;
+    (e: 'update:isOpen', value: boolean): void;
   }>();
+
+  const localIsOpen = ref(props.isOpen);
+
+  watch(
+    () => props.isOpen,
+    (newValue) => {
+      localIsOpen.value = newValue;
+    }
+  );
+
+  const closeModal = () => {
+    localIsOpen.value = false;
+    emit('update:isOpen', false);
+  };
 
   const selectedNotes = ref<number[]>([]);
   const showCheckboxes = ref(false);
@@ -218,10 +231,6 @@
     if (!date) return 'No date available';
     return new Date(date).toLocaleDateString();
   }
-
-  const closeModal = () => {
-    emit('close');
-  };
 </script>
 
 <style scoped>
@@ -229,18 +238,5 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  .expand-enter-active,
-  .expand-leave-active {
-    transition: all 0.3s ease-out;
-    max-height: 100px;
-    opacity: 1;
-  }
-
-  .expand-enter-from,
-  .expand-leave-to {
-    max-height: 0;
-    opacity: 0;
   }
 </style>

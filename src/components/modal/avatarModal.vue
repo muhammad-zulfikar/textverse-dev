@@ -1,7 +1,8 @@
 <template>
+  <ModalBackdrop v-model="props.isOpen" />
   <transition name="zoom">
     <div
-      v-if="isOpen"
+      v-if="props.isOpen"
       class="fixed inset-0 z-40 flex items-center justify-center"
     >
       <div @click="closeModal" class="absolute inset-0"></div>
@@ -64,7 +65,8 @@
 
 <script setup lang="ts">
   import { uiStore } from '@/store/stores';
-  import { ref, watch } from 'vue';
+  import { ref } from 'vue';
+  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
 
   const props = defineProps<{
     isOpen: boolean;
@@ -128,11 +130,4 @@
     avatarUrl.value = null;
     emit('close');
   };
-
-  watch(
-    () => props.isOpen,
-    (isOpen) => {
-      document.body.classList.toggle('modal-open', isOpen);
-    }
-  );
 </script>

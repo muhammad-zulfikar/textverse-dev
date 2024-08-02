@@ -6,6 +6,7 @@
     dropdownId="create"
     contentWidth="6.4rem"
     contentMarginLeft="-14px"
+    showArrow="true"
     direction="down"
   >
     <template #label>+ Create</template>
@@ -25,12 +26,6 @@
     </a>
   </Dropdown>
 
-  <div
-    v-if="isFolderFormOpen"
-    class="fixed inset-0 bg-black bg-opacity-40 z-40"
-    :class="{ 'backdrop-blur-[2px]': uiStore.blurEnabled }"
-    @click="closeFolderForm"
-  ></div>
   <InputModal
     :is-open="isFolderFormOpen"
     mode="folder"

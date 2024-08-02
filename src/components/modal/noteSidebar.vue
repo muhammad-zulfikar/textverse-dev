@@ -1,31 +1,28 @@
 <template>
+  <ModalBackdrop v-model="props.isOpen" />
   <transition name="slide">
     <div
-      v-if="sidebarOpen"
+      v-if="props.isOpen"
       class="fixed inset-0 z-40 flex items-center justify-center font-serif"
     >
-      <div @click="attemptClose" class="absolute inset-0"></div>
+      <div @click="handleOutsideClick" class="absolute inset-0"></div>
       <div
         ref="sidebarContainer"
         :class="[
-          'fixed inset-y-0 right-0 overflow-y-auto',
+          'fixed inset-y-0 right-0 overflow-y-auto flex flex-col',
           {
-            'custom-card-no-rounded-border w-full':
-              uiStore.isExpanded && !uiStore.blurEnabled,
-            'custom-card-blur-no-rounded-border w-full':
-              uiStore.isExpanded && uiStore.blurEnabled,
-            'custom-card w-3/4 md:w-2/5':
-              !uiStore.isExpanded && !uiStore.blurEnabled,
-            'custom-card-blur w-3/4 md:w-2/5':
-              !uiStore.isExpanded && uiStore.blurEnabled,
+            'custom-card-no-rounded-border w-full': uiStore.isExpanded && !uiStore.blurEnabled,
+            'custom-card-blur-no-rounded-border w-full': uiStore.isExpanded && uiStore.blurEnabled,
+            'custom-card w-3/4 md:w-2/5': !uiStore.isExpanded && !uiStore.blurEnabled,
+            'custom-card-blur w-3/4 md:w-2/5': !uiStore.isExpanded && uiStore.blurEnabled,
           },
         ]"
       >
-        <div class="p-6">
+        <div class="p-6 flex flex-col h-full">
           <div class="flex justify-end items-center mb-4">
             <div>
               <button
-                @click="closeSidebar()"
+                @click="uiStore.closeNote"
                 class="text-gray-600 dark:text-gray-300 hover:underline mr-4 text-sm md:text-md"
               >
                 Close
@@ -81,12 +78,13 @@
             </span>
           </div>
           <div class="border-b border-gray-600 dark:border-gray-200 my-1"></div>
-          <textarea
-            v-model="editedNote.content"
-            placeholder="Content"
-            class="w-full mt-4 bg-transparent resize-none outline-none flex-grow text-base placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
-            :style="{ height: textareaHeight }"
-          ></textarea>
+          <div class="flex-grow overflow-hidden mt-4">
+            <textarea
+              v-model="editedNote.content"
+              placeholder="Content"
+              class="w-full h-full bg-transparent resize-none outline-none text-base placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
+            ></textarea>
+          </div>
         </div>
       </div>
 
@@ -102,20 +100,23 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import { Note } from '@/store/types';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { DEFAULT_FOLDERS } from '@/store/constants';
+  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
   import AlertModal from '@/components/modal/alertModal.vue';
   import FolderDropdown from '@/components/folderDropdown.vue';
 
   const props = defineProps<{
     noteId: number | null;
+    isOpen: boolean;
   }>();
 
-  const emit = defineEmits(['close', 'update', 'delete']);
-
   const isEditMode = computed(() => props.noteId !== null);
+  const originalNote = ref<Note | null>(null);
+  const sidebarContainer = ref<HTMLElement | null>(null);
+  const alertMessage = ref('');
 
   const editedNote = ref<Note>({
     id: Date.now(),
@@ -127,12 +128,6 @@
     folder: DEFAULT_FOLDERS.UNCATEGORIZED,
   });
 
-  const sidebarOpen = ref(true);
-  const originalNote = ref<Note | null>(null);
-  const textareaHeight = ref('auto');
-  const sidebarContainer = ref<HTMLElement | null>(null);
-  const alertMessage = ref('');
-
   const isValid = computed(() => {
     return (
       editedNote.value.title.trim().length > 0 &&
@@ -142,36 +137,32 @@
   });
 
   const hasChanges = computed(() => {
-    if (!originalNote.value)
-      return (
-        editedNote.value.title.trim() !== '' ||
-        editedNote.value.content.trim() !== ''
-      );
+    if (!originalNote.value || !editedNote.value) return false;
     return notesStore.hasChanged(originalNote.value, editedNote.value);
   });
 
-  function attemptClose() {
-    if (!hasChanges.value) {
-      closeSidebar();
-    } else {
-      uiStore.showToastMessage('You have unsaved changes.');
-    }
-  }
-
-  function closeSidebar() {
-    sidebarOpen.value = false;
-    emit('close');
-  }
-
   const saveNote = async () => {
-    if (!isValid.value) return;
+    if (!isValid.value) {
+      showInvalidNoteToast();
+      return;
+    }
 
     if (isEditMode.value && hasChanges.value) {
       await notesStore.updateNote(editedNote.value);
     } else if (!isEditMode.value) {
       await notesStore.addNote(editedNote.value);
     }
-    emit('close');
+    uiStore.closeNote();
+  };
+
+  const showInvalidNoteToast = () => {
+    if (editedNote.value.title.trim().length === 0) {
+      uiStore.showToastMessage('Title is required');
+    } else if (editedNote.value.title.length > 30) {
+      uiStore.showToastMessage('Title exceeds 30 characters');
+    } else if (editedNote.value.content.length > 100000) {
+      uiStore.showToastMessage('Content exceeds 100,000 characters');
+    }
   };
 
   const openDeleteAlert = () => {
@@ -186,13 +177,21 @@
   const confirmDelete = async () => {
     try {
       await notesStore.deleteNote(editedNote.value.id);
-      emit('close');
+      uiStore.closeNote();
     } catch (error) {
       console.error('Error deleting note:', error);
       uiStore.showToastMessage('Failed to delete note. Please try again.');
     }
     closeAlert();
   };
+
+  function handleOutsideClick() {
+    if (!hasChanges.value) {
+      uiStore.closeNote();
+    } else {
+      uiStore.showToastMessage('You have unsaved changes.');
+    }
+  }
 
   watch(
     () => props.noteId,
@@ -221,24 +220,4 @@
     },
     { immediate: true }
   );
-
-  onMounted(() => {
-    if (sidebarContainer.value) {
-      textareaHeight.value = `${sidebarContainer.value.clientHeight - 248}px`;
-    }
-    if (sidebarOpen.value) {
-      document.body.classList.add('modal-open');
-    }
-  });
-
-  onUnmounted(() => {
-    document.body.classList.remove('modal-open');
-  });
 </script>
-
-<style scoped>
-  .dropdown-menu {
-    top: 100%;
-    left: 0;
-  }
-</style>
