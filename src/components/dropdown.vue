@@ -3,37 +3,9 @@
     <button
       @click.stop="toggleDropdown"
       :class="{ 'z-50': isOpen }"
-      class="hover:underline outline-none flex items-center relative cursor-pointer"
+      class="outline-none flex items-center relative cursor-pointer"
     >
       <slot name="label"></slot>
-      <span v-if="showArrow === 'true'" class="ml-1">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4 transition-transform duration-300 ease-in-out"
-          :class="{
-            'rotate-180': isOpen && direction === 'down',
-            '-rotate-180': isOpen && direction === 'up',
-          }"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            v-if="direction === 'down'"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
-          />
-          <path
-            v-if="direction === 'up'"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M5 15l7-7 7 7"
-          />
-        </svg>
-      </span>
     </button>
     <Transition name="zoom">
       <div
@@ -41,18 +13,11 @@
         :class="[
           'z-50 absolute',
           uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card',
-          {
-            'origin-top-left': direction === 'down',
-            'origin-bottom-left': direction === 'up',
-          },
+          'dropdown-content',
+          `dropdown-${props.direction || 'down'}`,
+          `dropdown-${props.position || 'left'}`,
         ]"
-        :style="{
-          width: contentWidth,
-          marginLeft: contentMarginLeft,
-          ...(direction === 'up'
-            ? { bottom: '120%', left: '0' }
-            : { top: '120%', left: '0' }),
-        }"
+        :style="{ width: props.contentWidth || 'auto' }"
       >
         <div class="py-1" role="menu" aria-orientation="vertical">
           <slot></slot>
@@ -69,9 +34,9 @@
   const props = defineProps<{
     dropdownId: string;
     contentWidth?: string;
-    contentMarginLeft?: string;
     showArrow?: 'true' | 'false';
     direction?: 'up' | 'down';
+    position?: 'left' | 'center' | 'right';
   }>();
 
   const isOpen = ref(false);
@@ -110,7 +75,58 @@
 </script>
 
 <style scoped>
-  .rotate-180 {
-    transform: rotate(180deg);
+  .dropdown-content {
+    transform-origin: top center;
+  }
+
+  .dropdown-down {
+    top: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .dropdown-up {
+    bottom: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .dropdown-left {
+    left: 0;
+  }
+
+  .dropdown-center {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .dropdown-right {
+    right: 0;
+  }
+
+  .zoom-enter-active,
+  .zoom-leave-active {
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .zoom-enter-from,
+  .zoom-leave-to {
+    opacity: 0;
+    transform: scale(0.95) translateY(0.5rem);
+  }
+
+  .dropdown-center.zoom-enter-from,
+  .dropdown-center.zoom-leave-to {
+    transform: scale(0.95) translate(-50%);
+  }
+
+  .dropdown-left.zoom-enter-from,
+  .dropdown-left.zoom-leave-to {
+    transform: scale(0.95) translate(0%);
+  }
+
+  .dropdown-up.dropdown-left.zoom-enter-from,
+  .dropdown-up.dropdown-left.zoom-leave-to {
+    transform: scale(0.95) translate(0%, 0.5rem);
   }
 </style>

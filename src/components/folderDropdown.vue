@@ -7,10 +7,18 @@
     :direction="direction"
   >
     <template #label>
-      <div v-if="props.modelValue === DEFAULT_FOLDERS.ALL_NOTES">
-        {{ DEFAULT_FOLDERS.UNCATEGORIZED }}
+      <div
+        class="flex px-2 py-1 cursor-pointer custom-card hover:bg-[#d9c698] dark:hover:bg-gray-600 items-center"
+      >
+        <Icon
+          icon="material-symbols-light:folder-outline-rounded"
+          class="size-5 mr-2"
+        />
+        <div v-if="props.modelValue === DEFAULT_FOLDERS.ALL_NOTES">
+          {{ DEFAULT_FOLDERS.UNCATEGORIZED }}
+        </div>
+        <div v-else>{{ modelValue }}</div>
       </div>
-      <div v-else>{{ modelValue }}</div>
     </template>
 
     <template v-for="folder in availableFolders" :key="folder">
@@ -21,8 +29,12 @@
       >
         <span
           :class="folder === modelValue ? 'underline dark:text-white' : ''"
-          class="hover:underline px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+          class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
+          <Icon
+            icon="material-symbols-light:folder-outline-rounded"
+            class="size-5 mr-2"
+          />
           {{ folder }}
         </span>
       </div>

@@ -26,19 +26,31 @@
       >
         <div class="absolute top-0 right-1 flex text-sm p-4 select-none">
           <button
-            class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none mr-6"
+            class="mr-4 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
             @click="uiStore.toggleExpand"
           >
-            {{ uiStore.isExpanded ? 'Collapse' : 'Expand' }}
+            <Icon
+              v-if="uiStore.isExpanded"
+              icon="material-symbols-light:collapse-content"
+              class="size-5"
+            />
+            <Icon
+              v-else
+              icon="material-symbols-light:expand-content"
+              class="size-5"
+            />
           </button>
           <button
-            class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none"
+            class="px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
             @click="uiStore.closeNote"
           >
-            Close
+            <Icon
+              icon="material-symbols-light:close-rounded"
+              class="size-5"
+            />
           </button>
         </div>
-        <h1 class="text-xl font-bold mt-8 mb-4">
+        <h1 class="text-xl font-bold mt-10 mb-4">
           <input
             v-model="editedNote.title"
             placeholder="Title"
@@ -66,16 +78,20 @@
             <button
               @click="saveNote"
               :class="[
-                'dark:hover:bg-transparent outline-none text-sm',
+                'flex px-2 py-1 custom-card',
                 {
-                  'text-blue-500 hover:underline cursor-pointer':
+                  'text-blue-500 hover:text-blue-300 hover:bg-blue-700':
                     isValid && (!isEditMode || hasChanges),
-                  'text-gray-500 cursor-pointer':
+                  'text-gray-400 cursor-default':
                     !isValid || (isEditMode && !hasChanges),
                 },
               ]"
             >
-              <span>Save</span>
+              <Icon
+                icon="material-symbols-light:save-outline-rounded"
+                class="size-5 mr-2"
+              />
+              Save
             </button>
           </div>
         </div>

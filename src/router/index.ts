@@ -35,8 +35,12 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  const isFirstVisit = localStorage.getItem('hasVisited') !== 'true';
 
-  if (requiresAuth && !authStore.isLoggedIn) {
+  if (isFirstVisit && to.path !== '/sign-in') {
+    localStorage.setItem('hasVisited', 'true');
+    next('/sign-in');
+  } else if (requiresAuth && !authStore.isLoggedIn) {
     next('/sign-in');
   } else if (to.path === '/sign-in' && authStore.isLoggedIn) {
     next('/');

@@ -11,33 +11,43 @@
         uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card-no-transition',
       ]"
     >
-      <ul class="font-serif text-sm w-[120px] p-1">
+      <ul class="font-serif text-sm min-w-[145px] w-fit p-1">
         <li
           v-if="!showFolderOptions"
           @click="editNote"
-          class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+          class="flex p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
+          <Icon
+            icon="material-symbols-light:edit-square-outline-rounded"
+            class="size-5 mr-2"
+          />
           Edit
         </li>
         <li
           v-if="!showFolderOptions"
           @click="copyNote"
-          class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+          class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
+          <Icon
+            icon="material-symbols-light:content-copy-outline-rounded"
+            class="size-5 mr-2"
+          />
           Copy
         </li>
         <li
           v-if="!showFolderOptions && props.note.pinned"
           @click="unpinNote"
-          class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+          class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
+          <Icon icon="fluent:pin-off-24-regular" class="size-5 mr-2" />
           Unpin
         </li>
         <li
           v-if="!showFolderOptions && !props.note.pinned"
           @click="pinNote"
-          class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+          class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
+          <Icon icon="fluent:pin-24-regular" class="size-5 mr-2" />
           Pin
         </li>
         <li
@@ -47,42 +57,60 @@
         >
           <button
             @click.stop="toggleFolderOptions"
-            class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+            class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
           >
+            <Icon
+              icon="material-symbols-light:drive-file-move-outline"
+              class="size-5 mr-2"
+            />
             Move to
           </button>
         </li>
         <li v-if="showFolderOptions">
           <ul>
             <li
-              v-for="(folder, _index) in availableFolders"
+              v-for="(folder, _index) in sortedFolders"
               :key="folder"
               @click.stop="moveNote(folder)"
-              class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+              class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
               role="menuitem"
             >
+              <Icon
+                v-if="folder !== DEFAULT_FOLDERS.UNCATEGORIZED"
+                icon="material-symbols-light:folder-outline-rounded"
+                class="size-5 mr-3"
+              />
+              <Icon
+                v-else
+                icon="material-symbols-light:folder-off-outline-rounded"
+                class="size-5 mr-3"
+              />
               {{ folder }}
             </li>
+            <div
+              class="bg-black dark:bg-gray-400 h-px transition-all duration-300"
+            ></div>
             <li
               @click.stop="toggleFolderOptions"
-              class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+              class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
             >
+              <Icon
+                icon="material-symbols-light:arrow-back-rounded"
+                class="size-5 mr-3"
+              />
               Back
             </li>
           </ul>
         </li>
-        <!-- <li
-          v-if="!showFolderOptions"
-          @click="downloadNote"
-          class=" cursor-pointer mt-4"
-        >
-          Download
-        </li> -->
         <li
           v-if="!showFolderOptions"
           @click="deleteNote"
-          class="px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center text-red-500"
+          class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center text-red-500"
         >
+          <Icon
+            icon="material-symbols-light:delete-outline"
+            class="size-5 mr-2"
+          />
           Delete
         </li>
       </ul>
@@ -136,6 +164,15 @@
         folder !== props.note.folder && folder !== DEFAULT_FOLDERS.ALL_NOTES
     )
   );
+
+  const sortedFolders = computed(() => {
+    const folders = availableFolders.value;
+    const uncategorizedIndex = folders.indexOf(DEFAULT_FOLDERS.UNCATEGORIZED);
+    if (uncategorizedIndex > -1) {
+      folders.push(folders.splice(uncategorizedIndex, 1)[0]);
+    }
+    return folders;
+  });
 
   const calculateMenuPosition = (x: number, y: number) => {
     if (!menuRef.value) return { x, y };

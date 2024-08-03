@@ -1,3 +1,5 @@
+// authStore
+
 import { defineStore } from 'pinia';
 import {
   getStorage,

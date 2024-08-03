@@ -1,74 +1,48 @@
-<!-- navbar.vue -->
-
 <template>
   <div>
     <div
-      class="flex justify-between items-center p-4 h-[52px] bg-transparent shadow-lg hover:shadow-xl transition-all duration-300 font-serif text-sm md:text-base select-none"
+      class="flex justify-between items-center p-4 h-[52px] bg-[#f7f4e4] dark:bg-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 font-serif text-sm md:text-base select-none"
     >
-      <div class="relative">
-        <Dropdown
-          label="Menu"
-          dropdownId="menu"
-          contentWidth="6.4rem"
-          showArrow="true"
-          direction="down"
+      <div class="relative items-center">
+        <button
+          @click.stop="toggleSidebar"
+          @mouseenter="handleMouseEnter"
+          class="focus:outline-none navbar-logo"
         >
-          <template #label>Menu</template>
-          <div class="px-[3px]">
-            <router-link
-              to="/"
-              class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
-            >
-              Home
-            </router-link>
-            <router-link
-              to="/about"
-              class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
-            >
-              About
-            </router-link>
-            <router-link
-              to="/settings"
-              class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
-            >
-              Settings
-            </router-link>
-            <a
-              @click="openTrash"
-              class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
-            >
-              Trash
-            </a>
-          </div>
-        </Dropdown>
-      </div>
-      <div class="nav-links">
-        <button v-if="deferredPrompt" @click="showInstallPrompt">
-          <div v-if="loading" class="skeleton rounded-md w-20 h-6"></div>
-          <div v-else>Install</div>
+          <img
+            src="/dark/android-chrome-512x512.png"
+            class="size-12 hidden dark:block mt-1"
+          />
+          <img
+            src="/light/android-chrome-512x512.png"
+            class="size-12 dark:hidden mt-1"
+          />
         </button>
       </div>
       <router-link
         v-if="!authStore.isLoggedIn"
         to="/sign-in"
-        class="hover:underline"
-        active-class="underline"
+        class="my-1"
       >
-        <div>Sign in</div>
+        <div
+          class="text-sm px-3 py-[7px] custom-card cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+        >
+          <Icon icon="codicon:sign-in" class="size-5 mr-2" />
+          Sign in
+        </div>
       </router-link>
       <div v-else class="relative">
         <Dropdown
-          label="User"
           dropdownId="user"
-          contentWidth="6.4rem"
-          contentMarginLeft="-68px"
+          contentWidth="7rem"
           direction="down"
+          position="right"
         >
           <template #label>
             <img
               :src="avatarUrl"
               alt="User Avatar"
-              class="w-8 h-8 mt-1 md:mt-2 custom-card-transparent-avatar rounded-full object-cover"
+              class="size-9 mt-[6px] md:mt-1 custom-card-transparent-avatar object-cover"
             />
           </template>
           <div class="px-[3px]">
@@ -76,12 +50,14 @@
               @click="navigateToSettings"
               class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
             >
+              <Icon icon="codicon:settings" class="size-5 mr-2" />
               Settings
             </a>
             <a
               @click="confirmSignout"
               class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
             >
+              <Icon icon="codicon:sign-out" class="size-5 mr-2" />
               Sign out
             </a>
           </div>
@@ -91,86 +67,96 @@
     <div
       class="bg-black dark:bg-gray-400 h-px transition-all duration-300"
     ></div>
+    <LeftSidebar
+      :is-open="isSidebarOpen"
+      @close="closeSidebar"
+      @toggle="toggleSidebar"
+      @mouseleave="handleMouseLeave"
+    />
     <AlertModal
       :is-open="showSignoutConfirmation"
       :message="`Are you sure you want to sign out? You won't be able to sync your notes.`"
       @cancel="showSignoutConfirmation = false"
       @confirm="signout"
     />
-    <TrashModal v-model:isOpen="isTrashModalOpen" />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { storeToRefs } from 'pinia';
-  import { ref, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { authStore } from '@/store/stores';
-  import Dropdown from '@/components/dropdown.vue';
-  import AlertModal from '@/components/modal/alertModal.vue';
-  import TrashModal from '@/components/modal/trashModal.vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useRouter } from 'vue-router';
+import { authStore } from '@/store/stores';
+import Dropdown from '@/components/dropdown.vue';
+import AlertModal from '@/components/modal/alertModal.vue';
+import LeftSidebar from '@/components/leftSidebar.vue';
+import { Icon } from '@iconify/vue';
 
-  const isUserDropdownOpen = ref(false);
-  const router = useRouter();
-  const loading = ref(true);
-  const showSignoutConfirmation = ref(false);
+const router = useRouter();
+const showSignoutConfirmation = ref(false);
+const isSidebarOpen = ref(false);
 
-  const signout = async () => {
-    await authStore.logout();
-    showSignoutConfirmation.value = false;
-    router.push('/');
-  };
+const { avatarUrl } = storeToRefs(authStore);
 
-  const confirmSignout = () => {
-    showSignoutConfirmation.value = true;
-  };
+const signout = async () => {
+  await authStore.logout();
+  showSignoutConfirmation.value = false;
+  router.push('/');
+};
 
-  interface DeferredPromptEvent extends Event {
-    prompt: () => void;
-    userChoice: Promise<{ outcome: string }>;
+const confirmSignout = () => {
+  showSignoutConfirmation.value = true;
+};
+
+const navigateToSettings = () => {
+  router.push('/settings');
+};
+
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+};
+
+const openSidebar = () => {
+  isSidebarOpen.value = true;
+};
+
+const closeSidebar = () => {
+  isSidebarOpen.value = false;
+};
+
+// Function to handle mouse enter event on the logo
+const handleMouseEnter = () => {
+  if (window.innerWidth >= 768) {
+    openSidebar();
   }
+};
 
-  const deferredPrompt = ref<DeferredPromptEvent | null>(null);
+// Function to handle mouse leave event on the sidebar
+const handleMouseLeave = () => {
+  if (window.innerWidth >= 768) {
+    closeSidebar();
+  }
+};
 
-  const showInstallPrompt = () => {
-    if (deferredPrompt.value) {
-      deferredPrompt.value.prompt();
-      deferredPrompt.value.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('User accepted the A2HS prompt');
-        } else {
-          console.log('User dismissed the A2HS prompt');
-        }
-        deferredPrompt.value = null;
-      });
-    }
-  };
+const handleOutsideClick = (event: MouseEvent) => {
+  const sidebar = document.querySelector('.left-sidebar');
+  const navbarLogo = document.querySelector('.navbar-logo');
+  if (
+    isSidebarOpen.value &&
+    sidebar &&
+    !sidebar.contains(event.target as Node) &&
+    event.target !== navbarLogo &&
+    !navbarLogo?.contains(event.target as Node)
+  ) {
+    closeSidebar();
+  }
+};
 
-  const { avatarUrl } = storeToRefs(authStore);
+onMounted(() => {
+  document.addEventListener('click', handleOutsideClick);
+});
 
-  onMounted(() => {
-    setTimeout(() => {
-      loading.value = false;
-    }, 500);
-
-    window.addEventListener('beforeinstallprompt', (e: Event) => {
-      e.preventDefault();
-      deferredPrompt.value = e as DeferredPromptEvent;
-    });
-  });
-
-  const navigateToSettings = () => {
-    isUserDropdownOpen.value = false;
-    router.push('/settings');
-  };
-
-  const isTrashModalOpen = ref(false);
-
-  const openTrash = () => {
-    isTrashModalOpen.value = true;
-  };
-
-  // const isActive = (route: string) => {
-  //   return router.currentRoute.value.path === route;
-  // };
+onUnmounted(() => {
+  document.removeEventListener('click', handleOutsideClick);
+});
 </script>

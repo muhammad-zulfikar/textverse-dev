@@ -2,29 +2,29 @@
 
 <template>
   <div class="w-full max-w-5xl mx-auto px-4 md:px-0 text-sm md:text-base">
-    <div class="flex justify-end mb-4 relative">
+    <div class="flex justify-end mb-4 relative font-serif">
       <button
         v-if="selectMode && selectedNotes.length > 0"
         @click="togglePinSelectedNotes"
-        class="mr-5 hover:underline font-serif"
+        class="mr-2 px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
       >
         {{ allSelectedPinned ? 'Unpin' : 'Pin' }}
       </button>
       <button
         v-if="selectMode && selectedNotes.length > 0"
         @click="confirmDeleteSelectedNotes"
-        class="mr-5 hover:underline font-serif text-red-500"
+        class="mr-2 px-2 py-1 custom-card text-red-500 hover:text-red-300 hover:bg-red-700"
       >
         Delete
       </button>
-      <Dropdown
-        dropdownId="showDropdown"
-        contentWidth="w-fit"
-        contentMarginLeft="-43px"
-        showArrow="true"
-        direction="down"
-      >
-        <template #label>Show</template>
+      <Dropdown dropdownId="showDropdown" contentWidth="w-fit" direction="down">
+        <template #label>
+          <div
+            class="mr-2 px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+          >
+            Show
+          </div>
+        </template>
         <div class="px-[3px]">
           <a
             v-for="column in filteredColumns"
@@ -43,7 +43,10 @@
           </a>
         </div>
       </Dropdown>
-      <button @click="toggleSelectMode" class="ml-5 hover:underline font-serif">
+      <button
+        @click="toggleSelectMode"
+        class="px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+      >
         Select
       </button>
     </div>
@@ -106,10 +109,7 @@
                   <span
                     class="bg-[#ebdfc0] dark:bg-gray-800 hover:bg-cream dark:hover:bg-gray-700 active:bg-cream dark:active:bg-gray-700 rounded-lg border-[1px] border-black dark:border-white shadow-md hover:shadow-xl transition-all duration-300 text-sm ml-2 px-2 py-1 absolute right-2 top-1/2 transform -translate-y-1/2 group-hover:inline-block md:group-hover:inline-block md:hidden cursor-pointer"
                   >
-                    <img
-                      src="@/assets/icons/sidebar.svg"
-                      class="h-6 w-6 dark:invert"
-                    />
+                    <Icon icon="ph:sidebar-simple-light" class="size-6" />
                   </span>
                 </div>
               </div>

@@ -48,10 +48,10 @@
           >
             <div
               v-if="note.folder !== DEFAULT_FOLDERS.UNCATEGORIZED"
-              class="w-1/3 text-left text-[10px] md:text-xs"
+              class="w-fit text-left text-[10px] md:text-xs"
             >
               <p
-                class="cursor-pointer hover:underline truncate"
+                class="px-2 py-1 cursor-pointer truncate custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
                 @click.stop="folderStore.setCurrentFolder(note.folder)"
               >
                 {{ note.folder }}
@@ -59,11 +59,11 @@
             </div>
             <div v-else class="w-1/3"></div>
 
-            <div class="w-1/3 text-center text-[10px] md:text-xs">
+            <div class="w-1/3 text-center text-xs">
               <p v-if="note.pinned">Pinned</p>
             </div>
 
-            <div class="w-1/3 text-right text-[10px] md:text-xs">
+            <div class="w-1/3 text-right text-xs">
               {{ notesStore.localeDate(note.last_edited || note.time_created) }}
             </div>
           </div>

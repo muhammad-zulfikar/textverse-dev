@@ -4,145 +4,198 @@
   <Dropdown
     dropdownId="view"
     contentWidth="8.8rem"
-    contentMarginLeft="-42px"
-    showArrow="true"
     direction="down"
+    position="center"
   >
-    <template #label>View</template>
-    <div class="flex px-4 py-2 justify-between">
-      <a
-        @click.stop="setViewType('card')"
-        :class="{ underline: uiStore.viewType === 'card' }"
-        class="block text-sm cursor-pointer hover:underline flex justify-between items-center"
-        role="menuitem"
+    <template #label>
+      <button
+        class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
       >
-        Card
-      </a>
-      <span @click.stop="toggleCardView">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4 ml-2 cursor-pointer"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            :d="columnsExpanded ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'"
+        <div v-if="uiStore.viewType === 'card'">
+          <Icon
+            icon="material-symbols-light:grid-view-outline-rounded"
+            class="size-5 mr-2"
           />
-        </svg>
-      </span>
-    </div>
-
-    <div
-      v-if="columnsExpanded"
-      class="flex items-center justify-center mx-4 mb-2"
-    >
-      <a
-        @click.stop="decreaseColumns"
-        class="block cursor-pointer"
-        role="menuitem"
-      >
-        <img src="@/assets/icons/minus.svg" class="h-4 w-4 dark:invert" />
-      </a>
-      <span class="mx-2 text-sm whitespace-nowrap">
-        {{ uiStore.columns }} Columns
-      </span>
-      <a
-        @click.stop="increaseColumns"
-        class="block cursor-pointer"
-        role="menuitem"
-      >
-        <img src="@/assets/icons/plus.svg" class="h-4 w-4 dark:invert" />
-      </a>
-    </div>
-
-    <a
-      @click.stop="setViewType('table')"
-      :class="{ underline: uiStore.viewType === 'table' }"
-      class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-      role="menuitem"
-    >
-      Table
-    </a>
-
-    <a
-      @click.stop="setViewType('mail')"
-      :class="{ underline: uiStore.viewType === 'mail' }"
-      class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-      role="menuitem"
-    >
-      Mail
-    </a>
-
-    <div class="flex px-4 py-2 justify-between">
-      <a
-        @click.stop="setViewType('folder')"
-        :class="{ underline: uiStore.viewType === 'folder' }"
-        class="block text-sm cursor-pointer hover:underline flex justify-between items-center"
-        role="menuitem"
-      >
-        Folder
-      </a>
-      <span @click.stop="toggleFolderView">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4 cursor-pointer"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            :d="folderViewExpanded ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'"
+        </div>
+        <div v-if="uiStore.viewType === 'table'">
+          <Icon
+            icon="material-symbols-light:data-table-outline-rounded"
+            class="size-5 mr-2"
           />
-        </svg>
-      </span>
-    </div>
-    <div
-      v-if="folderViewExpanded"
-      class="flex items-center justify-center mx-4"
-    >
-      <a
-        @click.stop="setFolderViewType('grid')"
-        :class="{ underline: uiStore.folderViewType === 'grid' }"
-        class="block px-4 mb-2 text-sm cursor-pointer hover:underline"
-        role="menuitem"
+        </div>
+        <div v-if="uiStore.viewType === 'mail'">
+          <Icon
+            icon="material-symbols-light:mail-outline-rounded"
+            class="size-5 mr-2"
+          />
+        </div>
+        <div v-if="uiStore.viewType === 'folder'">
+          <Icon
+            icon="material-symbols-light:folder-outline-rounded"
+            class="size-5 mr-2"
+          />
+        </div>
+
+        <span v-if="uiStore.viewType === 'card'">Card</span>
+        <span v-else-if="uiStore.viewType === 'table'">Table</span>
+        <span v-else-if="uiStore.viewType === 'mail'">Mail</span>
+        <span v-else-if="uiStore.viewType === 'folder'">Folder</span>
+      </button>
+    </template>
+    <div class="px-1 text-sm">
+      <div
+        class="w-full rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200"
       >
-        Grid
-      </a>
-      <a
-        @click.stop="setFolderViewType('list')"
-        :class="{ underline: uiStore.folderViewType === 'list' }"
-        class="block px-4 mb-2 text-sm cursor-pointer hover:underline"
-        role="menuitem"
+        <div class="flex items-center justify-between">
+          <button
+            @click="setViewType('card')"
+            class="flex-grow text-left flex items-center p-2"
+          >
+            <Icon
+              icon="material-symbols-light:grid-view-outline-rounded"
+              class="size-5 mr-2"
+            />
+            Card
+          </button>
+          <button
+            @click.stop="toggleOptions('card')"
+            class="mr-2 rounded-full hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-transform duration-200"
+            :class="{ 'rotate-180': expandedOption === 'card' }"
+          >
+            <Icon
+              icon="material-symbols-light:keyboard-arrow-down-rounded"
+              class="size-5"
+            />
+          </button>
+        </div>
+        <Transition name="expand">
+          <div
+            v-if="expandedOption === 'card'"
+            class="flex items-center justify-between w-full px-2"
+          >
+            <button
+              @click.stop="decreaseColumns"
+              :class="{
+                'text-gray-400 cursor-default': uiStore.columns <= 1,
+                'hover:bg-[#d9c698] dark:hover:bg-gray-600':
+                  uiStore.columns > 1,
+              }"
+              class="text-center text-sm p-2 mb-1 rounded-md transition-colors duration-200"
+              :disabled="uiStore.columns <= 1"
+            >
+              <Icon icon="mdi-light:minus" class="size-4" />
+            </button>
+            <span
+              class="text-sm text-center mb-1 text-gray-750 dark:text-gray-300"
+            >
+              {{ uiStore.columns }}
+            </span>
+            <button
+              @click.stop="increaseColumns"
+              :class="{
+                'text-gray-400 cursor-default':
+                  uiStore.columns >= (isMobile ? 2 : 5),
+                'hover:bg-[#d9c698] dark:hover:bg-gray-600':
+                  uiStore.columns < (isMobile ? 2 : 5),
+              }"
+              class="text-center text-sm p-2 mb-1 rounded-md transition-colors duration-200"
+              :disabled="uiStore.columns >= (isMobile ? 2 : 5)"
+            >
+              <Icon icon="mdi-light:plus" class="size-4" />
+            </button>
+          </div>
+        </Transition>
+      </div>
+      <button
+        @click="setViewType('table')"
+        class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
       >
-        List
-      </a>
+        <Icon
+          icon="material-symbols-light:data-table-outline-rounded"
+          class="size-5 mr-2"
+        />
+        Table
+      </button>
+      <button
+        @click="setViewType('mail')"
+        class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+      >
+        <Icon
+          icon="material-symbols-light:mail-outline-rounded"
+          class="size-5 mr-2"
+        />
+        Mail
+      </button>
+      <div
+        class="w-full rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200"
+      >
+        <div class="flex items-center justify-between">
+          <button
+            @click="setViewType('folder')"
+            class="flex-grow text-left flex items-center p-2"
+          >
+            <Icon
+              icon="material-symbols-light:folder-outline-rounded"
+              class="size-5 mr-2"
+            />
+            Folder
+          </button>
+          <button
+            @click.stop="toggleOptions('folder')"
+            class="mr-2 rounded-full hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-transform duration-200"
+            :class="{ 'rotate-180': expandedOption === 'folder' }"
+          >
+            <Icon
+              icon="material-symbols-light:keyboard-arrow-down-rounded"
+              class="size-5"
+            />
+          </button>
+        </div>
+        <Transition name="expand">
+          <div v-if="expandedOption === 'folder'" class="flex justify-center">
+            <button
+              @click.stop="setFolderViewType('grid')"
+              class="w-full text-center text-sm p-2 rounded-md text-gray-750 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-colors duration-200"
+            >
+              <span>Grid</span>
+            </button>
+            <button
+              @click.stop="setFolderViewType('list')"
+              class="w-full text-center text-sm p-2 rounded-md text-gray-750 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-colors duration-200"
+            >
+              <span>List</span>
+            </button>
+          </div>
+        </Transition>
+      </div>
     </div>
   </Dropdown>
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, onUnmounted, watch } from 'vue';
+  import { ref, onMounted, onUnmounted } from 'vue';
   import { uiStore } from '@/store/stores';
   import Dropdown from '@/components/dropdown.vue';
 
+  const isOpen = ref(false);
   const isMobile = ref(window.innerWidth < 640);
-  const columnsExpanded = ref(false);
-  const folderViewExpanded = ref(false);
+  const expandedOption = ref('');
+
+  const closeModal = () => {
+    isOpen.value = false;
+    expandedOption.value = '';
+  };
+
+  const toggleOptions = (option: string) => {
+    expandedOption.value = expandedOption.value === option ? '' : option;
+  };
 
   const setViewType = (viewType: 'card' | 'table' | 'mail' | 'folder') => {
     uiStore.setViewType(viewType);
-    uiStore.setActiveDropdown(null);
-  };
-
-  const toggleCardView = () => {
-    columnsExpanded.value = !columnsExpanded.value;
+    if (viewType !== 'card') {
+      uiStore.setColumns(isMobile.value ? 1 : 4);
+    }
+    closeModal();
   };
 
   const increaseColumns = () => {
@@ -157,13 +210,8 @@
     }
   };
 
-  const toggleFolderView = () => {
-    folderViewExpanded.value = !folderViewExpanded.value;
-  };
-
   const setFolderViewType = (viewType: 'grid' | 'list') => {
     uiStore.setFolderViewType(viewType);
-    uiStore.setActiveDropdown(null);
   };
 
   const handleResize = () => {
@@ -186,23 +234,4 @@
   onUnmounted(() => {
     window.removeEventListener('resize', handleResize);
   });
-
-  watch(
-    () => uiStore.viewType,
-    (newValue) => {
-      if (newValue !== 'card') {
-        columnsExpanded.value = false;
-      }
-      if (newValue !== 'folder') {
-        folderViewExpanded.value = false;
-      }
-    }
-  );
 </script>
-
-<style scoped>
-  svg:active {
-    transform: scale(0.8);
-    transition-duration: 200ms;
-  }
-</style>

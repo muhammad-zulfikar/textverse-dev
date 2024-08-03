@@ -1,56 +1,85 @@
-<!-- folder.vue -->
-
 <template>
   <Dropdown
     dropdownId="folder"
-    contentWidth="15rem"
-    contentMarginLeft="-66px"
-    showArrow="true"
+    contentWidth="12rem"
     direction="down"
+    position="center"
   >
     <template #label>
-      <img
-        v-if="!isAllNotesFolder"
-        src="@/assets/icons/revert.svg"
-        class="h-4 w-4 mr-[5px] dark:invert cursor-pointer"
-        @click.stop="revertToAllNotes"
-      />
-      {{ selectedFolder }} ({{ notesCountByFolder[selectedFolder] || 0 }})
-    </template>
-    <template v-for="folder in sortedFolders" :key="folder">
-      <div
-        @click.stop="selectFolder(folder)"
-        class="block px-4 py-2 text-sm flex justify-between items-center"
-        role="menuitem"
+      <button
+        class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
       >
-        <span
-          :class="folder === selectedFolder ? 'underline dark:text-white' : ''"
-          class="hover:underline cursor-pointer"
-        >
-          {{ folder }} ({{ notesCountByFolder[folder] || 0 }})
-        </span>
-        <div
-          v-if="
-            folder !== DEFAULT_FOLDERS.ALL_NOTES &&
-            folder !== DEFAULT_FOLDERS.UNCATEGORIZED
-          "
-          class="flex items-center space-x-2"
-        >
+        <img
+          v-if="!isAllNotesFolder"
+          src="@/assets/icons/revert.svg"
+          class="h-4 w-4 mr-[5px] dark:invert cursor-pointer"
+          @click.stop="revertToAllNotes"
+        />
+        <Icon
+          icon="material-symbols-light:folder-outline-rounded"
+          class="size-5 mr-2"
+        />
+        {{ selectedFolder }} ({{ notesCountByFolder[selectedFolder] || 0 }})
+      </button>
+    </template>
+    <div class="px-1">
+      <div
+        v-for="folder in sortedFolders"
+        :key="folder"
+        class="w-full rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200"
+      >
+        <div class="flex items-center justify-between">
           <button
-            @click.stop="openRenameModal(folder)"
-            class="text-xs text-blue-500 cursor-pointer hover:underline mr-2"
+            @click.stop="selectFolder(folder)"
+            class="text-sm w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
           >
-            Rename
+            <Icon
+              icon="material-symbols-light:folder-outline-rounded"
+              class="size-5 mr-2"
+            />
+            {{ folder }} ({{ notesCountByFolder[folder] || 0 }})
           </button>
           <button
-            @click.stop="openDeleteAlert(folder)"
-            class="text-xs text-red-500 cursor-pointer hover:underline"
+            v-if="
+              folder !== DEFAULT_FOLDERS.ALL_NOTES &&
+              folder !== DEFAULT_FOLDERS.UNCATEGORIZED
+            "
+            @click.stop="toggleOptions(folder)"
+            class="mr-2 rounded-full hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-transform duration-200"
+            :class="{ 'rotate-180': expandedFolder === folder }"
           >
-            Delete
+            <Icon
+              icon="material-symbols-light:keyboard-arrow-down-rounded"
+              class="size-5"
+            />
           </button>
         </div>
+        <Transition name="expand">
+          <div
+            v-if="expandedFolder === folder"
+            class="flex justify-between space-x-1 px-2"
+          >
+            <button
+              @click.stop="openRenameModal(folder)"
+              class="text-xs flex items-center px-2 py-1 custom-card mb-2"
+            >
+              <Icon icon="fluent:rename-16-regular" class="size-4 mr-1" />
+              Rename
+            </button>
+            <button
+              @click.stop="openDeleteAlert(folder)"
+              class="text-xs flex items-center px-2 py-1 text-red-500 custom-card mb-2"
+            >
+              <Icon
+                icon="material-symbols-light:delete-outline"
+                class="size-4 mr-1"
+              />
+              Delete
+            </button>
+          </div>
+        </Transition>
       </div>
-    </template>
+    </div>
   </Dropdown>
 
   <InputModal
@@ -63,7 +92,7 @@
   />
 
   <alertModal
-    :is-open="isAlertOpen"
+    :is-open="uiStore.isAlertOpen"
     :message="AlertMessage"
     @confirm="handleAlert"
     @cancel="closeAlert"
@@ -89,6 +118,8 @@
   const AlertMessage = ref('');
   const folderToDelete = ref('');
 
+  const expandedFolder = ref('');
+
   const selectFolder = (folder: string) => {
     folderStore.setCurrentFolder(folder);
     uiStore.setActiveDropdown(null);
@@ -101,6 +132,10 @@
   const revertToAllNotes = (event: Event) => {
     event.stopPropagation();
     folderStore.setCurrentFolder(DEFAULT_FOLDERS.ALL_NOTES);
+  };
+
+  const toggleOptions = (folder: string) => {
+    expandedFolder.value = expandedFolder.value === folder ? '' : folder;
   };
 
   const openRenameModal = (folder: string) => {

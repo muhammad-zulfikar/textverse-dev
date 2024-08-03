@@ -1,3 +1,5 @@
+<!-- noteSidebar.vue -->
+
 <template>
   <ModalBackdrop v-model="props.isOpen" />
   <transition name="slide">
@@ -23,38 +25,66 @@
         ]"
       >
         <div class="p-6 flex flex-col h-full">
-          <div class="flex justify-end items-center mb-4">
-            <div>
+          <div class="flex justify-between items-center mb-6 md:mb-8 text-sm">
+            <div class="flex space-x-2">
               <button
                 @click="uiStore.closeNote"
-                class="text-gray-600 dark:text-gray-300 hover:underline mr-4 text-sm md:text-md"
+                class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
               >
-                Close
+                <Icon
+                  icon="material-symbols-light:close-rounded"
+                  class="size-5 md:mr-2"
+                />
+                <span class="hidden md:flex">Close</span>
               </button>
               <button
                 @click="uiStore.toggleExpand"
-                class="text-gray-600 dark:text-gray-300 hover:underline mr-4 text-sm md:text-md"
+                class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
               >
-                {{ uiStore.isExpanded ? 'Collapse' : 'Expand' }}
+              <Icon
+              v-if="uiStore.isExpanded"
+              icon="material-symbols-light:collapse-content"
+              class="size-5 md:mr-2"
+            />
+            <Icon
+              v-else
+              icon="material-symbols-light:expand-content"
+              class="size-5 md:mr-2"
+            />
+              <span class="hidden md:flex">{{ uiStore.isExpanded ? 'Collapse' : 'Expand' }}</span>
               </button>
+            </div>
+            <div class="flex space-x-2">
               <button
                 v-if="isEditMode"
                 @click="openDeleteAlert"
-                class="text-red-500 hover:underline mr-4 text-sm md:text-md"
+                class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-300 hover:bg-red-700"
               >
+              <Icon
+            icon="material-symbols-light:delete-outline"
+            class="size-5 md:mr-2"
+          />
+          <span class="hidden md:flex">
                 Delete
+              </span>
               </button>
               <button
                 @click="saveNote"
-                class="text-sm md:text-md"
+                class="flex items-center px-2 py-1 custom-card"
                 :class="
                   isValid && hasChanges
-                    ? 'text-blue-500 hover:underline'
-                    : 'text-gray-400 cursor-not-allowed'
+                    ? 'text-blue-500 hover:text-blue-300 hover:bg-blue-700'
+                    : 'text-gray-400 cursor-default'
                 "
                 :disabled="!isValid || !hasChanges"
               >
+              <Icon
+                icon="material-symbols-light:save-outline-rounded"
+                class="size-5 md:mr-2"
+              />
+              <span class="hidden md:flex">
                 Save
+              </span>
               </button>
             </div>
           </div>
@@ -66,7 +96,7 @@
             />
           </div>
           <div
-            class="flex justify-between items-center text-sm mb-4 whitespace-nowrap"
+            class="flex justify-between items-center text-xs md:text-sm mb-4 whitespace-nowrap"
           >
             <FolderDropdown v-model="editedNote.folder" direction="down" />
             <span
@@ -81,7 +111,7 @@
               }}
             </span>
           </div>
-          <div class="border-b border-gray-600 dark:border-gray-200 my-1"></div>
+          <div class="bg-black dark:bg-gray-400 h-px transition-all duration-300"></div>
           <div class="flex-grow overflow-hidden mt-4">
             <textarea
               v-model="editedNote.content"
@@ -95,7 +125,6 @@
       <AlertModal
         :is-open="uiStore.isAlertOpen"
         :message="alertMessage"
-        class="fixed inset-0 z-50 flex items-center justify-center"
         @confirm="confirmDelete"
         @cancel="closeAlert"
       />

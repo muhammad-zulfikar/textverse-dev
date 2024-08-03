@@ -62,22 +62,30 @@
         class="w-full md:w-3/4 p-6 overflow-y-auto md:border-l border-black dark:border-white rounded-r-lg relative"
       >
         <div v-if="editedNote" class="h-full flex flex-col">
-          <div class="flex justify-between items-center mb-4">
+          <div class="flex justify-between items-center mb-8 md:mb-6 text-sm">
             <div class="flex">
               <button
                 v-if="isMobileView"
                 @click="cancelNote"
-                class="hover:underline md:hidden text-sm"
+                class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
               >
+              <Icon
+                icon="material-symbols-light:arrow-back-rounded"
+                class="size-5 mr-2"
+              />
                 Back
               </button>
             </div>
-            <div class="flex justify-end">
+            <div class="flex justify-end text-sm">
               <button
                 v-if="!uiStore.isCreatingNote"
                 @click="openDeleteAlert"
-                class="hover:underline text-red-500 mr-4 text-sm md:text-base"
+                class="flex items-center px-2 py-1 mr-2 custom-card text-red-500 hover:text-red-300 hover:bg-red-700"
               >
+                <Icon
+                  icon="material-symbols-light:delete-outline"
+                  class="size-5 mr-2"
+                />
                 Delete
               </button>
               <button
@@ -90,14 +98,18 @@
               <button
                 @click="saveNote"
                 :class="[
-                  'dark:hover:bg-transparent outline-none text-sm md:text-base',
+                  'flex items-center px-2 py-1 custom-card',
                   {
-                    'text-blue-500 hover:underline cursor-pointer': hasChanges,
-                    'text-gray-500 cursor-not-allowed': !hasChanges,
+                    'text-blue-500 hover:text-blue-300 hover:bg-blue-700': hasChanges,
+                    'text-gray-400 cursor-default': !hasChanges,
                   },
                 ]"
                 :disabled="!hasChanges"
               >
+                <Icon
+                  icon="material-symbols-light:save-outline-rounded"
+                  class="size-5 mr-2"
+                />
                 Save
               </button>
             </div>
@@ -130,8 +142,7 @@
         </div>
       </div>
     </div>
-    <div v-if="isAlertOpen" class="fixed inset-0 bg-black bg-opacity-50"></div>
-    <alertModal
+    <AlertModal
       :is-open="isAlertOpen"
       :message="alertMessage"
       @confirm="confirmDelete"
@@ -141,283 +152,291 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-  import { notesStore, uiStore, folderStore } from '@/store/stores';
-  import alertModal from '@/components/modal/alertModal.vue';
-  import { Note } from '@/store/types';
-  import { DEFAULT_FOLDERS } from '@/store/constants';
-  import FolderDropdown from '@/components/folderDropdown.vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { notesStore, uiStore, folderStore } from '@/store/stores';
+import AlertModal from '@/components/modal/alertModal.vue';
+import { Note } from '@/store/types';
+import { DEFAULT_FOLDERS } from '@/store/constants';
+import FolderDropdown from '@/components/folderDropdown.vue';
 
-  const props = defineProps<{
-    notes: Note[];
-  }>();
+const props = defineProps<{
+  notes: Note[];
+}>();
 
-  const selectedNoteId = ref<number | null>(null);
-  const isMobileView = ref(false);
-  const textareaHeight = ref('auto');
-  const isAlertOpen = ref(false);
-  const alertMessage = ref('');
-  const selectedFolder = ref('');
-  const editedNote = ref<Note | null>(null);
-  const desktopSelectedNoteId = ref<number | null>(null);
+const selectedNoteId = ref<number | null>(null);
+const isMobileView = ref(false);
+const textareaHeight = ref('auto');
+const isAlertOpen = ref(false);
+const alertMessage = ref('');
+const selectedFolder = ref('');
+const editedNote = ref<Note | null>(null);
+const desktopSelectedNoteId = ref<number | null>(null);
+const originalNote = ref<Note | null>(null);
 
-  const selectedNote = computed(() =>
-    props.notes.find((note) => note.id === selectedNoteId.value)
-  );
+const selectedNote = computed(() =>
+  props.notes.find((note) => note.id === selectedNoteId.value)
+);
 
-  const hasChanges = computed(() => {
-    if (!selectedNote.value && !uiStore.isCreatingNote) return false;
-    if (uiStore.isCreatingNote) {
-      return (
-        editedNote.value!.title.trim() !== '' ||
-        editedNote.value!.content.trim() !== ''
-      );
-    }
-    return notesStore.hasChanged(selectedNote.value!, editedNote.value!);
-  });
-
-  const notesToDisplay = computed(() => {
-    if (uiStore.isCreatingNote && editedNote.value) {
-      return [editedNote.value, ...props.notes];
-    }
-    return props.notes;
-  });
-
-  watch(selectedNote, (newNote) => {
-    if (newNote) {
-      editedNote.value = { ...newNote };
-      selectedFolder.value = newNote.folder;
-    } else if (uiStore.isCreatingNote) {
-      createNewNote();
-    } else {
-      editedNote.value = null;
-    }
-  });
-
-  watch(
-    () => uiStore.isCreatingNote,
-    (isCreating) => {
-      if (isCreating) {
-        createNewNote();
-      }
-    }
-  );
-
-  function createNewNote() {
-    const newNote: Note = {
-      id: Date.now(),
-      title: '',
-      content: '',
-      folder: DEFAULT_FOLDERS.UNCATEGORIZED,
-      time_created: new Date().toISOString(),
-      last_edited: new Date().toISOString(),
-      pinned: false,
-    };
-    editedNote.value = newNote;
-    selectedFolder.value = DEFAULT_FOLDERS.UNCATEGORIZED;
-    selectedNoteId.value = null;
+const hasChanges = computed(() => {
+  if (!selectedNote.value && !uiStore.isCreatingNote) return false;
+  if (uiStore.isCreatingNote) {
+    return (
+      editedNote.value!.title.trim() !== '' ||
+      editedNote.value!.content.trim() !== ''
+    );
   }
+  return notesStore.hasChanged(originalNote.value!, editedNote.value!);
+});
 
-  function selectNote(id: number) {
-    if (isMobileView.value) {
-      selectedNoteId.value = id;
-    } else {
-      desktopSelectedNoteId.value = id;
-    }
-    uiStore.isCreatingNote = false;
-    const note = props.notes.find((note) => note.id === id);
-    if (note) {
-      editedNote.value = { ...note };
-    }
+const notesToDisplay = computed(() => {
+  if (uiStore.isCreatingNote && editedNote.value) {
+    return [editedNote.value, ...props.notes];
   }
+  return props.notes;
+});
 
-  function deselectNote() {
-    if (isMobileView.value) {
-      selectedNoteId.value = null;
-    } else {
-      desktopSelectedNoteId.value = null;
-    }
+watch(selectedNote, (newNote) => {
+  if (newNote) {
+    editedNote.value = { ...newNote };
+    originalNote.value = { ...newNote };
+    selectedFolder.value = newNote.folder;
+  } else if (uiStore.isCreatingNote) {
+    createNewNote();
+  } else {
     editedNote.value = null;
+    originalNote.value = null;
   }
+});
 
-  function cancelNote() {
+watch(
+  () => uiStore.isCreatingNote,
+  (isCreating) => {
+    if (isCreating) {
+      createNewNote();
+    }
+  }
+);
+
+function createNewNote() {
+  const newNote: Note = {
+    id: Date.now(),
+    title: '',
+    content: '',
+    folder: DEFAULT_FOLDERS.UNCATEGORIZED,
+    time_created: new Date().toISOString(),
+    last_edited: new Date().toISOString(),
+    pinned: false,
+  };
+  editedNote.value = newNote;
+  originalNote.value = { ...newNote };
+  selectedFolder.value = DEFAULT_FOLDERS.UNCATEGORIZED;
+  selectedNoteId.value = null;
+}
+
+function selectNote(id: number) {
+  if (isMobileView.value) {
+    selectedNoteId.value = id;
+  } else {
+    desktopSelectedNoteId.value = id;
+  }
+  uiStore.isCreatingNote = false;
+  const note = props.notes.find((note) => note.id === id);
+  if (note) {
+    editedNote.value = { ...note };
+    originalNote.value = { ...note };
+  }
+}
+
+function deselectNote() {
+  if (isMobileView.value) {
+    selectedNoteId.value = null;
+  } else {
+    desktopSelectedNoteId.value = null;
+  }
+  editedNote.value = null;
+  originalNote.value = null;
+}
+
+function cancelNote() {
+  if (uiStore.isCreatingNote) {
+    uiStore.isCreatingNote = false;
+  }
+  if (isMobileView.value) {
+    deselectNote();
+  } else {
+    selectNewestNote();
+  }
+}
+
+function truncateContent(content: string): string {
+  return content.length > 100 ? content.slice(0, 100) + '...' : content;
+}
+
+async function saveNote() {
+  if (editedNote.value && hasChanges.value) {
     if (uiStore.isCreatingNote) {
-      uiStore.isCreatingNote = false;
-    }
-    if (isMobileView.value) {
-      deselectNote();
+      try {
+        const newNoteId = await notesStore.addNote(editedNote.value);
+        uiStore.isCreatingNote = false;
+        if (!isMobileView.value && typeof newNoteId === 'number') {
+          selectNote(newNoteId);
+        }
+      } catch (error) {
+        uiStore.showToastMessage('Failed to add new note. Please try again.');
+      }
     } else {
-      selectNewestNote();
-    }
-  }
-
-  function truncateContent(content: string): string {
-    return content.length > 100 ? content.slice(0, 100) + '...' : content;
-  }
-
-  async function saveNote() {
-    if (editedNote.value && hasChanges.value) {
-      if (uiStore.isCreatingNote) {
-        try {
-          const newNoteId = await notesStore.addNote(editedNote.value);
-          uiStore.isCreatingNote = false;
-          if (!isMobileView.value && typeof newNoteId === 'number') {
-            selectNote(newNoteId);
-          }
-        } catch (error) {
-          uiStore.showToastMessage('Failed to add new note. Please try again.');
-        }
-      } else {
-        try {
-          await notesStore.updateNote(editedNote.value);
-        } catch (error) {
-          uiStore.showToastMessage('Failed to update note. Please try again.');
-        }
+      try {
+        await notesStore.updateNote(editedNote.value);
+        originalNote.value = { ...editedNote.value };
+      } catch (error) {
+        uiStore.showToastMessage('Failed to update note. Please try again.');
       }
-      cancelNote();
     }
+    cancelNote();
   }
+}
 
-  const openDeleteAlert = () => {
+const openDeleteAlert = () => {
+  if (selectedNote.value) {
+    alertMessage.value = `Are you sure you want to delete the note "${selectedNote.value.title}"?`;
+    isAlertOpen.value = true;
+  }
+};
+
+const confirmDelete = async () => {
+  try {
     if (selectedNote.value) {
-      alertMessage.value = `Are you sure you want to delete the note "${selectedNote.value.title}"?`;
-      isAlertOpen.value = true;
+      await notesStore.deleteNote(selectedNote.value.id);
+      cancelNote();
+      deselectNote();
     }
-  };
+  } catch (error) {
+    uiStore.showToastMessage('Failed to delete note. Please try again.');
+  }
+  closeAlert();
+};
 
-  const confirmDelete = async () => {
-    try {
-      if (selectedNote.value) {
-        await notesStore.deleteNote(selectedNote.value.id);
-        cancelNote();
-        deselectNote();
-      }
-    } catch (error) {
-      uiStore.showToastMessage('Failed to delete note. Please try again.');
-    }
-    closeAlert();
-  };
+const closeAlert = () => {
+  isAlertOpen.value = false;
+};
 
-  const closeAlert = () => {
-    isAlertOpen.value = false;
-  };
-
-  function updateTextareaHeight() {
-    if (selectedNote.value || uiStore.isCreatingNote) {
-      const mainContent = document.querySelector(
-        '.w-full.md\\:w-3\\/4'
-      ) as HTMLElement;
-      if (mainContent) {
-        const otherContentHeight =
-          mainContent.offsetHeight -
-          (document.querySelector('textarea') as HTMLElement).offsetHeight;
-        textareaHeight.value = isMobileView.value
-          ? `${mainContent.offsetHeight - otherContentHeight}px`
-          : 'auto';
-      }
+function updateTextareaHeight() {
+  if (selectedNote.value || uiStore.isCreatingNote) {
+    const mainContent = document.querySelector(
+      '.w-full.md\\:w-3\\/4'
+    ) as HTMLElement;
+    if (mainContent) {
+      const otherContentHeight =
+        mainContent.offsetHeight -
+        (document.querySelector('textarea') as HTMLElement).offsetHeight;
+      textareaHeight.value = isMobileView.value
+        ? `${mainContent.offsetHeight - otherContentHeight}px`
+        : 'auto';
     }
   }
+}
 
-  function handleResize() {
-    const newIsMobileView = window.innerWidth < 768;
-    if (isMobileView.value !== newIsMobileView) {
-      isMobileView.value = newIsMobileView;
-      if (newIsMobileView) {
-        selectedNoteId.value = null;
-        editedNote.value = null;
+function handleResize() {
+  const newIsMobileView = window.innerWidth < 768;
+  if (isMobileView.value !== newIsMobileView) {
+    isMobileView.value = newIsMobileView;
+    if (newIsMobileView) {
+      selectedNoteId.value = null;
+      editedNote.value = null;
+    } else {
+      if (desktopSelectedNoteId.value === null) {
+        selectNewestNote();
       } else {
-        if (desktopSelectedNoteId.value === null) {
-          selectNewestNote();
-        } else {
-          selectNote(desktopSelectedNoteId.value);
-        }
+        selectNote(desktopSelectedNoteId.value);
       }
     }
-    updateTextareaHeight();
   }
+  updateTextareaHeight();
+}
 
-  function selectNewestNote(): number | null {
-    if (props.notes.length === 0) return null;
+function selectNewestNote(): number | null {
+  if (props.notes.length === 0) return null;
 
-    const newestNote = props.notes.reduce((newest, current) => {
-      const newestDate = new Date(newest.last_edited || newest.time_created);
-      const currentDate = new Date(current.last_edited || current.time_created);
-      return currentDate > newestDate ? current : newest;
-    }, props.notes[0]);
+  const newestNote = props.notes.reduce((newest, current) => {
+    const newestDate = new Date(newest.last_edited || newest.time_created);
+    const currentDate = new Date(current.last_edited || current.time_created);
+    return currentDate > newestDate ? current : newest;
+  }, props.notes[0]);
 
-    if (newestNote) {
-      if (!isMobileView.value) {
-        desktopSelectedNoteId.value = newestNote.id;
-        editedNote.value = { ...newestNote };
-      }
-      return newestNote.id;
+  if (newestNote) {
+    if (!isMobileView.value) {
+      desktopSelectedNoteId.value = newestNote.id;
+      editedNote.value = { ...newestNote };
+      originalNote.value = { ...newestNote };
     }
-
-    return null;
+    return newestNote.id;
   }
 
-  function initializeView() {
-    handleResize();
-    if (!isMobileView.value && props.notes.length) {
+  return null;
+}
+
+function initializeView() {
+  handleResize();
+  if (!isMobileView.value && props.notes.length) {
+    selectNewestNote();
+  }
+}
+
+watch(selectedNoteId, updateTextareaHeight);
+
+watch(
+  () => props.notes,
+  (newNotes) => {
+    if (!isMobileView.value && newNotes.length && !selectedNoteId.value) {
       selectNewestNote();
     }
-  }
+  },
+  { immediate: true }
+);
 
-  watch(selectedNoteId, updateTextareaHeight);
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+  initializeView();
+});
 
-  watch(
-    () => props.notes,
-    (newNotes) => {
-      if (!isMobileView.value && newNotes.length && !selectedNoteId.value) {
-        selectNewestNote();
-      }
-    },
-    { immediate: true }
-  );
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
 
-  onMounted(() => {
-    window.addEventListener('resize', handleResize);
-    initializeView();
-  });
-
-  onUnmounted(() => {
-    window.removeEventListener('resize', handleResize);
-  });
-
-  const actualSelectedNoteId = computed(() =>
-    isMobileView.value ? selectedNoteId.value : desktopSelectedNoteId.value
-  );
+const actualSelectedNoteId = computed(() =>
+  isMobileView.value ? selectedNoteId.value : desktopSelectedNoteId.value
+);
 </script>
 
 <style scoped>
-  .list:active {
-    transform: scale(0.98);
-    transition-duration: 200ms;
-  }
+.list:active {
+  transform: scale(0.98);
+  transition-duration: 200ms;
+}
 
-  .list-move,
-  .list-enter-active,
-  .list-leave-active {
-    transition: all 0.5s ease;
-  }
+.list-move,
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
 
-  .list-enter-from,
-  .list-leave-to {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
 
-  .list-leave-active {
-    position: absolute;
-  }
+.list-leave-active {
+  position: absolute;
+}
 
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.3s ease;
-  }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
 
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

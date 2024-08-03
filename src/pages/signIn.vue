@@ -70,6 +70,13 @@
           >
             {{ isSignUp ? 'Sign in' : 'Sign up' }}
           </button>
+          <span>or</span>
+          <button
+            class="hover:underline font-bold text-[13px]"
+            @click="continueWithoutAccount"
+          >
+            continue without an account
+          </button>
         </p>
       </div>
     </transition>
@@ -129,6 +136,10 @@
     } catch (err) {
       uiStore.showToastMessage('Google sign-in failed');
     }
+  };
+
+  const continueWithoutAccount = () => {
+    router.push('/');
   };
 
   const toggleForm = () => {

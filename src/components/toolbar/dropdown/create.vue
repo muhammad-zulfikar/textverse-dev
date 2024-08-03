@@ -2,28 +2,41 @@
 
 <template>
   <Dropdown
-    label="+ Create"
     dropdownId="create"
     contentWidth="6.4rem"
-    contentMarginLeft="-14px"
-    showArrow="true"
     direction="down"
+    position="center"
   >
-    <template #label>+ Create</template>
-    <a
-      @click.stop="openNoteForm"
-      class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-      role="menuitem"
-    >
-      Note
-    </a>
-    <a
-      @click.stop="openFolderForm"
-      class="block px-4 py-2 text-sm cursor-pointer hover:underline"
-      role="menuitem"
-    >
-      Folder
-    </a>
+    <template #label>
+      <button
+        class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+      >
+        <Icon icon="fluent:add-24-regular" class="size-5 mr-2" />
+        Create
+      </button>
+    </template>
+    <div class="w-full text-sm px-1">
+      <button
+        @click.stop="openNoteForm"
+        class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+      >
+        <Icon
+          icon="material-symbols-light:edit-square-outline-rounded"
+          class="size-5 mr-3"
+        />
+        Note
+      </button>
+      <button
+        @click.stop="openFolderForm"
+        class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+      >
+        <Icon
+          icon="material-symbols-light:folder-outline-rounded"
+          class="size-5 mr-3"
+        />
+        Folder
+      </button>
+    </div>
   </Dropdown>
 
   <InputModal

@@ -6,14 +6,17 @@
       class="mx-auto grid max-w-2xl grid-cols-6 gap-6 px-6 pt-10 md:pt-24 select-none"
     >
       <div
-        class="flex flex-col col-span-6 md:col-span-4 h-58 md:h-52 overflow-hidden rounded-lg p-5 md:p-6 custom-card"
+        class="flex flex-col col-span-6 md:col-span-4 h-58 md:h-60 overflow-hidden rounded-lg p-5 md:p-6 custom-card"
       >
         <a
           href="https://github.com/muhammad-zulfikar/vue-notes"
           target="_blank"
           class="flex w-fit space-x-1.5 text-sm font-serif rounded-lg px-2 py-1 border-[1px] md:border-2 border-black dark:border-white hover:shadow-lg"
         >
-          <span>GitHub</span>
+          <span class="flex items-center">
+            <Icon icon="mdi:github" class="size-5 mr-2" />
+            GitHub
+          </span>
           <span>&rarr;</span>
         </a>
         <p class="text-sm font-serif mt-4">
@@ -34,7 +37,7 @@
       </div>
       <div class="col-span-6 md:col-span-2">
         <div
-          class="p-4 justify-center rounded-lg dark:text-white md:h-52 custom-card"
+          class="p-4 justify-center rounded-lg dark:text-white md:h-60 custom-card"
         >
           <p class="text-sm font-serif font-bold">TODO(S):</p>
           <ul class="list-disc pl-4 mt-2 space-y-1">
