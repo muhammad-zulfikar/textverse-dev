@@ -1,7 +1,6 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
-@import 'primeicons/primeicons.css';
 
 body {
   @apply bg-[#f7f4e4] dark:bg-gray-700 text-black dark:text-white;
