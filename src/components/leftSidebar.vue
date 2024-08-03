@@ -5,7 +5,8 @@
       v-if="isOpen"
       class="fixed inset-y-0 left-0 z-50 w-64 shadow-lg overflow-y-auto left-sidebar rounded-lg font-serif text-sm"
       :class="{
-        'custom-card-blur': uiStore.blurEnabled
+        'custom-card-blur': uiStore.blurEnabled,
+        'custom-card': !uiStore.blurEnabled
       }"
       @mouseleave="handleMouseLeave"
     >
@@ -66,7 +67,7 @@
             <span>{{ authStore.user?.displayName }}</span>
           </div>
           <Icon
-            :icon="isUserDropupOpen ? 'mdi:chevron-down' : 'mdi:chevron-up'"
+            :icon="isUserDropupOpen ? 'mdi:chevron-up' : 'mdi:chevron-down'"
             class="size-5"
           />
         </button>
