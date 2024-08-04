@@ -15,7 +15,7 @@
               id="email"
               v-model="email"
               required
-              class="w-full bg-transparent p-1 border-0 border-b-[1px] md:border-b-2 border-black dark:border-white outline-none mb-4"
+              class="w-full bg-transparent p-1 border-0 border-b-[1px] border-black dark:border-gray-400 outline-none mb-4"
             />
           </div>
           <div>
@@ -25,7 +25,7 @@
               id="password"
               v-model="password"
               required
-              class="w-full bg-transparent p-1 border-0 border-b-[1px] md:border-b-2 border-black dark:border-white outline-none mb-4"
+              class="w-full bg-transparent p-1 border-0 border-b-[1px] border-black dark:border-gray-400 outline-none mb-4"
             />
           </div>
           <div v-if="isSignUp">
@@ -47,7 +47,7 @@
             {{ isSignUp ? 'Sign up' : 'Sign in' }}
           </button>
         </form>
-        <p v-if="!isSignUp" class="text-center my-4">or</p>
+        <p v-if="!isSignUp" class="text-center my-2">or</p>
         <div v-if="!isSignUp">
           <button
             @click="signInWithGoogle"
@@ -70,7 +70,8 @@
           >
             {{ isSignUp ? 'Sign in' : 'Sign up' }}
           </button>
-          <span>or</span>
+          <br>
+          or&nbsp;
           <button
             class="hover:underline font-bold text-[13px]"
             @click="continueWithoutAccount"

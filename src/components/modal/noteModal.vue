@@ -44,10 +44,7 @@
             class="px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
             @click="uiStore.closeNote"
           >
-            <Icon
-              icon="material-symbols-light:close-rounded"
-              class="size-5"
-            />
+            <Icon icon="material-symbols-light:close-rounded" class="size-5" />
           </button>
         </div>
         <h1 class="text-xl font-bold mt-10 mb-4">

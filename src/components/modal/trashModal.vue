@@ -11,41 +11,54 @@
         class="z-50 font-serif p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 max-h-[90vh] overflow-y-auto"
         :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
       >
-        <div class="flex justify-between mb-4">
+        <div class="flex justify-between mb-2">
           <h1 class="text-xl font-bold">Trash</h1>
-          <button @click="closeModal" class="hover:underline text-sm">
-            Close
+          <button @click="closeModal" class="px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700">
+            <Icon icon="material-symbols-light:close-rounded" class="size-5" />
           </button>
         </div>
 
-        <p class="text-sm mb-6 text-gray-800 dark:text-gray-400">
+        <p class="text-sm text-gray-800 dark:text-gray-400">
           Notes in trash will be permanently deleted after 30 days.
         </p>
 
+        <div
+            class="bg-black dark:bg-gray-400 h-px transition-all duration-300 my-4"
+          ></div>
+
         <div class="mb-4 flex justify-between items-center">
+          <div class="px-3 md:px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700 cursor-pointer">
           <button
             @click="toggleSelectAll"
-            class="hover:underline text-sm cursor-pointer"
+            class="flex text-sm"
           >
-            {{ isAllSelected ? 'Deselect All' : 'Select All' }}
+            <Icon icon="material-symbols-light:select-check-box-rounded" class="size-5 md:mr-2" />
+            <span class="hidden md:flex">{{ isAllSelected ? 'Deselect All' : 'Select All' }}</span>
           </button>
-          <div>
+        </div>
+          <div class="flex">
+            <div class="px-3 md:px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700 cursor-pointer mr-4">
             <button
               @click="restoreSelectedNotes"
-              class="hover:underline text-sm mr-4 cursor-pointer"
+              class="flex text-sm cursor-pointer"
               :disabled="!hasSelectedNotes"
             >
-              Restore Selected
+              <Icon icon="material-symbols-light:restore-page-outline-rounded" class="size-5 md:mr-2" />
+              <span class="hidden md:flex">Restore Selected</span>
             </button>
+          </div>
+          <div class="px-3 md:px-2 py-1 custom-card flex items-center hover:bg-red-800 cursor-pointer group">
             <button
               @click="confirmDeleteSelectedNotes"
-              class="hover:underline text-sm text-red-500 cursor-pointer"
+              class="flex text-sm text-red-500 cursor-pointer group-hover:text-red-200 transition-all duration-300"
               :disabled="!hasSelectedNotes"
             >
-              Delete Selected
+              <Icon icon="material-symbols-light:delete-outline" class="size-5 md:mr-2" />
+              <span class="hidden md:flex">Delete Selected</span>
             </button>
           </div>
         </div>
+      </div>
 
         <div
           v-if="deletedNotes.length === 0"
@@ -87,14 +100,16 @@
                   >
                     <button
                       @click="restoreNote(note.id)"
-                      class="flex-1 p-2 custom-card text-sm hover:underline mb-4"
+                      class="flex justify-center text-center w-full p-2 custom-card text-sm mb-4 hover:bg-[#d9c698] dark:hover:bg-gray-700"
                     >
+                    <Icon icon="material-symbols-light:restore-page-outline-rounded" class="size-5 mr-2" />
                       Restore
                     </button>
                     <button
                       @click="confirmDeleteNote(note.id)"
-                      class="flex-1 p-2 custom-card text-sm hover:underline text-red-500 mb-4"
+                      class="flex justify-center text-center w-full p-2 custom-card text-sm mb-4 text-red-500 hover:text-red-200 hover:bg-red-800"
                     >
+                    <Icon icon="material-symbols-light:delete-outline" class="size-5 mr-2" />
                       Delete
                     </button>
                   </div>

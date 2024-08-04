@@ -57,7 +57,7 @@
         <Transition name="expand">
           <div
             v-if="expandedFolder === folder"
-            class="flex justify-between space-x-1 px-2"
+            class="flex justify-between px-2"
           >
             <button
               @click.stop="openRenameModal(folder)"

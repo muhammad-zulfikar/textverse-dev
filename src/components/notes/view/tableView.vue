@@ -20,8 +20,9 @@
       <Dropdown dropdownId="showDropdown" contentWidth="w-fit" direction="down">
         <template #label>
           <div
-            class="mr-2 px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+            class="flex items-center mr-2 px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
           >
+          <Icon icon="clarity:eye-show-line" class="size-5 mr-2" />
             Show
           </div>
         </template>
@@ -45,8 +46,9 @@
       </Dropdown>
       <button
         @click="toggleSelectMode"
-        class="px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+        class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
       >
+        <Icon icon="material-symbols-light:select-check-box-rounded" class="size-5 mr-2" />
         Select
       </button>
     </div>

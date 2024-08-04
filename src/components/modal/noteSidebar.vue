@@ -41,17 +41,19 @@
                 @click="uiStore.toggleExpand"
                 class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
               >
-              <Icon
-              v-if="uiStore.isExpanded"
-              icon="material-symbols-light:collapse-content"
-              class="size-5 md:mr-2"
-            />
-            <Icon
-              v-else
-              icon="material-symbols-light:expand-content"
-              class="size-5 md:mr-2"
-            />
-              <span class="hidden md:flex">{{ uiStore.isExpanded ? 'Collapse' : 'Expand' }}</span>
+                <Icon
+                  v-if="uiStore.isExpanded"
+                  icon="material-symbols-light:collapse-content"
+                  class="size-5 md:mr-2"
+                />
+                <Icon
+                  v-else
+                  icon="material-symbols-light:expand-content"
+                  class="size-5 md:mr-2"
+                />
+                <span class="hidden md:flex">
+                  {{ uiStore.isExpanded ? 'Collapse' : 'Expand' }}
+                </span>
               </button>
             </div>
             <div class="flex space-x-2">
@@ -60,13 +62,11 @@
                 @click="openDeleteAlert"
                 class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-300 hover:bg-red-700"
               >
-              <Icon
-            icon="material-symbols-light:delete-outline"
-            class="size-5 md:mr-2"
-          />
-          <span class="hidden md:flex">
-                Delete
-              </span>
+                <Icon
+                  icon="material-symbols-light:delete-outline"
+                  class="size-5 md:mr-2"
+                />
+                <span class="hidden md:flex">Delete</span>
               </button>
               <button
                 @click="saveNote"
@@ -78,13 +78,11 @@
                 "
                 :disabled="!isValid || !hasChanges"
               >
-              <Icon
-                icon="material-symbols-light:save-outline-rounded"
-                class="size-5 md:mr-2"
-              />
-              <span class="hidden md:flex">
-                Save
-              </span>
+                <Icon
+                  icon="material-symbols-light:save-outline-rounded"
+                  class="size-5 md:mr-2"
+                />
+                <span class="hidden md:flex">Save</span>
               </button>
             </div>
           </div>
@@ -111,7 +109,9 @@
               }}
             </span>
           </div>
-          <div class="bg-black dark:bg-gray-400 h-px transition-all duration-300"></div>
+          <div
+            class="bg-black dark:bg-gray-400 h-px transition-all duration-300"
+          ></div>
           <div class="flex-grow overflow-hidden mt-4">
             <textarea
               v-model="editedNote.content"
