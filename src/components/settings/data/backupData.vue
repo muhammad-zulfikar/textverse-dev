@@ -10,15 +10,17 @@
     </div>
     <button
       @click="downloadBackup"
-      class="w-full md:w-auto text-sm md:text-base py-2 px-4 mt-4 md:mt-0"
+      class="flex items-center justify-center w-full md:w-auto text-sm md:text-base py-2 px-4 mt-4 md:mt-0"
       :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
     >
+      <PhDownload :size="20" class="mr-2" />
       Download a backup
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { PhDownload } from '@phosphor-icons/vue';
   import { notesStore, uiStore } from '@/store/stores';
 
   const downloadBackup = () => {

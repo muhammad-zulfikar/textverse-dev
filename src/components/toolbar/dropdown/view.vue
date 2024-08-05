@@ -1,5 +1,3 @@
-<!-- view.vue -->
-
 <template>
   <Dropdown
     dropdownId="view"
@@ -12,28 +10,16 @@
         class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
       >
         <div v-if="uiStore.viewType === 'card'">
-          <Icon
-            icon="material-symbols-light:grid-view-outline-rounded"
-            class="size-5 mr-2"
-          />
+          <PhSquaresFour :size="20" class="mr-2" />
         </div>
         <div v-if="uiStore.viewType === 'table'">
-          <Icon
-            icon="material-symbols-light:data-table-outline-rounded"
-            class="size-5 mr-2"
-          />
+          <PhTable :size="20" class="mr-2" />
         </div>
         <div v-if="uiStore.viewType === 'mail'">
-          <Icon
-            icon="material-symbols-light:mail-outline-rounded"
-            class="size-5 mr-2"
-          />
+          <PhEnvelopeSimple :size="20" class="mr-2" />
         </div>
         <div v-if="uiStore.viewType === 'folder'">
-          <Icon
-            icon="material-symbols-light:folder-outline-rounded"
-            class="size-5 mr-2"
-          />
+          <PhFolder :size="20" class="mr-2" />
         </div>
 
         <span v-if="uiStore.viewType === 'card'">Card</span>
@@ -45,27 +31,25 @@
     <div class="px-1 text-sm">
       <div
         class="w-full rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200"
+        :class="{
+          'bg-[#ebdfc0] dark:bg-gray-700':
+            expandedOption || uiStore.viewType === 'card',
+        }"
       >
         <div class="flex items-center justify-between">
           <button
             @click="setViewType('card')"
             class="flex-grow text-left flex items-center p-2"
           >
-            <Icon
-              icon="material-symbols-light:grid-view-outline-rounded"
-              class="size-5 mr-2"
-            />
+            <PhSquaresFour :size="20" class="mr-2" />
             Card
           </button>
           <button
             @click.stop="toggleOptions('card')"
-            class="mr-2 rounded-full hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-transform duration-200"
+            class="mr-2 p-1 rounded-full hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-transform duration-200"
             :class="{ 'rotate-180': expandedOption === 'card' }"
           >
-            <Icon
-              icon="material-symbols-light:keyboard-arrow-down-rounded"
-              class="size-5"
-            />
+            <PhCaretDown :size="16" />
           </button>
         </div>
         <Transition name="expand">
@@ -83,7 +67,7 @@
               class="text-center text-sm p-2 mb-1 rounded-md transition-colors duration-200"
               :disabled="uiStore.columns <= 1"
             >
-              <Icon icon="mdi-light:minus" class="size-4" />
+              <PhMinusCircle :size="16" />
             </button>
             <span
               class="text-sm text-center mb-1 text-gray-750 dark:text-gray-300"
@@ -101,7 +85,7 @@
               class="text-center text-sm p-2 mb-1 rounded-md transition-colors duration-200"
               :disabled="uiStore.columns >= (isMobile ? 2 : 5)"
             >
-              <Icon icon="mdi-light:plus" class="size-4" />
+              <PhPlusCircle :size="16" />
             </button>
           </div>
         </Transition>
@@ -109,60 +93,60 @@
       <button
         @click="setViewType('table')"
         class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+        :class="{
+          'bg-[#ebdfc0] dark:bg-gray-700': uiStore.viewType === 'table',
+        }"
       >
-        <Icon
-          icon="material-symbols-light:data-table-outline-rounded"
-          class="size-5 mr-2"
-        />
+        <PhTable :size="20" class="mr-2" />
         Table
       </button>
       <button
         @click="setViewType('mail')"
         class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+        :class="{
+          'bg-[#ebdfc0] dark:bg-gray-700': uiStore.viewType === 'mail',
+        }"
       >
-        <Icon
-          icon="material-symbols-light:mail-outline-rounded"
-          class="size-5 mr-2"
-        />
+        <PhEnvelopeSimple :size="20" class="mr-2" />
         Mail
       </button>
       <div
         class="w-full rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200"
+        :class="{
+          'bg-[#ebdfc0] dark:bg-gray-700':
+            expandedOption || uiStore.viewType === 'folder',
+        }"
       >
         <div class="flex items-center justify-between">
           <button
             @click="setViewType('folder')"
             class="flex-grow text-left flex items-center p-2"
           >
-            <Icon
-              icon="material-symbols-light:folder-outline-rounded"
-              class="size-5 mr-2"
-            />
+            <PhFolder :size="20" class="mr-2" />
             Folder
           </button>
           <button
             @click.stop="toggleOptions('folder')"
-            class="mr-2 rounded-full hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-transform duration-200"
+            class="mr-2 p-1 rounded-full hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-transform duration-200"
             :class="{ 'rotate-180': expandedOption === 'folder' }"
           >
-            <Icon
-              icon="material-symbols-light:keyboard-arrow-down-rounded"
-              class="size-5"
-            />
+            <PhCaretDown :size="16" />
           </button>
         </div>
         <Transition name="expand">
-          <div v-if="expandedOption === 'folder'" class="flex justify-center">
+          <div v-if="expandedOption === 'folder'" class="">
             <button
               @click.stop="setFolderViewType('grid')"
-              class="w-full text-center text-sm p-2 rounded-md text-gray-750 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-colors duration-200"
+              class="w-full flex items-center text-center text-sm p-2 rounded-md text-gray-750 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-colors duration-200"
             >
+              <PhGridFour :size="20" class="mr-2" />
               <span>Grid</span>
             </button>
             <button
               @click.stop="setFolderViewType('list')"
-              class="w-full text-center text-sm p-2 rounded-md text-gray-750 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-colors duration-200"
+              class="w-full flex items-center text-center text-sm p-2 rounded-md text-gray-750 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-colors duration-200"
             >
+              <PhList :size="20" class="mr-2" />
               <span>List</span>
             </button>
           </div>
@@ -175,6 +159,17 @@
 <script setup lang="ts">
   import { ref, onMounted, onUnmounted } from 'vue';
   import { uiStore } from '@/store/stores';
+  import {
+    PhSquaresFour,
+    PhTable,
+    PhEnvelopeSimple,
+    PhFolder,
+    PhCaretDown,
+    PhMinusCircle,
+    PhPlusCircle,
+    PhGridFour,
+    PhList,
+  } from '@phosphor-icons/vue';
   import Dropdown from '@/components/dropdown.vue';
 
   const isOpen = ref(false);
@@ -202,16 +197,19 @@
     if (uiStore.columns < (isMobile.value ? 2 : 5)) {
       uiStore.setColumns(uiStore.columns + 1);
     }
+    uiStore.setViewType('card');
   };
 
   const decreaseColumns = () => {
     if (uiStore.columns > 1) {
       uiStore.setColumns(uiStore.columns - 1);
     }
+    uiStore.setViewType('card');
   };
 
   const setFolderViewType = (viewType: 'grid' | 'list') => {
     uiStore.setFolderViewType(viewType);
+    uiStore.setViewType('folder');
   };
 
   const handleResize = () => {

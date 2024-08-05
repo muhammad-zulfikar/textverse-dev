@@ -31,41 +31,27 @@
                 @click="uiStore.closeNote"
                 class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
               >
-                <Icon
-                  icon="material-symbols-light:close-rounded"
-                  class="size-5 md:mr-2"
-                />
-                <span class="hidden md:flex">Close</span>
+                <PhX :size="20" class="size-5" />
               </button>
               <button
                 @click="uiStore.toggleExpand"
                 class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
               >
-                <Icon
+                <PhArrowsIn
+                  :size="20"
+                  class="size-5"
                   v-if="uiStore.isExpanded"
-                  icon="material-symbols-light:collapse-content"
-                  class="size-5 md:mr-2"
                 />
-                <Icon
-                  v-else
-                  icon="material-symbols-light:expand-content"
-                  class="size-5 md:mr-2"
-                />
-                <span class="hidden md:flex">
-                  {{ uiStore.isExpanded ? 'Collapse' : 'Expand' }}
-                </span>
+                <PhArrowsOut :size="20" class="size-5" v-else />
               </button>
             </div>
             <div class="flex space-x-2">
               <button
                 v-if="isEditMode"
                 @click="openDeleteAlert"
-                class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-300 hover:bg-red-700"
+                class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-200 hover:bg-red-700/50 dark:hover:bg-red-800/60"
               >
-                <Icon
-                  icon="material-symbols-light:delete-outline"
-                  class="size-5 md:mr-2"
-                />
+                <PhTrash :size="20" class="size-5 md:mr-2" />
                 <span class="hidden md:flex">Delete</span>
               </button>
               <button
@@ -78,10 +64,7 @@
                 "
                 :disabled="!isValid || !hasChanges"
               >
-                <Icon
-                  icon="material-symbols-light:save-outline-rounded"
-                  class="size-5 md:mr-2"
-                />
+                <PhFloppyDisk :size="20" class="size-5 md:mr-2" />
                 <span class="hidden md:flex">Save</span>
               </button>
             </div>
@@ -134,6 +117,13 @@
 
 <script setup lang="ts">
   import { ref, computed, watch } from 'vue';
+  import {
+    PhFloppyDisk,
+    PhTrash,
+    PhArrowsOut,
+    PhArrowsIn,
+    PhX,
+  } from '@phosphor-icons/vue';
   import { Note } from '@/store/types';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { DEFAULT_FOLDERS } from '@/store/constants';

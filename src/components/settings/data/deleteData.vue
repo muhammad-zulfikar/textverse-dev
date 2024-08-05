@@ -10,9 +10,10 @@
     </div>
     <button
       @click="confirmDeleteData"
-      class="w-full md:w-auto text-sm md:text-base text-red-600 dark:text-red-500 py-2 px-4 mt-4 md:mt-0"
+      class="flex items-center justify-center w-full md:w-auto text-sm md:text-base text-red-600 dark:text-red-500 py-2 px-4 mt-4 md:mt-0"
       :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
     >
+      <PhTrash :size="20" class="mr-2" />
       Delete all data
     </button>
   </div>
@@ -27,6 +28,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { PhTrash } from '@phosphor-icons/vue';
   import { notesStore, uiStore } from '@/store/stores';
   import AlertModal from '@/components/modal/alertModal.vue';
 

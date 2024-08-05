@@ -22,17 +22,17 @@
           class="size-12 -ml-2 dark:hidden cursor-pointer"
           @click="toggleSidebar"
         />
-        <!-- <button @click="togglePin" class="focus:outline-none">
-          <Icon
-            :icon="
-              isPinned ? 'fluent:pin-off-24-regular' : 'fluent:pin-24-regular'
-            "
-            class="size-6"
+        <button @click.stop="togglePin" class="outline-none">
+          <component
+            :is="isPinned ? PhPushPinSlash : PhPushPin"
+            class="size-5"
           />
-        </button> -->
+        </button>
       </div>
-      
-      <div class="bg-black dark:bg-gray-400 h-[0.9px] transition-all duration-300"></div>
+
+      <div
+        class="bg-black dark:bg-gray-400 h-[0.9px] transition-all duration-300"
+      ></div>
 
       <div class="p-2">
         <h2 class="font-bold mb-2 px-2 mt-2">Menu</h2>
@@ -43,19 +43,16 @@
           class="flex p-2 items-center hover:bg-[#ebdfc0] dark:hover:bg-gray-700 rounded transition-colors duration-200"
           @click="handleMenuItemClick(item)"
         >
-          <Icon :icon="item.icon" class="size-5 mr-2 inline-block" />
+          <component :is="item.icon" class="size-5 mr-2 inline-block" />
           {{ item.label }}
         </router-link>
         <button
           v-if="deferredPrompt"
           @click="showInstallPrompt"
-          class="w-full text-left p-2 hover:bg-[#ebdfc0] dark:hover:bg-gray-700 rounded transition-colors duration-200"
+          class="flex w-full text-left p-2 hover:bg-[#ebdfc0] dark:hover:bg-gray-700 rounded transition-colors duration-200"
         >
-          <Icon
-            icon="codicon:desktop-download"
-            class="size-5 mr-2 inline-block"
-          />
-          Install App
+          <PhDownload class="size-5 mr-2" />
+          Install
         </button>
         <router-link
           v-if="!authStore.isLoggedIn"
@@ -66,7 +63,7 @@
           <div
             class="text-sm p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
           >
-            <Icon icon="codicon:sign-in" class="size-5 mr-2" />
+            <PhSignIn class="size-5 mr-2" />
             Sign in
           </div>
         </router-link>
@@ -78,20 +75,14 @@
           @click.stop="openNoteForm"
           class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
-          <Icon
-            icon="material-symbols-light:edit-square-outline-rounded"
-            class="size-5 mr-2"
-          />
+          <PhFile class="size-5 mr-2" />
           Note
         </button>
         <button
           @click.stop="openFolderForm"
           class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
-          <Icon
-            icon="material-symbols-light:folder-outline-rounded"
-            class="size-5 mr-2"
-          />
+          <PhFolder class="size-5 mr-2" />
           Folder
         </button>
       </div>
@@ -102,13 +93,14 @@
           v-for="note in recentNotes"
           :key="note.id"
           @click="openNote(note.id)"
-          class="p-2 hover:bg-[#ebdfc0] dark:hover:bg-gray-700 rounded cursor-pointer transition-colors duration-200"
+          class="flex items-center p-2 hover:bg-[#ebdfc0] dark:hover:bg-gray-700 rounded cursor-pointer transition-colors duration-200"
         >
+          <PhFile class="size-5 mr-2" />
           {{ note.title }}
         </div>
       </div>
 
-      <div v-if="authStore.isLoggedIn" class="p-2 relative">
+      <div v-if="authStore.isLoggedIn" class="p-2 absolute bottom-0 w-full">
         <button
           @click="toggleUserDropup"
           class="w-full py-2 px-4 flex justify-between items-center custom-card transition-colors duration-200"
@@ -122,13 +114,10 @@
             <span>{{ authStore.user?.displayName }}</span>
           </div>
           <div
-            class="rounded-full hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-transform duration-200"
+            class="p-1 rounded-full hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-transform duration-200"
             :class="{ 'rotate-180': isUserDropupOpen }"
           >
-            <Icon
-              icon="material-symbols-light:keyboard-arrow-up-rounded"
-              class="size-5"
-            />
+            <PhCaretUp class="size-4" />
           </div>
         </button>
 
@@ -147,14 +136,14 @@
                 @click="navigateToSettings"
                 class="flex w-full text-left p-2 hover:bg-[#ebdfc0] dark:hover:bg-gray-700 rounded transition-colors duration-200"
               >
-                <Icon icon="codicon:settings" class="size-5 mr-2" />
+                <PhGear class="size-5 mr-2" />
                 Settings
               </button>
               <button
                 @click="confirmSignout"
                 class="flex w-full text-left p-2 hover:bg-[#ebdfc0] dark:hover:bg-gray-700 rounded transition-colors duration-200"
               >
-                <Icon icon="codicon:sign-out" class="size-5 mr-2" />
+                <PhSignOut class="size-5 mr-2" />
                 Sign out
               </button>
             </div>
@@ -183,7 +172,20 @@
   import { ref, computed, watch } from 'vue';
   import { useRouter } from 'vue-router';
   import { authStore, notesStore, uiStore, folderStore } from '@/store/stores';
-  import { Icon } from '@iconify/vue';
+  import {
+    PhPushPin,
+    PhPushPinSlash,
+    PhHouse,
+    PhInfo,
+    PhGear,
+    PhTrash,
+    PhSignIn,
+    PhSignOut,
+    PhDownload,
+    PhFile,
+    PhFolder,
+    PhCaretUp,
+  } from '@phosphor-icons/vue';
   import AlertModal from '@/components/modal/alertModal.vue';
   import TrashModal from '@/components/modal/trashModal.vue';
   import InputModal from '@/components/modal/inputModal.vue';
@@ -208,10 +210,10 @@
   };
 
   const menuItems = [
-    { label: 'Home', path: '/', icon: 'codicon:home' },
-    { label: 'About', path: '/about', icon: 'codicon:info' },
-    { label: 'Settings', path: '/settings', icon: 'codicon:settings' },
-    { label: 'Trash', path: '#', icon: 'codicon:trash', action: openTrash },
+    { label: 'Home', path: '/', icon: PhHouse },
+    { label: 'About', path: '/about', icon: PhInfo },
+    { label: 'Settings', path: '/settings', icon: PhGear },
+    { label: 'Trash', path: '#', icon: PhTrash, action: openTrash },
   ];
 
   const recentNotes = computed(() => {

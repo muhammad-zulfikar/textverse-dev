@@ -10,15 +10,17 @@
     </div>
     <button
       @click="importNotes"
-      class="w-full md:w-auto text-sm md:text-base py-2 px-4 mt-4 md:mt-0"
+      class="flex items-center justify-center w-full md:w-auto text-sm md:text-base py-2 px-4 mt-4 md:mt-0"
       :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
     >
+      <PhUpload :size="20" class="mr-2" />
       Import notes
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { PhUpload } from '@phosphor-icons/vue';
   import { notesStore, uiStore } from '@/store/stores';
 
   const importNotes = () => {

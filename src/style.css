@@ -32,6 +32,10 @@ body {
   @apply bg-transparent border-[1px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
+.custom-card-no-color {
+  @apply border-[1px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
+}
+
 .custom-card-switch {
   @apply border-[1px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
@@ -178,9 +182,7 @@ body {
 
 li:active,
 a:active,
-button:active,
-input:active,
-textarea:active {
+button:active {
   transform: scale(0.98);
   transition-duration: 200ms;
 }
@@ -191,4 +193,34 @@ textarea:active {
 
 ::-webkit-scrollbar {
   display: none;
+}
+
+::selection {
+  background: #ebdfc0;
+  color: black;
+}
+
+.dark ::selection {
+  background: #171717;
+  color: #fff;
+}
+
+::-moz-selection {
+  background: #ebdfc0;
+  color: black;
+}
+
+.dark ::-moz-selection {
+  background: #171717;
+  color: #fff;
+}
+
+::-webkit-selection {
+  background: #ebdfc0;
+  color: black;
+}
+
+.dark ::-webkit-selection {
+  background: #171717;
+  color: #fff;
 }

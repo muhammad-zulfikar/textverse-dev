@@ -17,10 +17,7 @@
           @click="editNote"
           class="flex p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
-          <Icon
-            icon="material-symbols-light:edit-square-outline-rounded"
-            class="size-5 mr-2"
-          />
+          <PhNotePencil :size="20" class="mr-2" />
           Edit
         </li>
         <li
@@ -28,10 +25,7 @@
           @click="copyNote"
           class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
-          <Icon
-            icon="material-symbols-light:content-copy-outline-rounded"
-            class="size-5 mr-2"
-          />
+          <PhClipboardText :size="20" class="mr-2" />
           Copy
         </li>
         <li
@@ -39,7 +33,7 @@
           @click="unpinNote"
           class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
-          <Icon icon="fluent:pin-off-24-regular" class="size-5 mr-2" />
+          <PhPushPinSlash :size="20" class="mr-2" />
           Unpin
         </li>
         <li
@@ -47,7 +41,7 @@
           @click="pinNote"
           class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
-          <Icon icon="fluent:pin-24-regular" class="size-5 mr-2" />
+          <PhPushPin :size="20" class="mr-2" />
           Pin
         </li>
         <li
@@ -59,10 +53,7 @@
             @click.stop="toggleFolderOptions"
             class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
           >
-            <Icon
-              icon="material-symbols-light:drive-file-move-outline"
-              class="size-5 mr-2"
-            />
+            <PhFolderPlus :size="20" class="mr-2" />
             Move to
           </button>
         </li>
@@ -75,16 +66,11 @@
               class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
               role="menuitem"
             >
-              <Icon
+              <PhFolder
                 v-if="folder !== DEFAULT_FOLDERS.UNCATEGORIZED"
-                icon="material-symbols-light:folder-outline-rounded"
-                class="size-5 mr-3"
+                class="size-5 mr-2"
               />
-              <Icon
-                v-else
-                icon="material-symbols-light:folder-off-outline-rounded"
-                class="size-5 mr-3"
-              />
+              <PhFolderMinus v-else class="size-5 mr-2" />
               {{ folder }}
             </li>
             <div
@@ -94,10 +80,7 @@
               @click.stop="toggleFolderOptions"
               class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
             >
-              <Icon
-                icon="material-symbols-light:arrow-back-rounded"
-                class="size-5 mr-3"
-              />
+              <PhCaretLeft :size="20" class="mr-2" />
               Back
             </li>
           </ul>
@@ -105,12 +88,9 @@
         <li
           v-if="!showFolderOptions"
           @click="deleteNote"
-          class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center text-red-500"
+          class="p-2 cursor-pointer w-full text-left rounded-md text-red-500 hover:text-red-200 hover:bg-red-700 dark:hover:bg-red-800/60 transition-colors duration-200 flex items-center"
         >
-          <Icon
-            icon="material-symbols-light:delete-outline"
-            class="size-5 mr-2"
-          />
+          <PhTrash :size="20" class="mr-2" />
           Delete
         </li>
       </ul>
@@ -122,6 +102,17 @@
   import { ref, computed, onMounted, onUnmounted } from 'vue';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
+  import {
+    PhNotePencil,
+    PhClipboardText,
+    PhPushPin,
+    PhPushPinSlash,
+    PhTrash,
+    PhCaretLeft,
+    PhFolder,
+    PhFolderPlus,
+    PhFolderMinus,
+  } from '@phosphor-icons/vue';
 
   import { CSSProperties } from 'vue';
   import { DEFAULT_FOLDERS } from '@/store/constants';

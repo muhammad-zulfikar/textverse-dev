@@ -6,15 +6,22 @@
       <button
         v-if="selectMode && selectedNotes.length > 0"
         @click="togglePinSelectedNotes"
-        class="mr-2 px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+        class="flex items-center mr-2 px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
       >
+        <component
+          :is="allSelectedPinned ? PhPushPinSlash : PhPushPin"
+          :size="20"
+          class="size-5 mr-2"
+        />
         {{ allSelectedPinned ? 'Unpin' : 'Pin' }}
       </button>
+
       <button
         v-if="selectMode && selectedNotes.length > 0"
         @click="confirmDeleteSelectedNotes"
-        class="mr-2 px-2 py-1 custom-card text-red-500 hover:text-red-300 hover:bg-red-700"
+        class="flex items-center mr-2 px-2 py-1 custom-card text-red-500 hover:text-red-200 hover:bg-red-700/50 dark:hover:bg-red-800/60"
       >
+        <PhTrash :size="20" class="size-5 mr-2" />
         Delete
       </button>
       <Dropdown dropdownId="showDropdown" contentWidth="w-fit" direction="down">
@@ -22,7 +29,7 @@
           <div
             class="flex items-center mr-2 px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
           >
-          <Icon icon="clarity:eye-show-line" class="size-5 mr-2" />
+            <PhEye :size="20" class="size-5 mr-2" />
             Show
           </div>
         </template>
@@ -48,7 +55,7 @@
         @click="toggleSelectMode"
         class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
       >
-        <Icon icon="material-symbols-light:select-check-box-rounded" class="size-5 mr-2" />
+        <PhCheckCircle :size="20" class="size-5 mr-2" />
         Select
       </button>
     </div>
@@ -111,7 +118,7 @@
                   <span
                     class="bg-[#ebdfc0] dark:bg-gray-800 hover:bg-cream dark:hover:bg-gray-700 active:bg-cream dark:active:bg-gray-700 rounded-lg border-[1px] border-black dark:border-white shadow-md hover:shadow-xl transition-all duration-300 text-sm ml-2 px-2 py-1 absolute right-2 top-1/2 transform -translate-y-1/2 group-hover:inline-block md:group-hover:inline-block md:hidden cursor-pointer"
                   >
-                    <Icon icon="ph:sidebar-simple-light" class="size-6" />
+                    <PhSidebarSimple :size="20" />
                   </span>
                 </div>
               </div>
@@ -156,6 +163,14 @@
 
 <script setup lang="ts">
   import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+  import {
+    PhEye,
+    PhCheckCircle,
+    PhTrash,
+    PhPushPin,
+    PhPushPinSlash,
+    PhSidebarSimple,
+  } from '@phosphor-icons/vue';
   import { Note } from '@/store/types';
   import { uiStore, notesStore, folderStore } from '@/store/stores';
   import AlertModal from '@/components/modal/alertModal.vue';

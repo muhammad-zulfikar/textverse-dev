@@ -70,7 +70,7 @@
           >
             {{ isSignUp ? 'Sign in' : 'Sign up' }}
           </button>
-          <br>
+          <br />
           or&nbsp;
           <button
             class="hover:underline font-bold text-[13px]"

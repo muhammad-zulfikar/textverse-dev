@@ -16,14 +16,16 @@
         <div class="flex justify-end">
           <button
             @click="$emit('cancel')"
-            class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none mr-6 cursor-pointer"
+            class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700 mr-4 cursor-pointer"
           >
+            <PhProhibit :size="20" class="mr-2" />
             <span class="text-sm">Cancel</span>
           </button>
           <button
             @click="$emit('confirm')"
-            class="text-red-500 hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none cursor-pointer"
+            class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-200 hover:bg-red-700/50 dark:hover:bg-red-800/60 cursor-pointer"
           >
+            <PhCheckCircle :size="20" class="mr-2" />
             <span class="text-sm">Proceed</span>
           </button>
         </div>
@@ -33,6 +35,7 @@
 </template>
 
 <script setup lang="ts">
+  import { PhProhibit, PhCheckCircle } from '@phosphor-icons/vue';
   import { uiStore } from '@/store/stores';
   import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
 

@@ -14,14 +14,15 @@
           class="flex w-fit space-x-1.5 text-sm font-serif rounded-lg px-2 py-1 border-[1px] md:border-2 border-black dark:border-white hover:shadow-lg"
         >
           <span class="flex items-center">
-            <Icon icon="mdi:github" class="size-5 mr-2" />
+            <PhGithubLogo :size="18" class="mr-2" />
             GitHub
           </span>
           <span>&rarr;</span>
         </a>
         <p class="text-sm font-serif mt-4">
-          This is a basic note-taking application developed using Vue, Vite, and
-          TypeScript. This website was created as the final project for the
+          textVerse is a basic note-taking application developed using Vue,
+          Vite, and TypeScript. This website was created as the final project
+          for the
           <a
             href="https://cs50.harvard.edu/x/2024/"
             target="_blank"
@@ -79,5 +80,6 @@
 </template>
 
 <script setup>
+  import { PhGithubLogo } from '@phosphor-icons/vue';
   import Navbar from '@/components/navbar/navbar.vue';
 </script>

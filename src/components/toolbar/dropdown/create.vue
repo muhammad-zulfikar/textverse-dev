@@ -11,7 +11,7 @@
       <button
         class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
       >
-        <Icon icon="fluent:add-24-regular" class="size-5 mr-2" />
+        <PhPlus :size="20" class="mr-2" />
         Create
       </button>
     </template>
@@ -20,20 +20,14 @@
         @click.stop="openNoteForm"
         class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
       >
-        <Icon
-          icon="material-symbols-light:edit-square-outline-rounded"
-          class="size-5 mr-3"
-        />
+        <PhFile :size="20" class="mr-2" />
         Note
       </button>
       <button
         @click.stop="openFolderForm"
         class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
       >
-        <Icon
-          icon="material-symbols-light:folder-outline-rounded"
-          class="size-5 mr-3"
-        />
+        <PhFolder :size="20" class="mr-2" />
         Folder
       </button>
     </div>
@@ -51,6 +45,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { uiStore, folderStore } from '@/store/stores';
+  import { PhPlus, PhFile, PhFolder } from '@phosphor-icons/vue';
   import Dropdown from '@/components/dropdown.vue';
   import InputModal from '@/components/modal/inputModal.vue';
 

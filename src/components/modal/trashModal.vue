@@ -13,8 +13,11 @@
       >
         <div class="flex justify-between mb-2">
           <h1 class="text-xl font-bold">Trash</h1>
-          <button @click="closeModal" class="px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700">
-            <Icon icon="material-symbols-light:close-rounded" class="size-5" />
+          <button
+            @click="closeModal"
+            class="px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
+          >
+            <PhX :size="20" />
           </button>
         </div>
 
@@ -23,42 +26,47 @@
         </p>
 
         <div
-            class="bg-black dark:bg-gray-400 h-px transition-all duration-300 my-4"
-          ></div>
+          class="bg-black dark:bg-gray-400 h-px transition-all duration-300 my-4"
+        ></div>
 
         <div class="mb-4 flex justify-between items-center">
-          <div class="px-3 md:px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700 cursor-pointer">
-          <button
-            @click="toggleSelectAll"
-            class="flex text-sm"
+          <div
+            class="px-3 md:px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700 cursor-pointer"
           >
-            <Icon icon="material-symbols-light:select-check-box-rounded" class="size-5 md:mr-2" />
-            <span class="hidden md:flex">{{ isAllSelected ? 'Deselect All' : 'Select All' }}</span>
-          </button>
-        </div>
+            <button @click="toggleSelectAll" class="flex text-sm">
+              <PhCheckCircle :size="20" class="md:mr-2" />
+              <span class="hidden md:flex">
+                {{ isAllSelected ? 'Deselect All' : 'Select All' }}
+              </span>
+            </button>
+          </div>
           <div class="flex">
-            <div class="px-3 md:px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700 cursor-pointer mr-4">
-            <button
-              @click="restoreSelectedNotes"
-              class="flex text-sm cursor-pointer"
-              :disabled="!hasSelectedNotes"
+            <div
+              class="px-3 md:px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700 cursor-pointer mr-4"
             >
-              <Icon icon="material-symbols-light:restore-page-outline-rounded" class="size-5 md:mr-2" />
-              <span class="hidden md:flex">Restore Selected</span>
-            </button>
-          </div>
-          <div class="px-3 md:px-2 py-1 custom-card flex items-center hover:bg-red-800 cursor-pointer group">
-            <button
-              @click="confirmDeleteSelectedNotes"
-              class="flex text-sm text-red-500 cursor-pointer group-hover:text-red-200 transition-all duration-300"
-              :disabled="!hasSelectedNotes"
+              <button
+                @click="restoreSelectedNotes"
+                class="flex text-sm cursor-pointer"
+                :disabled="!hasSelectedNotes"
+              >
+                <PhArrowCounterClockwise :size="20" class="md:mr-2" />
+                <span class="hidden md:flex">Restore Selected</span>
+              </button>
+            </div>
+            <div
+              class="px-3 md:px-2 py-1 custom-card flex items-center hover:bg-red-800 cursor-pointer group"
             >
-              <Icon icon="material-symbols-light:delete-outline" class="size-5 md:mr-2" />
-              <span class="hidden md:flex">Delete Selected</span>
-            </button>
+              <button
+                @click="confirmDeleteSelectedNotes"
+                class="flex text-sm text-red-500 cursor-pointer group-hover:text-red-200 transition-all duration-300"
+                :disabled="!hasSelectedNotes"
+              >
+                <PhTrash :size="20" class="md:mr-2" />
+                <span class="hidden md:flex">Delete Selected</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
         <div
           v-if="deletedNotes.length === 0"
@@ -102,14 +110,14 @@
                       @click="restoreNote(note.id)"
                       class="flex justify-center text-center w-full p-2 custom-card text-sm mb-4 hover:bg-[#d9c698] dark:hover:bg-gray-700"
                     >
-                    <Icon icon="material-symbols-light:restore-page-outline-rounded" class="size-5 mr-2" />
+                      <PhArrowCounterClockwise :size="20" class="md:mr-2" />
                       Restore
                     </button>
                     <button
                       @click="confirmDeleteNote(note.id)"
                       class="flex justify-center text-center w-full p-2 custom-card text-sm mb-4 text-red-500 hover:text-red-200 hover:bg-red-800"
                     >
-                    <Icon icon="material-symbols-light:delete-outline" class="size-5 mr-2" />
+                      <PhTrash :size="20" class="md:mr-2" />
                       Delete
                     </button>
                   </div>
@@ -139,6 +147,12 @@
 
 <script setup lang="ts">
   import { ref, computed, watch } from 'vue';
+  import {
+    PhTrash,
+    PhArrowCounterClockwise,
+    PhCheckCircle,
+    PhX,
+  } from '@phosphor-icons/vue';
   import { notesStore, uiStore } from '@/store/stores';
   import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
   import AlertModal from '@/components/modal/alertModal.vue';

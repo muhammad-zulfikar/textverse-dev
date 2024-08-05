@@ -9,14 +9,7 @@
           @mouseenter="handleMouseEnter"
           class="outline-none navbar-logo"
         >
-          <img
-            src="/dark/android-chrome-512x512.png"
-            class="size-12 hidden dark:block mt-1"
-          />
-          <img
-            src="/light/android-chrome-512x512.png"
-            class="size-12 dark:hidden mt-1"
-          />
+          <PhSidebarSimple :size="24" class="mt-1" />
         </button>
       </div>
     </div>
@@ -44,6 +37,7 @@
   import { authStore } from '@/store/stores';
   import AlertModal from '@/components/modal/alertModal.vue';
   import LeftSidebar from '@/components/navbar/leftSidebar.vue';
+  import { PhSidebarSimple } from '@phosphor-icons/vue';
 
   const router = useRouter();
   const showSignoutConfirmation = ref(false);

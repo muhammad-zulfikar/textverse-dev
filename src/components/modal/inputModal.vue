@@ -34,22 +34,24 @@
         <div class="flex justify-end mt-6">
           <button
             @click.prevent="closeModal"
-            class="hover:underline hover:bg-transparent dark:hover:bg-transparent outline-none mr-6 cursor-pointer"
+            class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700 mr-4 cursor-pointer"
           >
+            <PhProhibit :size="20" class="mr-2" />
             <span class="text-sm">Cancel</span>
           </button>
           <button
             :disabled="!isValid"
             type="submit"
             :class="[
-              'dark:hover:bg-transparent outline-none text-sm',
+              'text-sm flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700',
               {
-                'hover:underline cursor-pointer': isValid,
-                'text-gray-500': !isValid,
+                'text-blue-500 hover:text-blue-600 hover:bg-blue-700': isValid,
+                'text-gray-400 cursor-default': !isValid,
               },
             ]"
           >
-            <span class="text-sm">Save</span>
+            <PhCheckCircle :size="20" class="size-5 md:mr-2" />
+            <span>Save</span>
           </button>
         </div>
       </form>
@@ -59,6 +61,7 @@
 
 <script setup lang="ts">
   import { ref, computed, watch } from 'vue';
+  import { PhProhibit, PhCheckCircle } from '@phosphor-icons/vue';
   import { uiStore } from '@/store/stores';
   import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
 

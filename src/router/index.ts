@@ -3,7 +3,6 @@ import home from '@/pages/home.vue';
 import about from '@/pages/about.vue';
 import settings from '@/pages/settings.vue';
 import signIn from '@/pages/signIn.vue';
-import { authStore } from '@/store/stores';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -31,22 +30,6 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-});
-
-router.beforeEach((to, _from, next) => {
-  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-  const isFirstVisit = localStorage.getItem('hasVisited') !== 'true';
-
-  if (isFirstVisit && to.path !== '/sign-in') {
-    localStorage.setItem('hasVisited', 'true');
-    next('/sign-in');
-  } else if (requiresAuth && !authStore.isLoggedIn) {
-    next('/sign-in');
-  } else if (to.path === '/sign-in' && authStore.isLoggedIn) {
-    next('/');
-  } else {
-    next();
-  }
 });
 
 export default router;

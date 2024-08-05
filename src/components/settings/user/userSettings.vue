@@ -17,23 +17,26 @@
       >
         <button
           @click="openAvatarPicker"
-          class="py-2 px-4 text-sm md:text-base w-full sm:w-auto"
+          class="flex items-center justify-center py-2 px-4 text-sm md:text-base w-full sm:w-auto"
           :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
         >
+          <PhSwap :size="20" class="mr-2" />
           Change Avatar
         </button>
         <button
           @click="openNameEditor"
-          class="py-2 px-4 text-sm md:text-base w-full sm:w-auto"
+          class="flex items-center justify-center py-2 px-4 text-sm md:text-base w-full sm:w-auto"
           :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
         >
+          <PhTextbox :size="20" class="mr-2" />
           Rename
         </button>
         <button
           @click="confirmDeleteAccount"
-          class="text-red-600 dark:text-red-500 py-2 px-4 text-sm md:text-base w-full sm:w-auto"
+          class="flex items-center justify-center text-red-600 dark:text-red-500 py-2 px-4 text-sm md:text-base w-full sm:w-auto"
           :class="[uiStore.blurEnabled ? 'custom-card-blur' : 'custom-card']"
         >
+          <PhTrash :size="20" class="mr-2" />
           Delete Account
         </button>
       </div>
@@ -73,6 +76,7 @@
 <script setup lang="ts">
   import { ref, computed } from 'vue';
   import { useRouter } from 'vue-router';
+  import { PhSwap, PhTextbox, PhTrash } from '@phosphor-icons/vue';
   import { authStore, uiStore } from '@/store/stores';
   import AlertModal from '@/components/modal/alertModal.vue';
   import AvatarModal from '@/components/modal/avatarModal.vue';

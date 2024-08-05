@@ -44,27 +44,26 @@
           ></div>
           <div
             v-if="!showOption"
-            class="flex items-center justify-between pt-3 mt-auto font-serif text-gray-500 dark:text-gray-400 text-xs"
+            class="flex justify-between items-center pt-3 mt-auto font-serif text-gray-500 dark:text-gray-400 text-xs"
           >
+            <span
+              v-if="note.pinned"
+              @click.stop="notesStore.unpinNote(note.id)"
+              class="justify-start px-2 py-1 hover:bg-[#d9c698] dark:hover:bg-gray-700 rounded-md custom-card"
+            >
+              <PhPushPin :size="16" class="text-[10px] md:text-xs" />
+            </span>
             <div
               v-if="note.folder !== DEFAULT_FOLDERS.UNCATEGORIZED"
-              class="w-fit text-left text-[10px] md:text-xs"
+              class="ml-auto text-left text-[10px] md:text-xs"
             >
               <p
-                class="px-2 py-1 cursor-pointer truncate custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+                class="flex items-center px-2 py-1 cursor-pointer truncate custom-card hover:text-black dark:hover:text-white hover:bg-[#d9c698] dark:hover:bg-gray-700"
                 @click.stop="folderStore.setCurrentFolder(note.folder)"
               >
+                <PhFolder :size="16" class="mr-2" />
                 {{ note.folder }}
               </p>
-            </div>
-            <div v-else class="w-1/3"></div>
-
-            <div class="w-1/3 text-center text-xs">
-              <p v-if="note.pinned">Pinned</p>
-            </div>
-
-            <div class="w-1/3 text-right text-xs">
-              {{ notesStore.localeDate(note.last_edited || note.time_created) }}
             </div>
           </div>
         </div>
@@ -96,6 +95,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { PhPushPin, PhFolder } from '@phosphor-icons/vue';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
   import { DEFAULT_FOLDERS } from '@/store/constants';

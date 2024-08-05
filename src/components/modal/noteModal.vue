@@ -29,22 +29,14 @@
             class="mr-4 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
             @click="uiStore.toggleExpand"
           >
-            <Icon
-              v-if="uiStore.isExpanded"
-              icon="material-symbols-light:collapse-content"
-              class="size-5"
-            />
-            <Icon
-              v-else
-              icon="material-symbols-light:expand-content"
-              class="size-5"
-            />
+            <PhArrowsIn :size="20" class="size-5" v-if="uiStore.isExpanded" />
+            <PhArrowsOut :size="20" class="size-5" v-else />
           </button>
           <button
             class="px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
             @click="uiStore.closeNote"
           >
-            <Icon icon="material-symbols-light:close-rounded" class="size-5" />
+            <PhX :size="20" class="size-5" />
           </button>
         </div>
         <h1 class="text-xl font-bold mt-10 mb-4">
@@ -84,10 +76,7 @@
                 },
               ]"
             >
-              <Icon
-                icon="material-symbols-light:save-outline-rounded"
-                class="size-5 mr-2"
-              />
+              <PhFloppyDisk :size="20" class="size-5 mr-2" />
               Save
             </button>
           </div>
@@ -99,6 +88,12 @@
 
 <script setup lang="ts">
   import { ref, computed, watch } from 'vue';
+  import {
+    PhFloppyDisk,
+    PhArrowsOut,
+    PhArrowsIn,
+    PhX,
+  } from '@phosphor-icons/vue';
   import { Note } from '@/store/types';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { DEFAULT_FOLDERS } from '@/store/constants';
@@ -142,12 +137,18 @@
       return;
     }
 
+    if (isEditMode.value && !hasChanges.value) {
+      showNoChangesNoteToast();
+      return;
+    }
+
     if (isEditMode.value && hasChanges.value) {
       await notesStore.updateNote(editedNote.value);
+      uiStore.closeNote();
     } else if (!isEditMode.value) {
       await notesStore.addNote(editedNote.value);
+      uiStore.closeNote();
     }
-    uiStore.closeNote();
   };
 
   const showInvalidNoteToast = () => {
@@ -158,6 +159,10 @@
     } else if (editedNote.value.content.length > 100000) {
       uiStore.showToastMessage('Content exceeds 100,000 characters');
     }
+  };
+
+  const showNoChangesNoteToast = () => {
+    uiStore.showToastMessage('No changes yet');
   };
 
   function handleOutsideClick() {

@@ -17,7 +17,7 @@
             @click="selectNote(note.id)"
             class="list p-4 cursor-pointer hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
             :class="{
-              'bg-[#ebdfc0] dark:bg-gray-700': selectedNoteId === note.id,
+              'bg-[#ebdfc0] dark:bg-gray-700': actualSelectedNoteId === note.id,
               'border-b border-black dark:border-white':
                 index !== notesToDisplay.length - 1,
             }"
@@ -69,10 +69,7 @@
                 @click="cancelNote"
                 class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
               >
-                <Icon
-                  icon="material-symbols-light:arrow-back-rounded"
-                  class="size-5 mr-2"
-                />
+                <PhCaretLeft :size="20" class="mr-2" />
                 Back
               </button>
             </div>
@@ -82,17 +79,15 @@
                 @click="openDeleteAlert"
                 class="flex items-center px-2 py-1 mr-2 custom-card text-red-500 hover:text-red-300 hover:bg-red-700"
               >
-                <Icon
-                  icon="material-symbols-light:delete-outline"
-                  class="size-5 mr-2"
-                />
+                <PhTrash :size="20" class="mr-2" />
                 Delete
               </button>
               <button
                 v-if="uiStore.isCreatingNote"
                 @click="cancelNote"
-                class="hover:underline mr-4 text-sm md:text-base"
+                class="flex items-center px-2 py-1 mr-2 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-600 mr-4 text-sm"
               >
+                <PhProhibit :size="20" class="mr-2" />
                 Cancel
               </button>
               <button
@@ -107,10 +102,7 @@
                 ]"
                 :disabled="!hasChanges"
               >
-                <Icon
-                  icon="material-symbols-light:save-outline-rounded"
-                  class="size-5 mr-2"
-                />
+                <PhFloppyDisk :size="20" class="mr-2" />
                 Save
               </button>
             </div>
@@ -154,6 +146,12 @@
 
 <script setup lang="ts">
   import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+  import {
+    PhFloppyDisk,
+    PhTrash,
+    PhProhibit,
+    PhCaretLeft,
+  } from '@phosphor-icons/vue';
   import { notesStore, uiStore, folderStore } from '@/store/stores';
   import AlertModal from '@/components/modal/alertModal.vue';
   import { Note } from '@/store/types';
@@ -163,6 +161,10 @@
   const props = defineProps<{
     notes: Note[];
   }>();
+
+  const actualSelectedNoteId = computed(() =>
+    isMobileView.value ? selectedNoteId.value : desktopSelectedNoteId.value
+  );
 
   const selectedNoteId = ref<number | null>(null);
   const isMobileView = ref(false);
@@ -175,7 +177,7 @@
   const originalNote = ref<Note | null>(null);
 
   const selectedNote = computed(() =>
-    props.notes.find((note) => note.id === selectedNoteId.value)
+    props.notes.find((note) => note.id === actualSelectedNoteId.value)
   );
 
   const hasChanges = computed(() => {
@@ -403,10 +405,6 @@
   onUnmounted(() => {
     window.removeEventListener('resize', handleResize);
   });
-
-  const actualSelectedNoteId = computed(() =>
-    isMobileView.value ? selectedNoteId.value : desktopSelectedNoteId.value
-  );
 </script>
 
 <style scoped>
