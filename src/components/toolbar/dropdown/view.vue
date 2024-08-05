@@ -33,7 +33,7 @@
         class="w-full rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200"
         :class="{
           'bg-[#ebdfc0] dark:bg-gray-700':
-            expandedOption || uiStore.viewType === 'card',
+            expandedOption === 'card' || uiStore.viewType === 'card',
         }"
       >
         <div class="flex items-center justify-between">
@@ -114,7 +114,7 @@
         class="w-full rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200"
         :class="{
           'bg-[#ebdfc0] dark:bg-gray-700':
-            expandedOption || uiStore.viewType === 'folder',
+            expandedOption === 'folder' || uiStore.viewType === 'folder',
         }"
       >
         <div class="flex items-center justify-between">
@@ -134,7 +134,7 @@
           </button>
         </div>
         <Transition name="expand">
-          <div v-if="expandedOption === 'folder'" class="">
+          <div v-if="expandedOption === 'folder'">
             <button
               @click.stop="setFolderViewType('grid')"
               class="w-full flex items-center text-center text-sm p-2 rounded-md text-gray-750 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-[#d9c698] dark:hover:bg-gray-600 transition-colors duration-200"

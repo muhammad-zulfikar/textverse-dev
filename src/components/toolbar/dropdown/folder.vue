@@ -9,7 +9,8 @@
       <button
         class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
       >
-        <PhFolder :size="20" class="mr-2" />
+        <PhFolder v-if="selectedFolder !== DEFAULT_FOLDERS.UNCATEGORIZED" :size="20" class="mr-2" />
+        <PhFolderMinus v-else :size="20" class="mr-2" />
         {{ selectedFolder }} ({{ notesCountByFolder[selectedFolder] || 0 }})
         <div v-if="!isAllNotesFolder" @click="revertToAllNotes">
           <PhArrowCounterClockwise :size="20" class="ml-2" />
@@ -31,7 +32,8 @@
             @click.stop="selectFolder(folder)"
             class="text-sm w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
           >
-            <PhFolder :size="20" class="mr-2" />
+          <PhFolder v-if="folder !== DEFAULT_FOLDERS.UNCATEGORIZED" :size="20" class="mr-2" />
+          <PhFolderMinus v-else :size="20" class="mr-2" />
             {{ folder }} ({{ notesCountByFolder[folder] || 0 }})
           </button>
           <button
@@ -93,6 +95,7 @@
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import {
     PhFolder,
+    PhFolderMinus,
     PhArrowCounterClockwise,
     PhCaretDown,
     PhTextbox,

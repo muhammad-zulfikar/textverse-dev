@@ -160,6 +160,9 @@
   });
 
   const hasChanges = computed(() => {
+    if (!isEditMode.value) {
+      return editedNote.value.title.trim() !== '' || editedNote.value.content.trim() !== '';
+    }
     if (!originalNote.value || !editedNote.value) return false;
     return notesStore.hasChanged(originalNote.value, editedNote.value);
   });
