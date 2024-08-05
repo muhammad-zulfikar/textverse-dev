@@ -50,7 +50,7 @@
               },
             ]"
           >
-            <PhCheckCircle :size="20" class="size-5 md:mr-2" />
+            <PhCheckCircle :size="20" class="size-5 mr-2" />
             <span>Save</span>
           </button>
         </div>

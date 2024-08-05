@@ -24,7 +24,7 @@
             class="custom-card-border-dashed w-full h-32 md:h-52 flex flex-col items-center justify-center text-gray-600 dark:text-gray-400 cursor-pointer"
             @click="triggerFilePicker"
           >
-            <p class="text-sm">Drag & Drop your image here</p>
+            <p class="text-sm">Drag & drop your image here</p>
             <p class="text-xs">or click to select a file</p>
           </div>
           <input
@@ -35,26 +35,29 @@
             accept="image/*"
           />
         </div>
-        <div class="flex justify-between mt-6">
+        <div class="flex justify-between mt-6 text-sm">
           <button
             @click.prevent="removeAvatar"
-            class="text-red-500 hover:underline dark:hover:bg-transparent outline-none cursor-pointer text-sm"
+            class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-200 hover:bg-red-700/50 dark:hover:bg-red-800/60 mr-4 cursor-pointer"
           >
+            <PhTrash :size="20" class="mr-2" />
             Remove Avatar
           </button>
-          <div>
+          <div class="flex">
             <button
               @click.prevent="closeModal"
-              class="hover:underline dark:hover:bg-transparent outline-none mr-6 cursor-pointer text-sm"
+              class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700 mr-4 cursor-pointer"
             >
+              <PhProhibit :size="20" class="mr-2" />
               Cancel
             </button>
             <button
               :disabled="!avatarUrl"
               @click.prevent="confirmSelection"
-              class="dark:hover:bg-transparent outline-none text-sm"
+              class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700 cursor-pointer"
             >
-              Select
+              <PhCheckCircle :size="20" class="mr-2" />
+              Save
             </button>
           </div>
         </div>
@@ -67,6 +70,7 @@
   import { uiStore } from '@/store/stores';
   import { ref } from 'vue';
   import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
+import { PhTrash, PhProhibit, PhCheckCircle } from '@phosphor-icons/vue';
 
   const props = defineProps<{
     isOpen: boolean;

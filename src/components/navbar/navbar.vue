@@ -7,9 +7,17 @@
         <button
           @click.stop="toggleSidebar"
           @mouseenter="handleMouseEnter"
-          class="outline-none navbar-logo"
+          class="outline-none navbar-logo flex items-center"
         >
-          <PhSidebarSimple :size="24" class="mt-1" />
+          <img
+            src="/dark/android-chrome-512x512.png"
+            class="size-12 hidden dark:block"
+          />
+          <img
+            src="/light/android-chrome-512x512.png"
+            class="size-12 dark:hidden"
+          />
+          <PhCaretCircleRight :size="20" class="mr-2" />
         </button>
       </div>
     </div>
@@ -34,10 +42,10 @@
 <script setup lang="ts">
   import { ref, onMounted, onUnmounted } from 'vue';
   import { useRouter } from 'vue-router';
+  import { PhCaretCircleRight } from '@phosphor-icons/vue';
   import { authStore } from '@/store/stores';
   import AlertModal from '@/components/modal/alertModal.vue';
   import LeftSidebar from '@/components/navbar/leftSidebar.vue';
-  import { PhSidebarSimple } from '@phosphor-icons/vue';
 
   const router = useRouter();
   const showSignoutConfirmation = ref(false);
