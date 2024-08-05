@@ -44,7 +44,7 @@
           ></div>
           <div
             v-if="!showOption"
-            class="flex justify-between items-center pt-3 mt-auto font-serif text-gray-500 dark:text-gray-400 text-xs"
+            class="flex justify-between items-center pt-3 mt-auto font-serif text-gray-700 dark:text-gray-400 text-xs"
           >
             <span
               v-if="note.pinned"

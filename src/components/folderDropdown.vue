@@ -36,9 +36,9 @@
           <PhFolderMinus
             v-if="folder === DEFAULT_FOLDERS.UNCATEGORIZED"
             :size="20"
-            class="size-5 md:mr-2"
+            class="size-5 mr-2"
           />
-          <PhFolder v-else :size="20" class="size-5 md:mr-2" />
+          <PhFolder v-else :size="20" class="size-5 mr-2" />
           {{ folder }}
         </span>
       </div>
