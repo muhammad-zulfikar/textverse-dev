@@ -52,7 +52,6 @@ export const useUIStore = defineStore('ui', {
         const settings = {
           theme: this.theme,
           viewType: this.viewType,
-          columns: this.columns,
           blurEnabled: this.blurEnabled,
         };
 
@@ -66,8 +65,8 @@ export const useUIStore = defineStore('ui', {
       // Always save to localStorage
       localStorage.setItem('theme', this.theme);
       localStorage.setItem('viewType', this.viewType);
-      localStorage.setItem('columns', this.columns.toString());
       localStorage.setItem('blurEnabled', this.blurEnabled.toString());
+      localStorage.setItem('columns', this.columns.toString());
     },
 
     async loadSettings() {
@@ -79,23 +78,25 @@ export const useUIStore = defineStore('ui', {
             const data = snapshot.val();
             this.theme = data.theme;
             this.viewType = data.viewType;
-            this.columns = data.columns;
             this.blurEnabled = data.blurEnabled;
 
-            // Update localStorage
             this.saveSettings();
           } else {
-            // If no settings in Firebase, use localStorage
             this.loadUISettings();
           }
         } catch (error) {
           console.error('Error loading settings from Firebase:', error);
-          // Fallback to localStorage
           this.loadUISettings();
         }
       } else {
-        // If not logged in, use localStorage
         this.loadUISettings();
+      }
+
+      const savedColumns = localStorage.getItem('columns');
+      if (savedColumns) {
+        this.columns = parseInt(savedColumns, 10);
+      } else {
+        this.columns = window.innerWidth < 640 ? 2 : 4;
       }
 
       this.applyTheme();
@@ -115,7 +116,7 @@ export const useUIStore = defineStore('ui', {
 
     setColumns(columns: number) {
       this.columns = columns;
-      this.saveSettings();
+      localStorage.setItem('columns', columns.toString());
     },
 
     setFolderViewType(viewType: 'grid' | 'list') {
@@ -159,6 +160,8 @@ export const useUIStore = defineStore('ui', {
       const savedColumns = localStorage.getItem('columns');
       if (savedColumns) {
         this.columns = parseInt(savedColumns, 10);
+      } else {
+        this.columns = window.innerWidth < 640 ? 2 : 4;
       }
 
       const savedViewType = localStorage.getItem('viewType') as UIState['viewType'] | null;
