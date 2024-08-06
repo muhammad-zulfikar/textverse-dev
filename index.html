@@ -26,19 +26,21 @@
       }
     }
 
-    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-    const currentTheme = localStorage.getItem('theme');
+    function applyTheme() {
+      const currentTheme = localStorage.getItem('theme');
+      const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 
-    if (currentTheme === 'dark' || (!currentTheme && prefersDarkScheme.matches)) {
-      setTheme(true);
-    } else {
-      setTheme(false);
+      if (currentTheme === 'dark' || (currentTheme === 'system' && prefersDarkScheme.matches) || (!currentTheme && prefersDarkScheme.matches)) {
+        setTheme(true);
+      } else {
+        setTheme(false);
+      }
     }
 
-    prefersDarkScheme.addListener((mediaQuery) => {
-      if (!currentTheme) {
-        setTheme(mediaQuery.matches);
-      }
+    applyTheme();
+
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(() => {
+      applyTheme();
     });
   </script>
 </body>

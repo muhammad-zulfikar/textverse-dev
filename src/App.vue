@@ -42,6 +42,8 @@
   onMounted(async () => {
     try {
       await authStore.fetchCurrentUser();
+      await uiStore.loadSettings();
+      uiStore.applyTheme();
       await notesStore.loadNotes();
       await folderStore.loadFolders();
       await notesStore.loadDeletedNotes();

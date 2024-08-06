@@ -55,6 +55,7 @@ export const useAuthStore = defineStore('auth', {
         this.isLoading = false;
       }
       await this.syncFolders();
+      await this.syncSettings();
     },
 
     async signUp(email: string, password: string) {
@@ -90,6 +91,7 @@ export const useAuthStore = defineStore('auth', {
         this.isLoading = false;
       }
       await this.syncFolders();
+      this.clearLocalSettings();
     },
 
     async signInWithGoogle() {
@@ -121,6 +123,18 @@ export const useAuthStore = defineStore('auth', {
           resolve();
         });
       });
+    },
+
+    async syncSettings() {
+      const uiStore = useUIStore();
+      await uiStore.loadSettings();
+    },
+
+    clearLocalSettings() {
+      localStorage.removeItem('theme');
+      localStorage.removeItem('viewType');
+      localStorage.removeItem('columns');
+      localStorage.removeItem('blurEnabled');
     },
 
     async syncFolders() {

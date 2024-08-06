@@ -2,6 +2,9 @@
 
 import { defineStore } from 'pinia';
 import { notesStore } from './stores';
+import { useAuthStore } from './authStore';
+import { ref, set, get } from 'firebase/database';
+import { db } from '@/firebase';
 
 interface UIState {
   theme: 'light' | 'dark' | 'system';
@@ -25,16 +28,9 @@ interface UIState {
 export const useUIStore = defineStore('ui', {
   state: (): UIState => ({
     theme: 'system',
-    viewType:
-      (localStorage.getItem('viewType') as
-        | 'card'
-        | 'table'
-        | 'mail'
-        | 'folder') || 'card',
+    viewType: (localStorage.getItem('viewType') as 'card' | 'table' | 'mail' | 'folder') || 'card',
     currentTheme: localStorage.getItem('theme') || 'system',
-    columns: parseInt(
-      localStorage.getItem('columns') || (window.innerWidth < 640 ? '2' : '4')
-    ),
+    columns: parseInt(localStorage.getItem('columns') || (window.innerWidth < 640 ? '2' : '4')),
     folderViewType: 'grid',
     blurEnabled: JSON.parse(localStorage.getItem('blurEnabled') || 'false'),
     isExpanded: false,
@@ -50,21 +46,76 @@ export const useUIStore = defineStore('ui', {
   }),
 
   actions: {
+    async saveSettings() {
+      const authStore = useAuthStore();
+      if (authStore.isLoggedIn) {
+        const settings = {
+          theme: this.theme,
+          viewType: this.viewType,
+          columns: this.columns,
+          blurEnabled: this.blurEnabled,
+        };
+
+        try {
+          await set(ref(db, `users/${authStore.user!.uid}/settings`), settings);
+        } catch (error) {
+          console.error('Error saving settings to Firebase:', error);
+        }
+      }
+
+      // Always save to localStorage
+      localStorage.setItem('theme', this.theme);
+      localStorage.setItem('viewType', this.viewType);
+      localStorage.setItem('columns', this.columns.toString());
+      localStorage.setItem('blurEnabled', this.blurEnabled.toString());
+    },
+
+    async loadSettings() {
+      const authStore = useAuthStore();
+      if (authStore.isLoggedIn) {
+        try {
+          const snapshot = await get(ref(db, `users/${authStore.user!.uid}/settings`));
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            this.theme = data.theme;
+            this.viewType = data.viewType;
+            this.columns = data.columns;
+            this.blurEnabled = data.blurEnabled;
+
+            // Update localStorage
+            this.saveSettings();
+          } else {
+            // If no settings in Firebase, use localStorage
+            this.loadUISettings();
+          }
+        } catch (error) {
+          console.error('Error loading settings from Firebase:', error);
+          // Fallback to localStorage
+          this.loadUISettings();
+        }
+      } else {
+        // If not logged in, use localStorage
+        this.loadUISettings();
+      }
+
+      this.applyTheme();
+    },
+
     setTheme(theme: 'light' | 'dark' | 'system') {
       this.theme = theme;
       this.currentTheme = theme;
-      localStorage.setItem('theme', theme);
+      this.saveSettings();
       this.applyTheme();
     },
 
     setViewType(viewType: 'card' | 'table' | 'mail' | 'folder') {
       this.viewType = viewType;
-      localStorage.setItem('viewType', viewType);
+      this.saveSettings();
     },
 
     setColumns(columns: number) {
       this.columns = columns;
-      localStorage.setItem('columns', columns.toString());
+      this.saveSettings();
     },
 
     setFolderViewType(viewType: 'grid' | 'list') {
@@ -76,14 +127,19 @@ export const useUIStore = defineStore('ui', {
     },
 
     applyTheme() {
-      if (
+      const isDark =
         this.theme === 'dark' ||
         (this.theme === 'system' &&
-          window.matchMedia('(prefers-color-scheme: dark)').matches)
-      ) {
+          window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+      if (isDark) {
         document.documentElement.classList.add('dark');
+        document.getElementById('theme-color')?.setAttribute('content', '#4b5563');
+        document.getElementById('favicon')?.setAttribute('href', '/dark/favicon.ico');
       } else {
         document.documentElement.classList.remove('dark');
+        document.getElementById('theme-color')?.setAttribute('content', '#f7f4e4');
+        document.getElementById('favicon')?.setAttribute('href', '/light/favicon.ico');
       }
     },
 
@@ -91,13 +147,11 @@ export const useUIStore = defineStore('ui', {
       this.blurEnabled = enabled;
       const message = enabled ? 'Blur effect enabled' : 'Blur effect disabled';
       this.showToastMessage(message);
-      localStorage.setItem('blurEnabled', enabled.toString());
+      this.saveSettings();
     },
 
     loadUISettings() {
-      const savedTheme = localStorage.getItem('theme') as
-        | UIState['theme']
-        | null;
+      const savedTheme = localStorage.getItem('theme') as UIState['theme'] | null;
       if (savedTheme) {
         this.theme = savedTheme;
       }
@@ -107,9 +161,7 @@ export const useUIStore = defineStore('ui', {
         this.columns = parseInt(savedColumns, 10);
       }
 
-      const savedViewType = localStorage.getItem('viewType') as
-        | UIState['viewType']
-        | null;
+      const savedViewType = localStorage.getItem('viewType') as UIState['viewType'] | null;
       if (savedViewType) {
         this.viewType = savedViewType;
       }
