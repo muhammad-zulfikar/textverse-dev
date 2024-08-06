@@ -111,7 +111,7 @@
             ></textarea>
             <div
               v-if="uiStore.showPreview"
-              class="prose dark:prose-dark markdown-body highlight w-full h-full"
+              class="prose dark:prose-dark markdown-body prism-highlight w-full h-full"
               v-html="editedNote.renderedContent"
             ></div>
           </div>
@@ -146,6 +146,7 @@
   import FolderDropdown from '@/components/folderDropdown.vue';
   import DOMPurify from 'dompurify';
   import { marked } from 'marked';
+  import Prism from 'prismjs';
 
   const props = defineProps<{
     noteId: number | null;
@@ -201,12 +202,30 @@
   };
 
   const toggleMarkdownPreview = () => {
-    uiStore.showPreview = !uiStore.showPreview;
-    if (uiStore.showPreview) {
-      const renderedContent = marked(editedNote.value.content);
-      editedNote.value.renderedContent = DOMPurify.sanitize(renderedContent);
-    }
-  };
+  uiStore.showPreview = !uiStore.showPreview;
+  if (uiStore.showPreview) {
+    marked.setOptions({
+      highlight: function (code, lang) {
+        if (lang) {
+          if (!Prism.languages[lang]) {
+            // If the language isn't loaded, use plain text
+            return Prism.util.encode(code);
+          }
+          return Prism.highlight(code, Prism.languages[lang], lang);
+        }
+        return Prism.util.encode(code);
+      },
+      langPrefix: 'language-',
+    });
+    const renderedContent = marked(editedNote.value.content);
+    editedNote.value.renderedContent = DOMPurify.sanitize(renderedContent);
+
+    // Highlight all code blocks after rendering
+    setTimeout(() => {
+      Prism.highlightAll();
+    }, 0);
+  }
+};
 
   const showInvalidNoteToast = () => {
     if (editedNote.value.title.trim().length === 0) {

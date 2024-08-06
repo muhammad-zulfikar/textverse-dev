@@ -772,7 +772,7 @@
   font-size: 85%;
   line-height: 1.45;
   color: #1f2328;
-  background-color: #ebdfc0;
+  background-color: #ebdfc0 !important;
   border-radius: 6px;
 }
 

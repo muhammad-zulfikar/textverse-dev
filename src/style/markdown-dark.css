@@ -777,7 +777,7 @@
   font-size: 85%;
   line-height: 1.45;
   color: #e6edf3;
-  background-color: #212121;
+  background-color: #212121 !important;
   border-radius: 6px;
 }
 
