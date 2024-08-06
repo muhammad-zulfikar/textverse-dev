@@ -1,5 +1,3 @@
-<!-- noteModal.vue -->
-
 <template>
   <ModalBackdrop v-model="props.isOpen" />
   <transition name="zoom">
@@ -26,6 +24,13 @@
       >
         <div class="absolute top-0 right-1 flex text-sm p-4 select-none">
           <button
+            @click="toggleMarkdownPreview"
+            class="mr-4 flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+          >
+            <PhMarkdownLogo :size="20" class="size-5 md:mr-2" />
+            <span class="hidden md:flex">Preview</span>
+          </button>
+          <button
             class="mr-4 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
             @click="uiStore.toggleExpand"
           >
@@ -47,11 +52,22 @@
           />
         </h1>
         <textarea
+          v-if="!uiStore.showPreview"
           v-model="editedNote.content"
           placeholder="Content"
           class="w-full p-2 mb-2 bg-transparent resize-none border-[1px] md:border-2 border-black dark:border-white rounded focus:outline-none flex-grow placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
           rows="7"
         ></textarea>
+        <div
+          v-if="uiStore.showPreview"
+          class="prose dark:prose-dark markdown-body highlight w-full p-2 mb-2 bg-transparent resize-none overflow-auto flex-grow"
+          :class="{
+            'border-[1px] md:border-2 border-black dark:border-white rounded':
+              !uiStore.isExpanded,
+          }"
+          :style="markdownPreviewStyle"
+          v-html="editedNote.renderedContent"
+        ></div>
         <div class="flex justify-end">
           <div class="flex justify-end mt-1 select-none text-gray-500 text-sm">
             {{
@@ -93,12 +109,15 @@
     PhArrowsOut,
     PhArrowsIn,
     PhX,
+    PhMarkdownLogo,
   } from '@phosphor-icons/vue';
   import { Note } from '@/store/types';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { DEFAULT_FOLDERS } from '@/store/constants';
   import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
   import FolderDropdown from '@/components/folderDropdown.vue';
+  import DOMPurify from 'dompurify';
+  import { marked } from 'marked';
 
   const props = defineProps<{
     noteId: number | null;
@@ -165,13 +184,36 @@
     uiStore.showToastMessage('No changes yet');
   };
 
+  const toggleMarkdownPreview = () => {
+    uiStore.showPreview = !uiStore.showPreview;
+    if (uiStore.showPreview) {
+      const renderedContent = marked(editedNote.value.content);
+      editedNote.value.renderedContent = DOMPurify.sanitize(renderedContent);
+    }
+  };
+
   function handleOutsideClick() {
     if (!hasChanges.value) {
+      uiStore.showPreview = false;
       uiStore.closeNote();
     } else {
       uiStore.showToastMessage('You have unsaved changes.');
     }
   }
+
+  const markdownPreviewStyle = computed(() => {
+    if (uiStore.isExpanded) {
+      const availableHeight = window.innerHeight - 200;
+      return {
+        maxHeight: `${availableHeight}px`,
+      };
+    } else {
+      return {
+        height: '200px',
+        overflowY: 'auto',
+      };
+    }
+  });
 
   watch(
     () => props.noteId,
@@ -199,5 +241,15 @@
       }
     },
     { immediate: true }
+  );
+
+  watch(
+    () => editedNote.value.content,
+    (newContent) => {
+      if (uiStore.showPreview) {
+        const renderedContent = marked(newContent);
+        editedNote.value.renderedContent = DOMPurify.sanitize(renderedContent);
+      }
+    }
   );
 </script>

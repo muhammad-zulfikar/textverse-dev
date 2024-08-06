@@ -7,6 +7,8 @@ import { authStore, folderStore, uiStore, firebaseStore } from './stores';
 import { db } from '@/firebase';
 import { ref, remove } from 'firebase/database';
 import initialNotes from '@/assets/initialNotes.json';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 interface NotesState {
   notes: Note[];
@@ -49,6 +51,8 @@ export const useNotesStore = defineStore('notes', {
         const d = new Date(date);
         return d.toISOString();
       };
+      const renderedContent = marked.parse(newNote.content) as string;
+      const sanitizedContent = DOMPurify.sanitize(renderedContent);
       const now = formatDate(new Date());
       const note: Note = {
         ...newNote,
@@ -60,6 +64,7 @@ export const useNotesStore = defineStore('notes', {
           folderStore.currentFolder === DEFAULT_FOLDERS.ALL_NOTES
             ? DEFAULT_FOLDERS.UNCATEGORIZED
             : folderStore.currentFolder,
+        renderedContent: sanitizedContent,
       };
 
       if (authStore.isLoggedIn) {
@@ -77,12 +82,15 @@ export const useNotesStore = defineStore('notes', {
         const d = new Date(date);
         return d.toISOString();
       };
+      const renderedContent = marked.parse(updatedNote.content) as string;
+      const sanitizedContent = DOMPurify.sanitize(renderedContent);
       const now = formatDate(new Date());
       const index = this.notes.findIndex((n) => n.id === updatedNote.id);
       if (index !== -1) {
         const noteWithTimestamp = {
           ...updatedNote,
           last_edited: now,
+          renderedContent: sanitizedContent,
         };
 
         if (authStore.isLoggedIn) {

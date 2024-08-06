@@ -6,7 +6,9 @@ import App from './App.vue';
 import router from './router';
 import { initializeStores } from './store/stores';
 import 'tailwindcss/tailwind.css';
-import './style.css';
+import './style/style.css';
+import './style/markdown-dark.css';
+import './style/markdown-light.css';
 import './firebase';
 
 const app = createApp(App);

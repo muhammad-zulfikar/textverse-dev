@@ -43,6 +43,23 @@
       applyTheme();
     });
   </script>
+  <style>
+    .markdown-body,
+    .dark .markdown-body {
+      box-sizing: border-box;
+      min-width: 200px;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 45px;
+    }
+  
+    @media (max-width: 767px) {
+      .markdown-body, .dark .markdown-body {
+        padding: 0;
+        max-width: 100%;
+      }
+    }
+  </style>
 </body>
 
 </html>

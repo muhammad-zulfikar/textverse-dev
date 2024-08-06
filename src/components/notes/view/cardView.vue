@@ -38,12 +38,10 @@
         </div>
         <div>
           <div
-            v-if="!showOption"
             class="font-serif text-sm mt-2 dark:text-white truncate-text"
             v-html="truncatedContent(note.content)"
           ></div>
           <div
-            v-if="!showOption"
             class="flex justify-between items-center pt-3 mt-auto font-serif text-gray-700 dark:text-gray-400 text-xs"
           >
             <span
@@ -101,12 +99,12 @@
   import { DEFAULT_FOLDERS } from '@/store/constants';
   import ContextMenu from '@/components/contextMenu/contextMenu.vue';
   import AlertModal from '@/components/modal/alertModal.vue';
+  import { marked } from 'marked';
 
   const props = defineProps<{
     notes: Note[];
   }>();
 
-  const showOption = ref(false);
   const showMenu = ref(false);
   const menuPosition = ref({ x: 0, y: 0 });
   const selectedNote = ref<Note | null>(null);
@@ -118,10 +116,14 @@
     div.innerHTML = content;
     const textContent = div.textContent || div.innerText || '';
     const lines = textContent.split('\n');
-    if (lines.length > 10) {
-      return lines.slice(0, 10).join('\n') + '...';
+    let truncatedText =
+      lines.length > 10 ? lines.slice(0, 10).join('\n') + '...' : content;
+
+    if (/\*|\_|\`|\#/.test(truncatedText)) {
+      truncatedText = marked(truncatedText);
     }
-    return content;
+
+    return truncatedText;
   };
 
   const showContextMenu = (event: MouseEvent, note: Note) => {
@@ -162,6 +164,16 @@
 </script>
 
 <style scoped>
+  .truncate-text {
+    display: -webkit-box;
+    line-clamp: 10;
+    -webkit-line-clamp: 10;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre-wrap;
+  }
+
   .shadow {
     box-shadow:
       0 30px 60px -15px rgba(0, 0, 0, 0.3),

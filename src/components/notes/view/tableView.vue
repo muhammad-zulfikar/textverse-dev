@@ -63,31 +63,35 @@
       <table
         class="min-w-[800px] w-full border-separate border-spacing-0 font-serif rounded-lg overflow-hidden"
       >
-      <thead>
-    <tr class="bg-[#ebdfc0] dark:bg-gray-800">
-      <th
-        v-if="selectMode"
-        class="p-3 text-left w-10 border-b-[1px] border-r-[1px] border-black dark:border-white"
-      >
-        <input
-          type="checkbox"
-          :checked="allSelected"
-          @change="toggleSelectAll"
-        />
-      </th>
-      <th
-  v-for="column in visibleColumns"
-  :key="column"
-  :class="{ 'hidden md:table-cell': column === 'Content' }"
-  class="p-3 text-left border-b-[1px] border-r-[1px] border-black dark:border-white whitespace-nowrap"
->
-  <div class="flex items-center">
-    <span>{{ column }}</span>
-    <component :is="getColumnIcon(column)" :size="20" class="ml-2 md:ml-3" />
-  </div>
-</th>
-    </tr>
-  </thead>
+        <thead>
+          <tr class="bg-[#ebdfc0] dark:bg-gray-800">
+            <th
+              v-if="selectMode"
+              class="p-3 text-left w-10 border-b-[1px] border-r-[1px] border-black dark:border-white"
+            >
+              <input
+                type="checkbox"
+                :checked="allSelected"
+                @change="toggleSelectAll"
+              />
+            </th>
+            <th
+              v-for="column in visibleColumns"
+              :key="column"
+              :class="{ 'hidden md:table-cell': column === 'Content' }"
+              class="p-3 text-left border-b-[1px] border-r-[1px] border-black dark:border-white whitespace-nowrap"
+            >
+              <div class="flex items-center">
+                <span>{{ column }}</span>
+                <component
+                  :is="getColumnIcon(column)"
+                  :size="20"
+                  class="ml-2 md:ml-3"
+                />
+              </div>
+            </th>
+          </tr>
+        </thead>
         <transition-group name="list" tag="tbody">
           <tr
             v-for="note in notes"
@@ -138,15 +142,22 @@
               />
             </td>
             <td
-  v-if="visibleColumns.includes('Folder')"
-  @click="folderStore.setCurrentFolder(note.folder)"
-  class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white cursor-pointer hover:underline"
->
-  <div class="flex items-center space-x-2 truncate">
-    <component :is="note.folder.toLowerCase() === 'uncategorized' ? PhFolderMinus : PhFolder" :size="20" />
-    <span class="truncate">{{ note.folder }}</span>
-  </div>
-</td>
+              v-if="visibleColumns.includes('Folder')"
+              @click="folderStore.setCurrentFolder(note.folder)"
+              class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white cursor-pointer hover:underline"
+            >
+              <div class="flex items-center space-x-2 truncate">
+                <component
+                  :is="
+                    note.folder.toLowerCase() === 'uncategorized'
+                      ? PhFolderMinus
+                      : PhFolder
+                  "
+                  :size="20"
+                />
+                <span class="truncate">{{ note.folder }}</span>
+              </div>
+            </td>
             <td
               v-if="visibleColumns.includes('Date')"
               class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white whitespace-nowrap"

@@ -44,6 +44,13 @@
                 />
                 <PhArrowsOut :size="20" class="size-5" v-else />
               </button>
+              <button
+                @click="toggleMarkdownPreview"
+                class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+              >
+                <PhMarkdownLogo :size="20" class="size-5 md:mr-2" />
+                <span class="hidden md:flex">Preview</span>
+              </button>
             </div>
             <div class="flex space-x-2">
               <button
@@ -97,10 +104,16 @@
           ></div>
           <div class="flex-grow overflow-hidden mt-4">
             <textarea
+              v-if="!uiStore.showPreview"
               v-model="editedNote.content"
               placeholder="Content"
               class="w-full h-full bg-transparent resize-none outline-none text-base placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
             ></textarea>
+            <div
+              v-if="uiStore.showPreview"
+              class="prose dark:prose-dark markdown-body highlight w-full h-full"
+              v-html="editedNote.renderedContent"
+            ></div>
           </div>
         </div>
       </div>
@@ -123,6 +136,7 @@
     PhArrowsOut,
     PhArrowsIn,
     PhX,
+    PhMarkdownLogo,
   } from '@phosphor-icons/vue';
   import { Note } from '@/store/types';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
@@ -130,6 +144,8 @@
   import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
   import AlertModal from '@/components/modal/alertModal.vue';
   import FolderDropdown from '@/components/folderDropdown.vue';
+  import DOMPurify from 'dompurify';
+  import { marked } from 'marked';
 
   const props = defineProps<{
     noteId: number | null;
@@ -161,7 +177,10 @@
 
   const hasChanges = computed(() => {
     if (!isEditMode.value) {
-      return editedNote.value.title.trim() !== '' || editedNote.value.content.trim() !== '';
+      return (
+        editedNote.value.title.trim() !== '' ||
+        editedNote.value.content.trim() !== ''
+      );
     }
     if (!originalNote.value || !editedNote.value) return false;
     return notesStore.hasChanged(originalNote.value, editedNote.value);
@@ -179,6 +198,14 @@
       await notesStore.addNote(editedNote.value);
     }
     uiStore.closeNote();
+  };
+
+  const toggleMarkdownPreview = () => {
+    uiStore.showPreview = !uiStore.showPreview;
+    if (uiStore.showPreview) {
+      const renderedContent = marked(editedNote.value.content);
+      editedNote.value.renderedContent = DOMPurify.sanitize(renderedContent);
+    }
   };
 
   const showInvalidNoteToast = () => {
@@ -245,5 +272,15 @@
       }
     },
     { immediate: true }
+  );
+
+  watch(
+    () => editedNote.value.content,
+    (newContent) => {
+      if (uiStore.showPreview) {
+        const renderedContent = marked(newContent);
+        editedNote.value.renderedContent = DOMPurify.sanitize(renderedContent);
+      }
+    }
   );
 </script>

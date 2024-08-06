@@ -224,3 +224,132 @@ button:active {
   background: #171717;
   color: #fff;
 }
+
+.prose {
+  max-height: 100%;
+  max-width: 100%;
+  overflow-y: auto;
+}
+
+.prose strong,
+.prose b {
+  color: #333;
+}
+
+.dark .prose strong,
+.dark .prose b {
+  color: #fff;
+}
+
+.prose th {
+  color: #333;
+}
+
+.dark .prose th {
+  color: #fff;
+}
+
+/* .dark .prose h1, .dark .prose h2, .dark .prose h3, .dark .prose h4, .dark .prose h5, .dark .prose h6 {
+  color: #f9f9f9;
+}
+
+.prose hr {
+  border: 0;
+  height: 1px;
+  background-color: #1f2937;
+  margin: 2em 0;
+}
+
+.prose blockquote {
+  border-color: #1f2937;
+}
+
+.dark .prose blockquote {
+  color: #dfdfdf;
+  border-color: #fff;
+}
+
+.prose strong, .prose b {
+  color: #333;
+}
+
+.dark .prose strong, .dark .prose b {
+  color: #fff;
+}
+
+.dark hr {
+  background-color: #fff;
+}
+
+.prose ul li::marker,
+.prose ol li::marker {
+  color: #333 !important;
+  margin-bottom: 0.5em;
+}
+
+.dark .prose ul li::marker,
+.dark .prose ol li::marker {
+  color: #fff !important;
+}
+
+.prose a {
+  color: #333;
+  text-decoration: underline;
+}
+
+.dark .prose a {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.prose table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.prose th {
+  color: #333;
+  background-color: #f2ebd4;
+  padding: 0.5em;
+}
+
+.dark .prose th {
+  color: #fff;
+  background-color: #2e2e2e;
+}
+
+.prose td {
+  color: #333;
+  padding: 0.5em;
+}
+
+.dark .prose td {
+  color: #eeeeee;
+}
+
+.prose pre {
+  background-color: #f2ebd4 !important;
+  color: #333 !important;
+  padding: .5em !important;
+  border: 1px solid black;
+  border-radius: 8px !important;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  overflow-x: auto;
+}
+
+.dark .prose pre {
+  background-color: #212121 !important;
+  color: #fff !important;
+  border: 1px solid white;
+}
+
+.prose code {
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.dark .prose code {
+  color: #fff;
+  font-family: 'Courier New', Courier, monospace;
+} */
