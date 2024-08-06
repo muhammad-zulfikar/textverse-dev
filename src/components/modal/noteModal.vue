@@ -60,7 +60,7 @@
         ></textarea>
         <div
           v-if="uiStore.showPreview"
-          class="prose dark:prose-dark markdown-body highlight w-full p-2 mb-2 bg-transparent resize-none overflow-auto flex-grow"
+          class="prose dark:prose-dark markdown-body prism-highlight w-full p-2 mb-2 bg-transparent resize-none overflow-auto flex-grow"
           :class="{
             'border-[1px] md:border-2 border-black dark:border-white rounded':
               !uiStore.isExpanded,
@@ -118,6 +118,7 @@
   import FolderDropdown from '@/components/folderDropdown.vue';
   import DOMPurify from 'dompurify';
   import { marked } from 'marked';
+  import Prism from 'prismjs';
 
   const props = defineProps<{
     noteId: number | null;
@@ -187,8 +188,24 @@
   const toggleMarkdownPreview = () => {
     uiStore.showPreview = !uiStore.showPreview;
     if (uiStore.showPreview) {
+      marked.setOptions({
+        highlight: function (code, lang) {
+          if (lang) {
+            if (!Prism.languages[lang]) {
+              return Prism.util.encode(code);
+            }
+            return Prism.highlight(code, Prism.languages[lang], lang);
+          }
+          return Prism.util.encode(code);
+        },
+        langPrefix: 'language-',
+      });
       const renderedContent = marked(editedNote.value.content);
       editedNote.value.renderedContent = DOMPurify.sanitize(renderedContent);
+
+      setTimeout(() => {
+        Prism.highlightAll();
+      }, 0);
     }
   };
 

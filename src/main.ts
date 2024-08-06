@@ -15,7 +15,8 @@ import 'prismjs/plugins/autoloader/prism-autoloader';
 import './style/prismjs-light.css';
 import './style/prismjs-dark.css';
 
-(Prism as any).plugins.autoloader.languages_path = 'https://unpkg.com/prismjs@1.29.0/components/';
+(Prism as any).plugins.autoloader.languages_path =
+  'https://unpkg.com/prismjs@1.29.0/components/';
 
 const app = createApp(App);
 const pinia = createPinia();

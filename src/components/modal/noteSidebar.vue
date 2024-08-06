@@ -202,30 +202,28 @@
   };
 
   const toggleMarkdownPreview = () => {
-  uiStore.showPreview = !uiStore.showPreview;
-  if (uiStore.showPreview) {
-    marked.setOptions({
-      highlight: function (code, lang) {
-        if (lang) {
-          if (!Prism.languages[lang]) {
-            // If the language isn't loaded, use plain text
-            return Prism.util.encode(code);
+    uiStore.showPreview = !uiStore.showPreview;
+    if (uiStore.showPreview) {
+      marked.setOptions({
+        highlight: function (code, lang) {
+          if (lang) {
+            if (!Prism.languages[lang]) {
+              return Prism.util.encode(code);
+            }
+            return Prism.highlight(code, Prism.languages[lang], lang);
           }
-          return Prism.highlight(code, Prism.languages[lang], lang);
-        }
-        return Prism.util.encode(code);
-      },
-      langPrefix: 'language-',
-    });
-    const renderedContent = marked(editedNote.value.content);
-    editedNote.value.renderedContent = DOMPurify.sanitize(renderedContent);
+          return Prism.util.encode(code);
+        },
+        langPrefix: 'language-',
+      });
+      const renderedContent = marked(editedNote.value.content);
+      editedNote.value.renderedContent = DOMPurify.sanitize(renderedContent);
 
-    // Highlight all code blocks after rendering
-    setTimeout(() => {
-      Prism.highlightAll();
-    }, 0);
-  }
-};
+      setTimeout(() => {
+        Prism.highlightAll();
+      }, 0);
+    }
+  };
 
   const showInvalidNoteToast = () => {
     if (editedNote.value.title.trim().length === 0) {
