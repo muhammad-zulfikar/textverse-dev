@@ -23,14 +23,30 @@
         ]"
       >
         <div class="absolute top-0 right-1 flex text-sm p-4 select-none">
+          <div v-if="isNoteShared(noteId)" class="mr-4 flex items-center">
+            <input
+              v-if="uiStore.isExpanded"
+              :value="getTruncatedShareLink(noteId)"
+              readonly
+              class="px-2 py-1 custom-card"
+            />
+            <button
+              @click="copyShareLink(noteId)"
+              class="ml-2 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
+            >
+              <PhCopy :size="20" class="size-5 md:mr-2" />
+              <span class="hidden md:flex">Copy link</span>
+            </button>
+          </div>
           <button
             v-if="authStore.isLoggedIn"
             class="mr-4 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
             @click="toggleShare(noteId)"
           >
-            <PhShareNetwork :size="20" class="size-5 md:mr-2" />
+            <PhGlobeX v-if="isNoteShared(noteId)" :size="20" class="size-5 md:mr-2" />
+            <PhGlobe v-else :size="20" class="size-5 md:mr-2" />
             <span class="hidden md:flex">
-              {{ isNoteShared(noteId) ? 'Unshare' : 'Share' }}
+              {{ isNoteShared(noteId) ? 'Unpublic' : 'Make public' }}
             </span>
           </button>
           <button
@@ -120,7 +136,9 @@
     PhArrowsIn,
     PhX,
     PhMarkdownLogo,
-    PhShareNetwork,
+    PhCopy,
+    PhGlobe,
+    PhGlobeX
   } from '@phosphor-icons/vue';
   import { Note } from '@/store/types';
   import { notesStore, folderStore, uiStore, authStore } from '@/store/stores';
@@ -210,7 +228,7 @@
     uiStore.showPreview = !uiStore.showPreview;
     if (uiStore.showPreview) {
       marked.setOptions({
-        highlight: function (code: any, lang: string | number) {
+        highlight: function (code, lang) {
           if (lang) {
             if (!Prism.languages[lang]) {
               return Prism.util.encode(code);
@@ -230,6 +248,26 @@
     }
   };
 
+  const getTruncatedShareLink = (noteId: number) => {
+  const shareId = notesStore.getShareId(noteId);
+  if (!shareId) return '';
+  const fullLink = `${window.location.origin}/shared/${shareId}`;
+  return fullLink;
+};
+
+const copyShareLink = (noteId: number) => {
+  const shareId = notesStore.getShareId(noteId);
+  if (!shareId) return;
+  const shareLink = `${window.location.origin}/shared/${shareId}`;
+  navigator.clipboard.writeText(shareLink)
+    .then(() => {
+      uiStore.showToastMessage('Share link copied to clipboard');
+    })
+    .catch(() => {
+      uiStore.showToastMessage('Failed to copy share link');
+    });
+};
+
   function handleOutsideClick() {
     if (!hasChanges.value) {
       uiStore.showPreview = false;
@@ -237,7 +275,7 @@
     } else {
       uiStore.showToastMessage('You have unsaved changes.');
     }
-  }
+  };
 
   const markdownPreviewStyle = computed(() => {
     if (uiStore.isExpanded) {

@@ -16,7 +16,7 @@ interface NotesState {
   deletedNotes: Note[];
   selectedNoteId: number | null;
   searchQuery: string;
-  sharedNotes: Set<number>;
+  sharedNotes: Map<number, string>;
 }
 
 interface ShareNote {
@@ -31,7 +31,7 @@ export const useNotesStore = defineStore('notes', {
     deletedNotes: [],
     selectedNoteId: null as number | null,
     searchQuery: '',
-    sharedNotes: new Set(),
+    sharedNotes: new Map(),
   }),
 
   getters: {
@@ -58,25 +58,25 @@ export const useNotesStore = defineStore('notes', {
         await this.unshareNote(noteId);
         return;
       }
-
+    
       const note = this.notes.find((n) => n.id === noteId);
       if (!note) {
         uiStore.showToastMessage('Note not found.');
         return;
       }
-
+    
       const shareId = nanoid();
       const shareNote: ShareNote = {
         id: note.id,
         uid: authStore.user!.uid,
         shareId,
       };
-
+    
       const shareRef = ref(db, `sharedNotes/${shareId}`);
       await set(shareRef, shareNote);
-
-      this.sharedNotes.add(noteId);
-
+    
+      this.sharedNotes.set(noteId, shareId);
+    
       const shareLink = `${window.location.origin}/shared/${shareId}`;
       uiStore.showToastMessage(`Note shared! Link: ${shareLink}`);
       navigator.clipboard
@@ -91,25 +91,14 @@ export const useNotesStore = defineStore('notes', {
 
     async unshareNote(noteId: number) {
       try {
-        // Query to find the shareId for the given noteId
-        const snapshot = await get(ref(db, 'sharedNotes'));
-        if (snapshot.exists()) {
-          const sharedNotes: { [key: string]: ShareNote } = snapshot.val(); // Assert type here
-          const shareEntry = Object.values(sharedNotes).find(
-            (entry) => entry.id === noteId
-          ) as ShareNote | undefined; // Assert type here
-
-          if (shareEntry) {
-            const shareId = shareEntry.shareId;
-            const shareRef = ref(db, `sharedNotes/${shareId}`);
-            await remove(shareRef);
-            this.sharedNotes.delete(noteId);
-            uiStore.showToastMessage('Note unshared.');
-          } else {
-            uiStore.showToastMessage('Note was not shared.');
-          }
+        const shareId = this.sharedNotes.get(noteId);
+        if (shareId) {
+          const shareRef = ref(db, `sharedNotes/${shareId}`);
+          await remove(shareRef);
+          this.sharedNotes.delete(noteId);
+          uiStore.showToastMessage('Note unshared.');
         } else {
-          uiStore.showToastMessage('No shared notes found.');
+          uiStore.showToastMessage('Note was not shared.');
         }
       } catch (error) {
         uiStore.showToastMessage('Failed to unshare note.');
@@ -129,6 +118,10 @@ export const useNotesStore = defineStore('notes', {
       }
 
       return null;
+    },
+
+    getShareId(noteId: number): string | undefined {
+      return this.sharedNotes.get(noteId);
     },
 
     async addNote(
@@ -279,7 +272,7 @@ export const useNotesStore = defineStore('notes', {
       if (snapshot.exists()) {
         const sharedNotes = snapshot.val() as Record<string, ShareNote>;
         Object.values(sharedNotes).forEach((shareNote) => {
-          this.sharedNotes.add(shareNote.id);
+          this.sharedNotes.set(shareNote.id, shareNote.shareId);
         });
       }
     },

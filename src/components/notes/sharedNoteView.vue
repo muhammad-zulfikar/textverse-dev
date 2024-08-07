@@ -58,8 +58,8 @@
       ></div>
     </div>
   </div>
-  <div v-else class="flex items-center justify-center h-screen">
-    <p class="text-xl">Note not found or not accessible.</p>
+  <div v-else class="flex items-center justify-center h-screen pb-20 font-serif">
+    <p class="text-md custom-card px-4 py-2">Note not found or not accessible.</p>
   </div>
 </template>
 
