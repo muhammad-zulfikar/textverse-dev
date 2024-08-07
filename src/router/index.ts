@@ -3,6 +3,7 @@ import home from '@/pages/home.vue';
 import about from '@/pages/about.vue';
 import settings from '@/pages/settings.vue';
 import signIn from '@/pages/signIn.vue';
+import SharedNoteView from '@/components/notes/sharedNoteView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -24,6 +25,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/sign-in',
     name: 'Sign In',
     component: signIn,
+  },
+  {
+    path: '/shared/:shareId',
+    component: SharedNoteView,
+    props: true,
   },
 ];
 

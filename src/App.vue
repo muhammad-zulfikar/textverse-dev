@@ -43,10 +43,11 @@
     try {
       await authStore.fetchCurrentUser();
       await uiStore.loadSettings();
-      uiStore.applyTheme();
+      await uiStore.applyTheme();
       await notesStore.loadNotes();
       await folderStore.loadFolders();
       await notesStore.loadDeletedNotes();
+      await notesStore.fetchSharedNotes();
     } catch (error) {
       uiStore.showToastMessage(
         'An error occurred while loading the app. Please try again.'

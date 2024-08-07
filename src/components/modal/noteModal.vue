@@ -24,6 +24,16 @@
       >
         <div class="absolute top-0 right-1 flex text-sm p-4 select-none">
           <button
+            v-if="authStore.isLoggedIn"
+            class="mr-4 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
+            @click="toggleShare(noteId)"
+          >
+            <PhShareNetwork :size="20" class="size-5 md:mr-2" />
+            <span class="hidden md:flex">
+              {{ isNoteShared(noteId) ? 'Unshare' : 'Share' }}
+            </span>
+          </button>
+          <button
             @click="toggleMarkdownPreview"
             class="mr-4 flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
           >
@@ -110,9 +120,10 @@
     PhArrowsIn,
     PhX,
     PhMarkdownLogo,
+    PhShareNetwork,
   } from '@phosphor-icons/vue';
   import { Note } from '@/store/types';
-  import { notesStore, folderStore, uiStore } from '@/store/stores';
+  import { notesStore, folderStore, uiStore, authStore } from '@/store/stores';
   import { DEFAULT_FOLDERS } from '@/store/constants';
   import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
   import FolderDropdown from '@/components/folderDropdown.vue';
@@ -124,6 +135,16 @@
     noteId: number | null;
     isOpen: boolean;
   }>();
+
+  const isNoteShared = (noteId: number) => notesStore.sharedNotes.has(noteId);
+
+  const toggleShare = (noteId: number) => {
+    if (isNoteShared(noteId)) {
+      notesStore.unshareNote(noteId);
+    } else {
+      notesStore.shareNote(noteId);
+    }
+  };
 
   const isEditMode = computed(() => props.noteId !== null);
   const originalNote = ref<Note | null>(null);
@@ -189,7 +210,7 @@
     uiStore.showPreview = !uiStore.showPreview;
     if (uiStore.showPreview) {
       marked.setOptions({
-        highlight: function (code, lang) {
+        highlight: function (code: any, lang: string | number) {
           if (lang) {
             if (!Prism.languages[lang]) {
               return Prism.util.encode(code);

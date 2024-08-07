@@ -43,10 +43,9 @@
           <p class="text-sm font-serif font-bold">TODO(S):</p>
           <ul class="list-disc pl-4 mt-2 space-y-1">
             <li class="text-sm font-serif line-through">
-              Optimize note pinning algorithm
+              Introduce markdown support
             </li>
             <li class="text-sm font-serif">Implement collaborative editing</li>
-            <li class="text-sm font-serif">Introduce markdown support</li>
           </ul>
         </div>
       </div>
@@ -55,23 +54,17 @@
           <p class="text-sm font-serif font-bold">Features:</p>
           <ul class="list-disc pl-4 mt-2 columns-2 gap-6 md:gap-12 space-y-2">
             <li class="text-sm font-serif">
-              Create, edit, pin, search, and organize with ease
+              Create, edit, pin, search, and organize notes
             </li>
-            <li class="text-sm font-serif">
-              Seamless theme switching between light and dark modes
-            </li>
-            <li class="text-sm font-serif">
-              Smart categorization with folder support
-            </li>
+            <li class="text-sm font-serif">Light and dark mode</li>
             <li class="text-sm font-serif">
               Right-click context menu for quick actions
             </li>
+            <li class="text-sm font-serif">4 different view types</li>
             <li class="text-sm font-serif">
-              Secure sign-in with real-time note synchronization across devices
+              Real-time note synchronization across devices
             </li>
-            <li class="text-sm font-serif">
-              Offline functionality for uninterrupted productivity
-            </li>
+            <li class="text-sm font-serif">Markdown support</li>
           </ul>
         </div>
       </div>

@@ -17,6 +17,7 @@
     "dompurify": "^3.1.6",
     "firebase": "^10.12.4",
     "marked": "^13.0.3",
+    "nanoid": "^5.0.7",
     "pinia": "^2.1.7",
     "prism-themes": "^1.9.0",
     "prismjs": "^1.29.0",

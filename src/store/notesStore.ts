@@ -5,16 +5,24 @@ import { Note } from './types';
 import { DEFAULT_FOLDERS } from './constants';
 import { authStore, folderStore, uiStore, firebaseStore } from './stores';
 import { db } from '@/firebase';
-import { ref, remove } from 'firebase/database';
+import { get, ref, remove, set } from 'firebase/database';
 import initialNotes from '@/assets/initialNotes.json';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
+import { nanoid } from 'nanoid';
 
 interface NotesState {
   notes: Note[];
   deletedNotes: Note[];
   selectedNoteId: number | null;
   searchQuery: string;
+  sharedNotes: Set<number>;
+}
+
+interface ShareNote {
+  id: number;
+  uid: string;
+  shareId: string;
 }
 
 export const useNotesStore = defineStore('notes', {
@@ -23,6 +31,7 @@ export const useNotesStore = defineStore('notes', {
     deletedNotes: [],
     selectedNoteId: null as number | null,
     searchQuery: '',
+    sharedNotes: new Set(),
   }),
 
   getters: {
@@ -44,6 +53,84 @@ export const useNotesStore = defineStore('notes', {
   },
 
   actions: {
+    async shareNote(noteId: number) {
+      if (this.sharedNotes.has(noteId)) {
+        await this.unshareNote(noteId);
+        return;
+      }
+
+      const note = this.notes.find((n) => n.id === noteId);
+      if (!note) {
+        uiStore.showToastMessage('Note not found.');
+        return;
+      }
+
+      const shareId = nanoid();
+      const shareNote: ShareNote = {
+        id: note.id,
+        uid: authStore.user!.uid,
+        shareId,
+      };
+
+      const shareRef = ref(db, `sharedNotes/${shareId}`);
+      await set(shareRef, shareNote);
+
+      this.sharedNotes.add(noteId);
+
+      const shareLink = `${window.location.origin}/shared/${shareId}`;
+      uiStore.showToastMessage(`Note shared! Link: ${shareLink}`);
+      navigator.clipboard
+        .writeText(shareLink)
+        .then(() => {
+          uiStore.showToastMessage(`Note shared! Link copied to clipboard.`);
+        })
+        .catch(() => {
+          uiStore.showToastMessage('Failed to copy link to clipboard.');
+        });
+    },
+
+    async unshareNote(noteId: number) {
+      try {
+        // Query to find the shareId for the given noteId
+        const snapshot = await get(ref(db, 'sharedNotes'));
+        if (snapshot.exists()) {
+          const sharedNotes: { [key: string]: ShareNote } = snapshot.val(); // Assert type here
+          const shareEntry = Object.values(sharedNotes).find(
+            (entry) => entry.id === noteId
+          ) as ShareNote | undefined; // Assert type here
+
+          if (shareEntry) {
+            const shareId = shareEntry.shareId;
+            const shareRef = ref(db, `sharedNotes/${shareId}`);
+            await remove(shareRef);
+            this.sharedNotes.delete(noteId);
+            uiStore.showToastMessage('Note unshared.');
+          } else {
+            uiStore.showToastMessage('Note was not shared.');
+          }
+        } else {
+          uiStore.showToastMessage('No shared notes found.');
+        }
+      } catch (error) {
+        uiStore.showToastMessage('Failed to unshare note.');
+        console.error('Unshare error:', error);
+      }
+    },
+
+    async getSharedNoteById(shareId: string): Promise<Note | null> {
+      const shareRef = ref(db, `sharedNotes/${shareId}`);
+      const snapshot = await get(shareRef);
+      const shareNote = snapshot.val() as ShareNote | null;
+
+      if (shareNote) {
+        const noteRef = ref(db, `users/${shareNote.uid}/notes/${shareNote.id}`);
+        const noteSnapshot = await get(noteRef);
+        return noteSnapshot.val() as Note | null;
+      }
+
+      return null;
+    },
+
     async addNote(
       newNote: Omit<Note, 'id' | 'time_created' | 'last_edited' | 'pinned'>
     ) {
@@ -183,6 +270,17 @@ export const useNotesStore = defineStore('notes', {
         if (savedDeletedNotes) {
           this.deletedNotes = JSON.parse(savedDeletedNotes);
         }
+      }
+    },
+
+    async fetchSharedNotes() {
+      const sharedNotesRef = ref(db, `sharedNotes`);
+      const snapshot = await get(sharedNotesRef);
+      if (snapshot.exists()) {
+        const sharedNotes = snapshot.val() as Record<string, ShareNote>;
+        Object.values(sharedNotes).forEach((shareNote) => {
+          this.sharedNotes.add(shareNote.id);
+        });
       }
     },
 
