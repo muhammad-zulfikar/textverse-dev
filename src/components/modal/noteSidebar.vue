@@ -26,6 +26,7 @@
       >
         <div class="p-6 flex flex-col h-full">
           <div class="flex justify-between items-center mb-6 md:mb-8 text-sm">
+            <!-- Left Section: Close and Expand Buttons -->
             <div class="flex space-x-2">
               <button
                 @click="uiStore.closeNote"
@@ -44,22 +45,67 @@
                 />
                 <PhArrowsOut :size="20" class="size-5" v-else />
               </button>
+            </div>
+
+            <!-- Center Section: Share Input, Copy Link, Unpublic, and Markdown Preview -->
+            <div class="flex space-x-2 items-center">
+              <div v-if="isNoteShared(noteId)" class="flex items-center">
+                <input
+                  v-if="uiStore.isExpanded"
+                  :value="getTruncatedShareLink(noteId)"
+                  readonly
+                  class="px-2 py-1 custom-card"
+                />
+                <button
+                  @click="copyShareLink(noteId)"
+                  class="ml-2 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
+                >
+                  <PhCopy :size="20" class="size-5" />
+                  <span
+                    v-if="uiStore.isExpanded"
+                    class="hidden md:flex md:ml-2"
+                  >
+                    Copy link
+                  </span>
+                </button>
+              </div>
+              <button
+                v-if="authStore.isLoggedIn"
+                class="px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
+                @click="toggleShare(noteId)"
+              >
+                <PhGlobeX
+                  v-if="isNoteShared(noteId)"
+                  :size="20"
+                  class="size-5"
+                />
+                <PhGlobe v-else :size="20" class="size-5" />
+                <span v-if="uiStore.isExpanded" class="hidden md:flex md:ml-2">
+                  {{ isNoteShared(noteId) ? 'Unpublic' : 'Make public' }}
+                </span>
+              </button>
               <button
                 @click="toggleMarkdownPreview"
                 class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
               >
-                <PhMarkdownLogo :size="20" class="size-5 md:mr-2" />
-                <span class="hidden md:flex">Preview</span>
+                <PhMarkdownLogo :size="20" class="size-5" />
+                <span v-if="uiStore.isExpanded" class="hidden md:flex md:ml-2">
+                  Preview
+                </span>
               </button>
             </div>
+
+            <!-- Right Section: Delete and Save Buttons -->
             <div class="flex space-x-2">
               <button
                 v-if="isEditMode"
                 @click="openDeleteAlert"
                 class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-200 hover:bg-red-700/50 dark:hover:bg-red-800/60"
               >
-                <PhTrash :size="20" class="size-5 md:mr-2" />
-                <span class="hidden md:flex">Delete</span>
+                <PhTrash :size="20" class="size-5" />
+                <span v-if="uiStore.isExpanded" class="hidden md:flex md:ml-2">
+                  Delete
+                </span>
               </button>
               <button
                 @click="saveNote"
@@ -71,8 +117,10 @@
                 "
                 :disabled="!isValid || !hasChanges"
               >
-                <PhFloppyDisk :size="20" class="size-5 md:mr-2" />
-                <span class="hidden md:flex">Save</span>
+                <PhFloppyDisk :size="20" class="size-5" />
+                <span v-if="uiStore.isExpanded" class="hidden md:flex md:ml-2">
+                  Save
+                </span>
               </button>
             </div>
           </div>
@@ -137,21 +185,50 @@
     PhArrowsIn,
     PhX,
     PhMarkdownLogo,
+    PhCopy,
+    PhGlobe,
+    PhGlobeX,
   } from '@phosphor-icons/vue';
   import { Note } from '@/store/types';
-  import { notesStore, folderStore, uiStore } from '@/store/stores';
+  import { notesStore, folderStore, uiStore, authStore } from '@/store/stores';
   import { DEFAULT_FOLDERS } from '@/store/constants';
   import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
   import AlertModal from '@/components/modal/alertModal.vue';
   import FolderDropdown from '@/components/folderDropdown.vue';
   import DOMPurify from 'dompurify';
   import { marked } from 'marked';
-  import Prism from 'prismjs';
 
   const props = defineProps<{
     noteId: number | null;
     isOpen: boolean;
   }>();
+
+  const isNoteShared = (noteId: number | null) => {
+    if (noteId === null) return false;
+    return notesStore.sharedNotes.has(noteId);
+  };
+
+  const toggleMarkdownPreview = () => {
+    uiStore.showPreview = !uiStore.showPreview;
+    if (uiStore.showPreview) {
+      notesStore.toggleMarkdownPreview(editedNote.value);
+    }
+  };
+
+  const toggleShare = (noteId: number | null) => {
+    if (noteId === null) return;
+    notesStore.toggleShare(noteId);
+  };
+
+  const copyShareLink = (noteId: number | null) => {
+    if (noteId === null) return;
+    notesStore.copyShareLink(noteId);
+  };
+
+  const getTruncatedShareLink = (noteId: number | null) => {
+    if (noteId === null) return '';
+    return notesStore.getTruncatedShareLink(noteId);
+  };
 
   const isEditMode = computed(() => props.noteId !== null);
   const originalNote = ref<Note | null>(null);
@@ -199,30 +276,6 @@
       await notesStore.addNote(editedNote.value);
     }
     uiStore.closeNote();
-  };
-
-  const toggleMarkdownPreview = () => {
-    uiStore.showPreview = !uiStore.showPreview;
-    if (uiStore.showPreview) {
-      marked.setOptions({
-        highlight: function (code, lang) {
-          if (lang) {
-            if (!Prism.languages[lang]) {
-              return Prism.util.encode(code);
-            }
-            return Prism.highlight(code, Prism.languages[lang], lang);
-          }
-          return Prism.util.encode(code);
-        },
-        langPrefix: 'language-',
-      });
-      const renderedContent = marked(editedNote.value.content);
-      editedNote.value.renderedContent = DOMPurify.sanitize(renderedContent);
-
-      setTimeout(() => {
-        Prism.highlightAll();
-      }, 0);
-    }
   };
 
   const showInvalidNoteToast = () => {
@@ -295,7 +348,10 @@
     () => editedNote.value.content,
     (newContent) => {
       if (uiStore.showPreview) {
-        const renderedContent = marked(newContent);
+        // Ensure renderedContent is a string
+        const renderedContent = marked(newContent) as string;
+
+        // Sanitize the rendered content
         editedNote.value.renderedContent = DOMPurify.sanitize(renderedContent);
       }
     }

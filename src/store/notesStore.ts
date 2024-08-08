@@ -10,6 +10,7 @@ import initialNotes from '@/assets/initialNotes.json';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { nanoid } from 'nanoid';
+import Prism from 'prismjs';
 
 interface NotesState {
   notes: Note[];
@@ -58,25 +59,25 @@ export const useNotesStore = defineStore('notes', {
         await this.unshareNote(noteId);
         return;
       }
-    
+
       const note = this.notes.find((n) => n.id === noteId);
       if (!note) {
         uiStore.showToastMessage('Note not found.');
         return;
       }
-    
+
       const shareId = nanoid();
       const shareNote: ShareNote = {
         id: note.id,
         uid: authStore.user!.uid,
         shareId,
       };
-    
+
       const shareRef = ref(db, `sharedNotes/${shareId}`);
       await set(shareRef, shareNote);
-    
+
       this.sharedNotes.set(noteId, shareId);
-    
+
       const shareLink = `${window.location.origin}/shared/${shareId}`;
       uiStore.showToastMessage(`Note shared! Link: ${shareLink}`);
       navigator.clipboard
@@ -535,6 +536,66 @@ export const useNotesStore = defineStore('notes', {
             uiStore.showToastMessage('Failed to copy note content');
           });
       }
+    },
+
+    toggleMarkdownPreview(note: Note) {
+      if (note.renderedContent) {
+        (marked as any).setOptions({
+          highlight: function (code: any, lang: string | number) {
+            if (lang) {
+              if (!Prism.languages[lang]) {
+                return Prism.util.encode(code);
+              }
+              return Prism.highlight(code, Prism.languages[lang], lang);
+            }
+            return Prism.util.encode(code);
+          },
+          langPrefix: 'language-',
+        });
+
+        // Render markdown content
+        const renderedContent = marked(note.content);
+
+        if (typeof renderedContent === 'string') {
+          note.renderedContent = DOMPurify.sanitize(renderedContent);
+        } else {
+          console.error('Rendered content is not a string:', renderedContent);
+          note.renderedContent = '';
+        }
+
+        setTimeout(() => {
+          Prism.highlightAll();
+        }, 0);
+      }
+    },
+
+    async toggleShare(noteId: number) {
+      if (this.sharedNotes.has(noteId)) {
+        await this.unshareNote(noteId);
+      } else {
+        await this.shareNote(noteId);
+      }
+    },
+
+    copyShareLink(noteId: number) {
+      const shareId = this.getShareId(noteId);
+      if (!shareId) return;
+      const shareLink = `${window.location.origin}/shared/${shareId}`;
+      navigator.clipboard
+        .writeText(shareLink)
+        .then(() => {
+          uiStore.showToastMessage('Share link copied to clipboard');
+        })
+        .catch(() => {
+          uiStore.showToastMessage('Failed to copy share link');
+        });
+    },
+
+    getTruncatedShareLink(noteId: number): string {
+      const shareId = this.getShareId(noteId);
+      if (!shareId) return '';
+      const fullLink = `${window.location.origin}/shared/${shareId}`;
+      return fullLink;
     },
 
     hasChanged(originalNote: Note, editedNote: Partial<Note>): boolean {
