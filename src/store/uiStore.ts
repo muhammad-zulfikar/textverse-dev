@@ -19,6 +19,7 @@ interface UIState {
   toastMessage: string;
   toastTimeoutId: number | null;
   isAlertOpen: boolean;
+  alertMessage: string;
   isNoteCardOpen: boolean;
   isNoteSidebarOpen: boolean;
   isEditing: boolean;
@@ -47,6 +48,7 @@ export const useUIStore = defineStore('ui', {
     toastMessage: '',
     toastTimeoutId: null,
     isAlertOpen: false,
+    alertMessage: '',
     isNoteCardOpen: false,
     isNoteSidebarOpen: false,
     isEditing: false,

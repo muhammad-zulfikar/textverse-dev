@@ -70,7 +70,7 @@
                 </button>
               </div>
               <button
-                v-if="authStore.isLoggedIn"
+                v-if="authStore.isLoggedIn && noteId"
                 class="px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
                 @click="toggleShare(noteId)"
               >

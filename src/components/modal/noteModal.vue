@@ -36,7 +36,7 @@
               />
               <button
                 @click="copyShareLink(noteId)"
-                class="px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
+                class="ml-2 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
               >
                 <PhCopy :size="20" class="size-5" />
                 <span v-if="uiStore.isExpanded" class="hidden md:flex">
@@ -45,19 +45,23 @@
               </button>
             </div>
             <button
-              v-if="authStore.isLoggedIn"
+              v-if="authStore.isLoggedIn && noteId"
               class="ml-2 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
-              @click="toggleShare(noteId)"
+              @click="toggleShare(editedNote.id)"
             >
-              <PhGlobeX v-if="isNoteShared(noteId)" :size="20" class="size-5" />
+              <PhGlobeX
+                v-if="isNoteShared(editedNote.id)"
+                :size="20"
+                class="size-5"
+              />
               <PhGlobe v-else :size="20" class="size-5" />
               <span v-if="uiStore.isExpanded" class="hidden md:flex md:ml-2">
-                {{ isNoteShared(noteId) ? 'Unpublic' : 'Make public' }}
+                {{ isNoteShared(editedNote.id) ? 'Unpublic' : 'Make public' }}
               </span>
             </button>
             <button
               @click="toggleMarkdownPreview"
-              class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+              class="flex items-center ml-2 px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
             >
               <PhMarkdownLogo :size="20" class="size-5" />
               <span v-if="uiStore.isExpanded" class="hidden md:flex md:ml-2">

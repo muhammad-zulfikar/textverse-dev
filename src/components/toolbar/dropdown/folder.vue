@@ -21,7 +21,7 @@
         </div>
       </button>
     </template>
-    <div class="px-1">
+    <div class="px-1 space-y-1">
       <div
         v-for="folder in sortedFolders"
         :key="folder"

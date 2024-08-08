@@ -1,3 +1,5 @@
+<!--cardview-->
+
 <template>
   <div class="w-11/12 mx-auto mt-10 flex justify-center">
     <transition-group
@@ -83,10 +85,10 @@
     </Transition>
 
     <AlertModal
-      :is-open="isAlertOpen"
-      :message="alertMessage"
+      :is-open="uiStore.isAlertOpen"
+      :message="uiStore.alertMessage"
       @confirm="confirmDelete"
-      @cancel="closeAlert"
+      @cancel="uiStore.isAlertOpen = false"
     />
   </div>
 </template>
@@ -99,7 +101,6 @@
   import { DEFAULT_FOLDERS } from '@/store/constants';
   import ContextMenu from '@/components/contextMenu/contextMenu.vue';
   import AlertModal from '@/components/modal/alertModal.vue';
-  import { marked } from 'marked';
 
   const props = defineProps<{
     notes: Note[];
@@ -108,8 +109,6 @@
   const showMenu = ref(false);
   const menuPosition = ref({ x: 0, y: 0 });
   const selectedNote = ref<Note | null>(null);
-  const isAlertOpen = ref(false);
-  const alertMessage = ref('');
 
   const truncatedContent = (content: string) => {
     const div = document.createElement('div');
@@ -118,11 +117,6 @@
     const lines = textContent.split('\n');
     let truncatedText =
       lines.length > 10 ? lines.slice(0, 10).join('\n') + '...' : content;
-
-    if (/\*|\_|\`|\#/.test(truncatedText)) {
-      truncatedText = marked(truncatedText);
-    }
-
     return truncatedText;
   };
 
@@ -142,13 +136,9 @@
     hideContextMenu();
     const noteToDelete = props.notes.find((note) => note.id === noteId);
     if (noteToDelete) {
-      alertMessage.value = `Are you sure you want to delete the note "${noteToDelete.title}"?`;
-      isAlertOpen.value = true;
+      uiStore.isAlertOpen = true;
+      uiStore.alertMessage = `Are you sure you want to delete the note "${noteToDelete.title}"?`;
     }
-  };
-
-  const closeAlert = () => {
-    isAlertOpen.value = false;
   };
 
   const confirmDelete = async () => {
@@ -159,7 +149,7 @@
     } catch (error) {
       uiStore.showToastMessage('Failed to delete note. Please try again.');
     }
-    closeAlert();
+    uiStore.isAlertOpen = false;
   };
 </script>
 

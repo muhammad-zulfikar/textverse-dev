@@ -1,6 +1,6 @@
 // firebaseStore.ts
 
-import { ref, set, get, remove, update } from 'firebase/database';
+import { ref, set, get, remove, update, onValue } from 'firebase/database';
 import { db } from '@/firebase';
 import { Note } from './types';
 
@@ -110,4 +110,15 @@ export const getDeletedNotesFromFirebase = async (
   const trashRef = ref(db, `users/${userId}/trash`);
   const snapshot = await get(trashRef);
   return (snapshot.val() as Record<number, Note>) || {};
+};
+
+export const onNotesUpdate = (
+  userId: string,
+  callback: (notes: Record<string, Note>) => void
+): (() => void) => {
+  const notesRef = ref(db, `users/${userId}/notes`);
+  return onValue(notesRef, (snapshot) => {
+    const notes = snapshot.val() as Record<string, Note>;
+    callback(notes);
+  });
 };

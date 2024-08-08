@@ -5,7 +5,7 @@ import { Note } from './types';
 import { DEFAULT_FOLDERS } from './constants';
 import { authStore, folderStore, uiStore, firebaseStore } from './stores';
 import { db } from '@/firebase';
-import { get, ref, remove, set } from 'firebase/database';
+import { get, onValue, ref, remove, set } from 'firebase/database';
 import initialNotes from '@/assets/initialNotes.json';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
@@ -18,6 +18,7 @@ interface NotesState {
   selectedNoteId: number | null;
   searchQuery: string;
   sharedNotes: Map<number, string>;
+  unsubscribeNotesListener: (() => void) | null;
 }
 
 interface ShareNote {
@@ -33,6 +34,7 @@ export const useNotesStore = defineStore('notes', {
     selectedNoteId: null as number | null,
     searchQuery: '',
     sharedNotes: new Map(),
+    unsubscribeNotesListener: null,
   }),
 
   getters: {
@@ -457,10 +459,15 @@ export const useNotesStore = defineStore('notes', {
 
     async loadNotes() {
       if (authStore.isLoggedIn) {
-        const firebaseNotes = await firebaseStore.getAllNotesFromFirebase(
-          authStore.user!.uid
-        );
-        this.notes = Object.values(firebaseNotes);
+        const userId = authStore.user!.uid;
+        const notesRef = ref(db, `users/${userId}/notes`);
+
+        // Set up a real-time listener for notes updates
+        this.unsubscribeNotesListener = onValue(notesRef, (snapshot) => {
+          const notes = Object.values(snapshot.val() as Record<string, Note>);
+          this.notes = notes;
+          this.reorderNotes();
+        });
       } else {
         const savedNotes = localStorage.getItem('notes');
         if (savedNotes) {
@@ -505,6 +512,13 @@ export const useNotesStore = defineStore('notes', {
         }
       }
       this.reorderNotes();
+    },
+
+    async unloadNotes() {
+      if (this.unsubscribeNotesListener) {
+        this.unsubscribeNotesListener();
+        this.unsubscribeNotesListener = null;
+      }
     },
 
     reorderNotes() {

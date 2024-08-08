@@ -28,7 +28,7 @@
         <span v-else-if="uiStore.viewType === 'folder'">Folder</span>
       </button>
     </template>
-    <div class="px-1 text-sm">
+    <div class="px-1 space-y-1 text-sm">
       <div
         class="w-full rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200"
         :class="{

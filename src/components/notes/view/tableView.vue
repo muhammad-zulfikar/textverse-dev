@@ -170,9 +170,9 @@
     </div>
 
     <AlertModal
-      :is-open="showDeleteConfirmation"
+      :is-open="uiStore.isAlertOpen"
       :message="`Are you sure you want to delete ${selectedNotes.length} note(s)?`"
-      @cancel="showDeleteConfirmation = false"
+      @cancel="uiStore.isAlertOpen = false"
       @confirm="deleteSelectedNotes"
     />
   </div>
@@ -251,7 +251,6 @@
   const visibleColumns = ref(availableColumns);
   const selectMode = ref(false);
   const selectedNotes = ref<number[]>([]);
-  const showDeleteConfirmation = ref(false);
   const isMobile = ref(window.innerWidth < 768);
 
   const filteredColumns = computed(() => {
@@ -329,7 +328,7 @@
   };
 
   const confirmDeleteSelectedNotes = () => {
-    showDeleteConfirmation.value = true;
+    uiStore.isAlertOpen = true;
   };
 
   const deleteSelectedNotes = async () => {
@@ -338,7 +337,7 @@
       await notesStore.deleteNote(noteId);
     }
     selectedNotes.value = [];
-    showDeleteConfirmation.value = false;
+    uiStore.isAlertOpen = false;
     uiStore.showToastMessage(
       `${notesToDeleteCount} note(s) deleted successfully!`
     );

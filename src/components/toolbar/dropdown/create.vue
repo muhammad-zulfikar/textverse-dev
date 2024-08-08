@@ -15,7 +15,7 @@
         Create
       </button>
     </template>
-    <div class="w-full text-sm px-1">
+    <div class="w-full text-sm px-1 space-y-1">
       <button
         @click.stop="openNoteForm"
         class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"

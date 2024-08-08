@@ -1,5 +1,3 @@
-<!--sharedNoteView-->
-
 <template>
   <div
     v-if="note"
@@ -11,14 +9,16 @@
         'custom-card-no-rounded-border w-full h-full',
       ]"
     >
-      <div class="flex justify-between text-sm mb-4 select-none">
-        <h1 class="text-3xl font-bold">
+      <div
+        class="flex justify-between text-sm mb-4 select-none items-start md:items-center"
+      >
+        <h1 class="text-3xl font-bold flex-grow">
           {{ note.title }}
           <span class="text-sm font-normal text-gray-500 ml-2">
             {{ notesStore.localeDate(note.last_edited || note.time_created) }}
           </span>
         </h1>
-        <div class="flex space-x-2">
+        <div class="flex space-x-2 items-start md:items-center">
           <button
             @click="toggleMarkdownPreview"
             class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
@@ -121,19 +121,13 @@
     if (note.value) {
       const newNote: Note = {
         ...note.value,
-        id: generateUniqueId(),
+        id: Date.now(),
         time_created: new Date().toISOString(),
         last_edited: new Date().toISOString(),
       };
-
       notesStore.addNote(newNote);
-
       uiStore.showToastMessage('Note saved as a new copy.');
     }
-  };
-
-  const generateUniqueId = () => {
-    return '_' + Math.random().toString(36).substr(2, 9);
   };
 
   const closeNote = () => {
