@@ -1,5 +1,4 @@
 <!--cardview-->
-
 <template>
   <div class="w-11/12 mx-auto mt-10 flex justify-center">
     <transition-group
@@ -46,13 +45,22 @@
           <div
             class="flex justify-between items-center pt-3 mt-auto font-serif text-gray-700 dark:text-gray-400 text-xs"
           >
-            <span
-              v-if="note.pinned"
-              @click.stop="notesStore.unpinNote(note.id)"
-              class="justify-start px-2 py-1 hover:bg-[#d9c698] dark:hover:bg-gray-700 rounded-md custom-card"
-            >
-              <PhPushPin :size="16" class="text-[10px] md:text-xs" />
-            </span>
+            <div class="flex items-center">
+              <span
+                v-if="note.pinned"
+                @click.stop="notesStore.unpinNote(note.id)"
+                class="justify-start px-2 py-1 hover:bg-[#d9c698] dark:hover:bg-gray-700 rounded-md custom-card mr-2"
+              >
+                <PhPushPin :size="16" class="text-[10px] md:text-xs" />
+              </span>
+              <span
+                v-if="isNoteShared(note.id)"
+                @click.stop="toggleShare(note.id)"
+                class="justify-start px-2 py-1 hover:bg-[#d9c698] dark:hover:bg-gray-700 rounded-md custom-card"
+              >
+                <PhGlobe :size="16" class="text-[10px] md:text-xs" />
+              </span>
+            </div>
             <div
               v-if="note.folder !== DEFAULT_FOLDERS.UNCATEGORIZED"
               class="ml-auto text-left text-[10px] md:text-xs"
@@ -81,6 +89,7 @@
         @delete="openDeleteAlert"
         @pin="notesStore.pinNote"
         @unpin="notesStore.unpinNote"
+        @share="toggleShare"
       />
     </Transition>
 
@@ -95,7 +104,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { PhPushPin, PhFolder } from '@phosphor-icons/vue';
+  import { PhPushPin, PhFolder, PhGlobe } from '@phosphor-icons/vue';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
   import { DEFAULT_FOLDERS } from '@/store/constants';
@@ -109,6 +118,14 @@
   const showMenu = ref(false);
   const menuPosition = ref({ x: 0, y: 0 });
   const selectedNote = ref<Note | null>(null);
+
+  const isNoteShared = (noteId: number) => {
+    return notesStore.sharedNotes.has(noteId);
+  };
+
+  const toggleShare = (noteId: number) => {
+    notesStore.toggleShare(noteId);
+  };
 
   const truncatedContent = (content: string) => {
     const div = document.createElement('div');

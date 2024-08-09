@@ -46,6 +46,15 @@
         </li>
         <li
           v-if="!showFolderOptions"
+          @click="shareNote"
+          class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+        >
+          <PhGlobe v-if="!isNoteShared" :size="20" class="mr-2" />
+          <PhGlobeX v-else :size="20" class="mr-2" />
+          {{ isNoteShared ? 'Unpublic' : 'Make public' }}
+        </li>
+        <li
+          v-if="!showFolderOptions"
           class="relative inline-block text-left w-full"
           ref="dropdownRef"
         >
@@ -107,6 +116,8 @@
     PhClipboardText,
     PhPushPin,
     PhPushPinSlash,
+    PhGlobe,
+    PhGlobeX,
     PhTrash,
     PhCaretLeft,
     PhFolder,
@@ -140,9 +151,9 @@
     'hideMenu',
     'edit',
     'delete',
-    'download',
     'pin',
     'unpin',
+    'share'
   ]);
 
   const showFolderOptions = ref(false);
@@ -164,6 +175,8 @@
     }
     return folders;
   });
+
+  const isNoteShared = computed(() => notesStore.sharedNotes.has(props.noteId));
 
   const calculateMenuPosition = (x: number, y: number) => {
     if (!menuRef.value) return { x, y };
@@ -243,6 +256,11 @@
 
   const unpinNote = () => {
     emit('unpin', props.noteId);
+    emit('hideMenu');
+  };
+
+  const shareNote = () => {
+    emit('share', props.noteId);
     emit('hideMenu');
   };
 

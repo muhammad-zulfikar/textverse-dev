@@ -32,14 +32,14 @@
                 v-if="uiStore.isExpanded"
                 :value="getTruncatedShareLink(noteId)"
                 readonly
-                class="px-2 py-1 custom-card"
+                class="mr-2 px-2 py-1 custom-card"
               />
               <button
                 @click="copyShareLink(noteId)"
-                class="ml-2 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
+                class="px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
               >
                 <PhCopy :size="20" class="size-5" />
-                <span v-if="uiStore.isExpanded" class="hidden md:flex">
+                <span v-if="uiStore.isExpanded" class="hidden md:flex md:ml-2">
                   Copy link
                 </span>
               </button>
@@ -146,7 +146,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, watch } from 'vue';
+  import { ref, computed, watch, onBeforeUnmount } from 'vue';
   import {
     PhFloppyDisk,
     PhArrowsOut,
@@ -221,26 +221,6 @@
     return notesStore.hasChanged(originalNote.value, editedNote.value);
   });
 
-  const saveNote = async () => {
-    if (!isValid.value) {
-      showInvalidNoteToast();
-      return;
-    }
-
-    if (isEditMode.value && !hasChanges.value) {
-      showNoChangesNoteToast();
-      return;
-    }
-
-    if (isEditMode.value && hasChanges.value) {
-      await notesStore.updateNote(editedNote.value);
-      uiStore.closeNote();
-    } else if (!isEditMode.value) {
-      await notesStore.addNote(editedNote.value);
-      uiStore.closeNote();
-    }
-  };
-
   const showInvalidNoteToast = () => {
     if (editedNote.value.title.trim().length === 0) {
       uiStore.showToastMessage('Title is required');
@@ -254,15 +234,6 @@
   const showNoChangesNoteToast = () => {
     uiStore.showToastMessage('No changes yet');
   };
-
-  function handleOutsideClick() {
-    if (!hasChanges.value) {
-      uiStore.showPreview = false;
-      uiStore.closeNote();
-    } else {
-      uiStore.showToastMessage('You have unsaved changes.');
-    }
-  }
 
   const markdownPreviewStyle = computed((): Record<string, string> => {
     if (uiStore.isExpanded) {
@@ -305,4 +276,56 @@
     },
     { immediate: true }
   );
+
+  const saveNote = async () => {
+    if (!isValid.value) {
+      showInvalidNoteToast();
+      return;
+    }
+
+    if (isEditMode.value && !hasChanges.value) {
+      showNoChangesNoteToast();
+      return;
+    }
+
+    if (isEditMode.value && hasChanges.value) {
+      await notesStore.updateNote(editedNote.value);
+      clearNoteModal();
+      uiStore.closeNote();
+    } else if (!isEditMode.value) {
+      await notesStore.addNote(editedNote.value);
+      clearNoteModal();
+      uiStore.closeNote();
+    }
+  };
+
+  const clearNoteModal = () => {
+    editedNote.value = {
+      id: Date.now(),
+      title: '',
+      content: '',
+      time_created: new Date().toISOString(),
+      last_edited: new Date().toISOString(),
+      pinned: false,
+      folder:
+        folderStore.currentFolder !== DEFAULT_FOLDERS.ALL_NOTES
+          ? folderStore.currentFolder
+          : DEFAULT_FOLDERS.UNCATEGORIZED,
+    };
+    originalNote.value = null;
+  };
+
+  const handleOutsideClick = () => {
+    if (!hasChanges.value) {
+      uiStore.showPreview = false;
+      clearNoteModal();
+      uiStore.closeNote();
+    } else {
+      uiStore.showToastMessage('You have unsaved changes.');
+    }
+  };
+
+  onBeforeUnmount(() => {
+    clearNoteModal();
+  });
 </script>

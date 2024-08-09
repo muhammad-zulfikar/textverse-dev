@@ -154,7 +154,6 @@ export const useNotesStore = defineStore('notes', {
         await firebaseStore.saveNoteToFirebase(authStore.user!.uid, note);
       }
 
-      this.notes.unshift(note);
       this.reorderNotes();
       this.saveNotes();
       uiStore.showToastMessage(`${note.title} added`);
