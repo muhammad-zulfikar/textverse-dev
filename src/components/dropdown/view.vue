@@ -170,7 +170,7 @@
     PhGridFour,
     PhList,
   } from '@phosphor-icons/vue';
-  import Dropdown from '@/components/dropdown.vue';
+  import Dropdown from '@/components/dropdown/dropdown.vue';
 
   const isOpen = ref(false);
   const isMobile = ref(window.innerWidth < 640);

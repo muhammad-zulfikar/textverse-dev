@@ -23,7 +23,7 @@
           </button>
           <button
             @click="$emit('confirm')"
-            class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-200 hover:bg-red-700/50 dark:hover:bg-red-800/60 cursor-pointer"
+            class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-100 hover:bg-red-700/50 dark:hover:bg-red-800/60 cursor-pointer"
           >
             <PhCheckCircle :size="20" class="mr-2" />
             <span class="text-sm">Proceed</span>

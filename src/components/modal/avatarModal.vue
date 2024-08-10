@@ -38,7 +38,7 @@
         <div class="flex justify-between mt-6 text-sm">
           <button
             @click.prevent="removeAvatar"
-            class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-200 hover:bg-red-700/50 dark:hover:bg-red-800/60 mr-4 cursor-pointer"
+            class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-100 hover:bg-red-700/50 dark:hover:bg-red-800/60 mr-4 cursor-pointer"
           >
             <PhTrash :size="20" class="mr-2" />
             Remove Avatar

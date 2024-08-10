@@ -19,7 +19,7 @@
       <button
         v-if="selectMode && selectedNotes.length > 0"
         @click="confirmDeleteSelectedNotes"
-        class="flex items-center mr-2 px-2 py-1 custom-card text-red-500 hover:text-red-200 hover:bg-red-700/50 dark:hover:bg-red-800/60"
+        class="flex items-center mr-2 px-2 py-1 custom-card text-red-500 hover:text-red-100 hover:bg-red-700/50 dark:hover:bg-red-800/60"
       >
         <PhTrash :size="20" class="size-5 mr-2" />
         Delete
@@ -196,7 +196,7 @@
   import { Note } from '@/store/types';
   import { uiStore, notesStore, folderStore } from '@/store/stores';
   import AlertModal from '@/components/modal/alertModal.vue';
-  import Dropdown from '@/components/dropdown.vue';
+  import Dropdown from '@/components/dropdown/dropdown.vue';
 
   const props = defineProps<{
     notes: Note[];

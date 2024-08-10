@@ -51,7 +51,7 @@
   import { PhFolder, PhFolderMinus } from '@phosphor-icons/vue';
   import { folderStore, uiStore } from '@/store/stores';
   import { DEFAULT_FOLDERS } from '@/store/constants';
-  import Dropdown from '@/components/dropdown.vue';
+  import Dropdown from '@/components/dropdown/dropdown.vue';
   import { onClickOutside } from '@vueuse/core';
 
   const props = defineProps<{

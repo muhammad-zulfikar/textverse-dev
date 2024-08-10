@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-  import Folder from './dropdown/folder.vue';
-  import Create from './dropdown/create.vue';
-  import View from './dropdown/view.vue';
+  import Folder from '@/components/dropdown/folder.vue';
+  import Create from '@/components/dropdown/create.vue';
+  import View from '@/components/dropdown/view.vue';
 </script>

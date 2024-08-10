@@ -97,7 +97,7 @@
         <li
           v-if="!showFolderOptions"
           @click="deleteNote"
-          class="p-2 cursor-pointer w-full text-left rounded-md text-red-500 hover:text-red-200 hover:bg-red-700 dark:hover:bg-red-800/60 transition-colors duration-200 flex items-center"
+          class="p-2 cursor-pointer w-full text-left rounded-md text-red-500 hover:text-red-100 hover:bg-red-700/50 dark:hover:bg-red-800/60 transition-colors duration-200 flex items-center"
         >
           <PhTrash :size="20" class="mr-2" />
           Delete
@@ -153,7 +153,7 @@
     'delete',
     'pin',
     'unpin',
-    'share'
+    'share',
   ]);
 
   const showFolderOptions = ref(false);

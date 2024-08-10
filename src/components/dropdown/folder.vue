@@ -70,7 +70,7 @@
             </button>
             <button
               @click.stop="openDeleteAlert(folder)"
-              class="text-xs flex items-center px-2 py-1 text-red-500 hover:text-red-200 hover:bg-red-700/50 dark:hover:bg-red-800/60 custom-card mb-2"
+              class="text-xs flex items-center px-2 py-1 text-red-500 hover:text-red-00 hover:bg-red-700/50 dark:hover:bg-red-800/60 custom-card mb-2"
             >
               <PhTrash :size="16" class="mr-1" />
               Delete
@@ -109,7 +109,7 @@
     PhTextbox,
     PhTrash,
   } from '@phosphor-icons/vue';
-  import Dropdown from '@/components/dropdown.vue';
+  import Dropdown from '@/components/dropdown/dropdown.vue';
   import InputModal from '@/components/modal/inputModal.vue';
   import alertModal from '@/components/modal/alertModal.vue';
   import { DEFAULT_FOLDERS } from '@/store/constants';

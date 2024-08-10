@@ -49,26 +49,6 @@
 
             <!-- Center Section: Share Input, Copy Link, Unpublic, and Markdown Preview -->
             <div class="flex space-x-2 items-center">
-              <div v-if="isNoteShared(noteId)" class="flex items-center">
-                <input
-                  v-if="uiStore.isExpanded"
-                  :value="getTruncatedShareLink(noteId)"
-                  readonly
-                  class="px-2 py-1 custom-card"
-                />
-                <button
-                  @click="copyShareLink(noteId)"
-                  class="ml-2 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
-                >
-                  <PhCopy :size="20" class="size-5" />
-                  <span
-                    v-if="uiStore.isExpanded"
-                    class="hidden md:flex md:ml-2"
-                  >
-                    Copy link
-                  </span>
-                </button>
-              </div>
               <button
                 v-if="authStore.isLoggedIn && noteId"
                 class="px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
@@ -84,6 +64,26 @@
                   {{ isNoteShared(noteId) ? 'Unpublic' : 'Make public' }}
                 </span>
               </button>
+              <div v-if="isNoteShared(noteId)" class="flex items-center">
+                <input
+                  v-if="uiStore.isExpanded"
+                  :value="getTruncatedShareLink(noteId)"
+                  readonly
+                  class="px-2 py-1 custom-card hidden md:flex"
+                />
+                <button
+                  @click="copyShareLink(noteId)"
+                  class="ml-2 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
+                >
+                  <PhCopy :size="20" class="size-5" />
+                  <span
+                    v-if="uiStore.isExpanded"
+                    class="hidden md:flex md:ml-2"
+                  >
+                    Copy link
+                  </span>
+                </button>
+              </div>
               <button
                 @click="toggleMarkdownPreview"
                 class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
@@ -100,7 +100,7 @@
               <button
                 v-if="isEditMode"
                 @click="openDeleteAlert"
-                class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-200 hover:bg-red-700/50 dark:hover:bg-red-800/60"
+                class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-100 hover:bg-red-700/50 dark:hover:bg-red-800/60"
               >
                 <PhTrash :size="20" class="size-5" />
                 <span v-if="uiStore.isExpanded" class="hidden md:flex md:ml-2">
@@ -128,7 +128,11 @@
             <input
               v-model="editedNote.title"
               placeholder="Title"
-              class="text-2xl md:text-3xl font-bold w-full bg-transparent mb-1 outline-none placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
+              class="font-bold w-full bg-transparent mb-1 outline-none placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
+              :class="{
+                'text-2xl': !uiStore.isExpanded,
+                'text-4xl': uiStore.isExpanded,
+              }"
             />
           </div>
           <div
@@ -194,7 +198,7 @@
   import { DEFAULT_FOLDERS } from '@/store/constants';
   import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
   import AlertModal from '@/components/modal/alertModal.vue';
-  import FolderDropdown from '@/components/folderDropdown.vue';
+  import FolderDropdown from '@/components/dropdown/folderDropdown.vue';
   import DOMPurify from 'dompurify';
   import { marked } from 'marked';
 

@@ -156,7 +156,7 @@
   import AlertModal from '@/components/modal/alertModal.vue';
   import { Note } from '@/store/types';
   import { DEFAULT_FOLDERS } from '@/store/constants';
-  import FolderDropdown from '@/components/folderDropdown.vue';
+  import FolderDropdown from '@/components/dropdown/folderDropdown.vue';
 
   const props = defineProps<{
     notes: Note[];

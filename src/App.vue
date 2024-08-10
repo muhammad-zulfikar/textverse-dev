@@ -23,7 +23,7 @@
   import { authStore, notesStore, folderStore, uiStore } from './store/stores';
   import Navbar from '@/components/navbar/navbar.vue';
   import Toast from '@/components/toast/toast.vue';
-  import LoadingSpinner from '@/components/loadingSpinner.vue';
+  import LoadingSpinner from '@/components/loadingSpinner/loadingSpinner.vue';
 
   const router = useRouter();
   const routeOrder = ['Home', 'About', 'Settings', 'Sign In'];
