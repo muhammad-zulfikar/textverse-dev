@@ -15,9 +15,9 @@
               uiStore.isExpanded && !uiStore.blurEnabled,
             'custom-card-blur-no-rounded-border w-full h-full':
               uiStore.isExpanded && uiStore.blurEnabled,
-            'custom-card w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3':
+            'custom-card w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5':
               !uiStore.isExpanded && !uiStore.blurEnabled,
-            'custom-card-blur w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3':
+            'custom-card-blur w-11/12 md:w-3/4 lg:w-1/2 xl:w-2/5':
               !uiStore.isExpanded && uiStore.blurEnabled,
           },
         ]"
@@ -107,11 +107,11 @@
           :style="contentStyle"
         ></textarea>
         <div
-          v-if="uiStore.showPreview"
-          class="prose dark:prose-dark markdown-body prism-highlight w-full mb-2 bg-transparent resize-none overflow-auto flex-grow"
-          :style="contentStyle"
-          v-html="editedNote.renderedContent"
-        ></div>
+  v-if="uiStore.showPreview"
+  class="prose dark:prose-dark markdown-body prism-highlight w-full mb-2 bg-transparent resize-none overflow-auto flex-grow"
+  :style="contentStyle"
+  v-html="notesStore.toggleMarkdownPreview(editedNote)"
+></div>
         <div class="flex justify-between mt-4 select-none text-sm">
           <FolderDropdown v-model="editedNote.folder" direction="up" />
           <div class="flex justify-end mt-1 select-none text-gray-500 text-sm">
@@ -173,13 +173,6 @@ const isNoteShared = (noteId: number | null) => {
   return notesStore.sharedNotes.has(noteId);
 };
 
-const toggleMarkdownPreview = () => {
-  uiStore.showPreview = !uiStore.showPreview;
-  if (uiStore.showPreview) {
-    notesStore.toggleMarkdownPreview(editedNote.value);
-  }
-};
-
 const toggleShare = (noteId: number | null) => {
   if (noteId === null) return;
   notesStore.toggleShare(noteId);
@@ -188,6 +181,10 @@ const toggleShare = (noteId: number | null) => {
 const copyShareLink = (noteId: number | null) => {
   if (noteId === null) return;
   notesStore.copyShareLink(noteId);
+};
+
+const toggleMarkdownPreview = () => {
+  uiStore.showPreview = !uiStore.showPreview;
 };
 
 const getTruncatedShareLink = (noteId: number | null) => {
@@ -238,7 +235,7 @@ const showNoChangesNoteToast = () => {
 const contentStyle = computed(() => {
   const baseStyle = {
     height: uiStore.isExpanded ? 'calc(100vh - 250px)' : '300px',
-    overflowY: 'auto',
+    overflowY: 'auto' as const,
   };
   return baseStyle;
 });

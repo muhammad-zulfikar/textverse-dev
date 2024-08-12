@@ -164,7 +164,7 @@
             <div
               v-if="uiStore.showPreview"
               class="prose dark:prose-dark markdown-body prism-highlight w-full h-full"
-              v-html="editedNote.renderedContent"
+              v-html="notesStore.toggleMarkdownPreview(editedNote)"
             ></div>
           </div>
         </div>
@@ -214,9 +214,6 @@
 
   const toggleMarkdownPreview = () => {
     uiStore.showPreview = !uiStore.showPreview;
-    if (uiStore.showPreview) {
-      notesStore.toggleMarkdownPreview(editedNote.value);
-    }
   };
 
   const toggleShare = (noteId: number | null) => {

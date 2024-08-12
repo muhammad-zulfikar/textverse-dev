@@ -123,7 +123,7 @@
                 />
                 <div @click="uiStore.openNote(note.id)">
                   <span
-                    class="bg-[#ebdfc0] dark:bg-gray-800 hover:bg-cream dark:hover:bg-gray-700 active:bg-cream dark:active:bg-gray-700 rounded-lg border-[1px] border-black dark:border-white shadow-md hover:shadow-xl transition-all duration-300 text-sm ml-2 px-2 py-1 absolute right-2 top-1/2 transform -translate-y-1/2 group-hover:inline-block md:group-hover:inline-block md:hidden cursor-pointer"
+                    class="bg-[#ebdfc0] dark:bg-gray-800 hover:bg-[#d9c698] dark:hover:bg-gray-700 active:bg-cream dark:active:bg-gray-700 rounded-lg border-[1px] border-black dark:border-white shadow-md hover:shadow-xl transition-all duration-300 text-sm ml-2 px-2 py-1 absolute right-2 top-1/2 transform -translate-y-1/2 group-hover:inline-block md:group-hover:inline-block md:hidden cursor-pointer"
                   >
                     <PhSidebarSimple :size="20" />
                   </span>

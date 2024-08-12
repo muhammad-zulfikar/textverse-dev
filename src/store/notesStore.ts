@@ -183,7 +183,6 @@ export const useNotesStore = defineStore('notes', {
           );
         }
 
-        this.notes[index] = noteWithTimestamp;
         this.reorderNotes();
         this.saveNotes();
         uiStore.closeNote();
@@ -461,7 +460,6 @@ export const useNotesStore = defineStore('notes', {
         const userId = authStore.user!.uid;
         const notesRef = ref(db, `users/${userId}/notes`);
 
-        // Set up a real-time listener for notes updates
         this.unsubscribeNotesListener = onValue(notesRef, (snapshot) => {
           const notes = Object.values(snapshot.val() as Record<string, Note>);
           this.notes = notes;
@@ -551,34 +549,28 @@ export const useNotesStore = defineStore('notes', {
       }
     },
 
-    toggleMarkdownPreview(note: Note) {
-      if (note.renderedContent) {
-        (marked as any).setOptions({
-          highlight: function (code: any, lang: string | number) {
-            if (lang) {
-              if (!Prism.languages[lang]) {
-                return Prism.util.encode(code);
-              }
-              return Prism.highlight(code, Prism.languages[lang], lang);
+    toggleMarkdownPreview(note: Note | Partial<Note>) {
+      (marked as any).setOptions({
+        highlight: function (code: any, lang: string | number) {
+          if (lang) {
+            if (!Prism.languages[lang]) {
+              return Prism.util.encode(code);
             }
-            return Prism.util.encode(code);
-          },
-          langPrefix: 'language-',
-        });
-
-        // Render markdown content
-        const renderedContent = marked(note.content);
-
-        if (typeof renderedContent === 'string') {
-          note.renderedContent = DOMPurify.sanitize(renderedContent);
-        } else {
-          console.error('Rendered content is not a string:', renderedContent);
-          note.renderedContent = '';
-        }
-
-        setTimeout(() => {
-          Prism.highlightAll();
-        }, 0);
+            return Prism.highlight(code, Prism.languages[lang], lang);
+          }
+          return Prism.util.encode(code);
+        },
+        langPrefix: 'language-',
+      });
+    
+      const contentToRender = note.content || '';
+      const renderedContent = marked(contentToRender);
+    
+      if (typeof renderedContent === 'string') {
+        return DOMPurify.sanitize(renderedContent);
+      } else {
+        console.error('Rendered content is not a string:', renderedContent);
+        return '';
       }
     },
 
