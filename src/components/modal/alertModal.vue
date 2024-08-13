@@ -1,11 +1,11 @@
 <!-- alertModal.vue -->
 
 <template>
-  <ModalBackdrop v-model="props.isOpen" />
+  <ModalBackdrop v-model="props.isOpen" class="z-60"/>
   <transition name="zoom">
     <div
       v-if="props.isOpen"
-      class="fixed inset-0 z-40 flex items-center justify-center"
+      class="fixed inset-0 z-60 flex items-center justify-center"
     >
       <div
         class="p-5 relative flex flex-col w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3 font-serif"

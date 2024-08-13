@@ -67,7 +67,7 @@
 
   const props = defineProps<{
     isOpen: boolean;
-    mode: 'username' | 'folder';
+    mode: 'username' | 'folder' | 'title';
     currentValue?: string;
     maxLength?: number;
   }>();
@@ -82,7 +82,8 @@
 
   const modalTitle = computed(() => {
     if (props.mode === 'username') return 'Rename';
-    return props.currentValue ? 'Rename Folder' : 'Create New Folder';
+    if (props.mode === 'folder') return props.currentValue ? 'Rename Folder' : 'Create New Folder';
+    if (props.mode === 'title') return props.currentValue ? 'Edit Title' : 'Enter Title';
   });
 
   const showCharCount = computed(() => props.mode === 'folder');
@@ -101,7 +102,6 @@
   };
 
   const closeModal = () => {
-    inputValue.value = '';
     emit('close');
   };
 
@@ -112,7 +112,11 @@
   const handleBlur = () => {
     if (inputValue.value.trim() === '') {
       placeholder.value =
-        props.mode === 'username' ? 'Enter your username' : 'Enter folder name';
+        props.mode === 'username'
+          ? 'Enter your username'
+          : props.mode === 'folder'
+          ? 'Enter folder name'
+          : 'Enter title';
     }
   };
 

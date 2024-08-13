@@ -78,12 +78,12 @@
               @click.stop="increaseColumns"
               :class="{
                 'text-gray-400 cursor-default':
-                  uiStore.columns >= (isMobile ? 2 : 5),
+                  uiStore.columns >= (isMobile ? 2 : 4),
                 'hover:bg-[#d9c698] dark:hover:bg-gray-600':
-                  uiStore.columns < (isMobile ? 2 : 5),
+                  uiStore.columns < (isMobile ? 2 : 4),
               }"
               class="text-center text-sm p-2 mb-1 rounded-md transition-colors duration-200"
-              :disabled="uiStore.columns >= (isMobile ? 2 : 5)"
+              :disabled="uiStore.columns >= (isMobile ? 2 : 4)"
             >
               <PhPlusCircle :size="16" />
             </button>
@@ -194,7 +194,7 @@
   };
 
   const increaseColumns = () => {
-    if (uiStore.columns < (isMobile.value ? 2 : 5)) {
+    if (uiStore.columns < (isMobile.value ? 2 : 4)) {
       uiStore.setColumns(uiStore.columns + 1);
     }
     uiStore.setViewType('card');

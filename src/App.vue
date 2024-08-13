@@ -43,7 +43,6 @@
     try {
       await authStore.fetchCurrentUser();
       await uiStore.loadSettings();
-      await uiStore.applyTheme();
       await notesStore.loadNotes();
       await folderStore.loadFolders();
       await notesStore.loadDeletedNotes();

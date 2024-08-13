@@ -10,10 +10,8 @@
           'columns-1 md:max-w-xl': uiStore.columns === 1,
           'columns-2 md:gap-7 md:max-w-4xl': uiStore.columns === 2,
           'columns-3 sm:columns-2 md:columns-3 gap-8': uiStore.columns === 3,
-          'columns-4 sm:columns-2 md:columns-3 lg:columns-4 gap-5':
-            uiStore.columns === 4,
-          'columns-5 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3':
-            uiStore.columns === 5,
+          'columns-4 sm:columns-2 md:columns-3 lg:columns-4 gap-5': uiStore.columns === 4,
+          // 'columns-5 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3': uiStore.columns === 5,
         },
       ]"
     >
@@ -46,6 +44,10 @@
             class="flex justify-between items-center pt-3 mt-auto font-serif text-gray-700 dark:text-gray-400 text-xs"
           >
             <div class="flex items-center">
+              <div class="hidden md:flex items-center custom-card px-2 py-1 mr-2">
+              <PhCalendarBlank :size="16" class="mr-2" />
+              {{ notesStore.localeDate(note.last_edited || note.time_created) }}
+            </div>
               <span
                 v-if="note.pinned"
                 @click.stop="notesStore.unpinNote(note.id)"
@@ -104,7 +106,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { PhPushPin, PhFolder, PhGlobe } from '@phosphor-icons/vue';
+  import { PhPushPin, PhFolder, PhGlobe, PhCalendarBlank } from '@phosphor-icons/vue';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
   import { DEFAULT_FOLDERS } from '@/store/constants';

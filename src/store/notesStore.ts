@@ -139,7 +139,7 @@ export const useNotesStore = defineStore('notes', {
       const now = formatDate(new Date());
       const note: Note = {
         ...newNote,
-        id: Date.now(),
+        id: nanoid(),
         time_created: now,
         last_edited: now,
         pinned: false,

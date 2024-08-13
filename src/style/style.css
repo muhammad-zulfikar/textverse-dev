@@ -220,6 +220,14 @@ button:active {
   color: black;
 }
 
+.z-60 {
+  z-index: 60;
+}
+
+.z-50 {
+  z-index: 50;
+}
+
 .dark ::-webkit-selection {
   background: #171717;
   color: #fff;

@@ -1,17 +1,12 @@
-<!-- noteSidebar.vue -->
-
 <template>
   <ModalBackdrop v-model="props.isOpen" />
   <transition name="slide">
-    <div
-      v-if="props.isOpen"
-      class="fixed inset-0 z-40 flex items-center justify-center font-serif"
-    >
+    <div v-if="props.isOpen" class="fixed inset-0 z-40 flex items-center justify-center font-serif">
       <div @click="handleOutsideClick" class="absolute inset-0"></div>
       <div
         ref="sidebarContainer"
         :class="[
-          'fixed inset-y-0 right-0 overflow-y-auto flex flex-col',
+          'fixed inset-y-0 right-0 overflow-y-auto flex flex-col px-4',
           {
             'custom-card-no-rounded-border w-full':
               uiStore.isExpanded && !uiStore.blurEnabled,
@@ -24,137 +19,33 @@
           },
         ]"
       >
-        <div class="p-6 flex flex-col h-full">
-          <div class="flex justify-between items-center mb-6 md:mb-8 text-sm">
-            <!-- Left Section: Close and Expand Buttons -->
-            <div class="flex space-x-2">
-              <button
-                @click="uiStore.closeNote"
-                class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
-              >
-                <PhX :size="20" class="size-5" />
-              </button>
-              <button
-                @click="uiStore.toggleExpand"
-                class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
-              >
-                <PhArrowsIn
-                  :size="20"
-                  class="size-5"
-                  v-if="uiStore.isExpanded"
-                />
-                <PhArrowsOut :size="20" class="size-5" v-else />
-              </button>
-            </div>
-
-            <!-- Center Section: Share Input, Copy Link, Unpublic, and Markdown Preview -->
-            <div class="flex space-x-2 items-center">
-              <button
-                v-if="authStore.isLoggedIn && noteId"
-                class="px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
-                @click="toggleShare(noteId)"
-              >
-                <PhGlobeX
-                  v-if="isNoteShared(noteId)"
-                  :size="20"
-                  class="size-5"
-                />
-                <PhGlobe v-else :size="20" class="size-5" />
-                <span v-if="uiStore.isExpanded" class="hidden md:flex md:ml-2">
-                  {{ isNoteShared(noteId) ? 'Unpublic' : 'Make public' }}
-                </span>
-              </button>
-              <div v-if="isNoteShared(noteId)" class="flex items-center">
-                <input
-                  v-if="uiStore.isExpanded"
-                  :value="getTruncatedShareLink(noteId)"
-                  readonly
-                  class="px-2 py-1 custom-card hidden md:flex"
-                />
-                <button
-                  @click="copyShareLink(noteId)"
-                  class="ml-2 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
-                >
-                  <PhCopy :size="20" class="size-5" />
-                  <span
-                    v-if="uiStore.isExpanded"
-                    class="hidden md:flex md:ml-2"
-                  >
-                    Copy link
-                  </span>
-                </button>
-              </div>
-              <button
-                @click="toggleMarkdownPreview"
-                class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
-              >
-                <PhMarkdownLogo :size="20" class="size-5" />
-                <span v-if="uiStore.isExpanded" class="hidden md:flex md:ml-2">
-                  Preview
-                </span>
-              </button>
-            </div>
-
-            <!-- Right Section: Delete and Save Buttons -->
-            <div class="flex space-x-2">
-              <button
-                v-if="isEditMode"
-                @click="openDeleteAlert"
-                class="flex items-center px-2 py-1 custom-card text-red-500 hover:text-red-100 hover:bg-red-700/50 dark:hover:bg-red-800/60"
-              >
-                <PhTrash :size="20" class="size-5" />
-                <span v-if="uiStore.isExpanded" class="hidden md:flex md:ml-2">
-                  Delete
-                </span>
-              </button>
-              <button
-                @click="saveNote"
-                class="flex items-center px-2 py-1 custom-card"
-                :class="
-                  isValid && hasChanges
-                    ? 'text-blue-500 hover:text-blue-300 hover:bg-blue-700'
-                    : 'text-gray-400 cursor-default'
-                "
-                :disabled="!isValid || !hasChanges"
-              >
-                <PhFloppyDisk :size="20" class="size-5" />
-                <span v-if="uiStore.isExpanded" class="hidden md:flex md:ml-2">
-                  Save
-                </span>
-              </button>
-            </div>
+        <div class="flex flex-col h-full">
+          <div class="flex w-full py-4 select-none">
+            <NoteToolbar
+              :noteId="props.noteId"
+              :isEditMode="isEditMode"
+              :isValid="isValid"
+              :hasChanges="hasChanges"
+              :folder="editedNote.folder"
+              :lastEditedDate="editedNote.last_edited || editedNote.time_created"
+              :content="editedNote.content"
+              @saveNote="saveNote"
+              @openDeleteAlert="openDeleteAlert"
+              @updateFolder="updateNoteFolder"
+            />
+            <div class="bg-black dark:bg-gray-400 h-px transition-all duration-300 mt-4"></div>
           </div>
-          <div class="mb-2">
+          
+          <h1 class="text-xl font-bold">
             <input
               v-model="editedNote.title"
               placeholder="Title"
-              class="font-bold w-full bg-transparent mb-1 outline-none placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
-              :class="{
-                'text-2xl': !uiStore.isExpanded,
-                'text-4xl': uiStore.isExpanded,
-              }"
+              class="w-full bg-transparent p-1 outline-none border-white border-b-[1px] placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
+              :class="{ 'text-3xl': !uiStore.isExpanded, 'text-4xl': uiStore.isExpanded }"
             />
-          </div>
-          <div
-            class="flex justify-between items-center text-xs md:text-sm mb-4 whitespace-nowrap"
-          >
-            <FolderDropdown v-model="editedNote.folder" direction="down" />
-            <span
-              v-if="isEditMode"
-              class="ml-4 text-gray-600 dark:text-gray-300"
-            >
-              Last edited:
-              {{
-                notesStore.localeDate(
-                  editedNote.last_edited || editedNote.time_created
-                )
-              }}
-            </span>
-          </div>
-          <div
-            class="bg-black dark:bg-gray-400 h-px transition-all duration-300"
-          ></div>
-          <div class="flex-grow overflow-hidden mt-4">
+          </h1>
+          
+          <div class="flex-grow overflow-hidden mt-2">
             <textarea
               v-if="!uiStore.showPreview"
               v-model="editedNote.content"
@@ -162,7 +53,7 @@
               class="w-full h-full bg-transparent resize-none outline-none text-base placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
             ></textarea>
             <div
-              v-if="uiStore.showPreview"
+              v-else
               class="prose dark:prose-dark markdown-body prism-highlight w-full h-full"
               v-html="notesStore.toggleMarkdownPreview(editedNote)"
             ></div>
@@ -171,7 +62,7 @@
       </div>
 
       <AlertModal
-        :is-open="uiStore.isAlertOpen"
+        :is-open="isAlertOpen"
         :message="alertMessage"
         @confirm="confirmDelete"
         @cancel="closeAlert"
@@ -181,180 +72,123 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, watch } from 'vue';
-  import {
-    PhFloppyDisk,
-    PhTrash,
-    PhArrowsOut,
-    PhArrowsIn,
-    PhX,
-    PhMarkdownLogo,
-    PhCopy,
-    PhGlobe,
-    PhGlobeX,
-  } from '@phosphor-icons/vue';
-  import { Note } from '@/store/types';
-  import { notesStore, folderStore, uiStore, authStore } from '@/store/stores';
-  import { DEFAULT_FOLDERS } from '@/store/constants';
-  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
-  import AlertModal from '@/components/modal/alertModal.vue';
-  import FolderDropdown from '@/components/dropdown/folderDropdown.vue';
-  import DOMPurify from 'dompurify';
-  import { marked } from 'marked';
+import { ref, computed, watch } from 'vue';
+import { Note } from '@/store/types';
+import { notesStore, folderStore, uiStore } from '@/store/stores';
+import { DEFAULT_FOLDERS } from '@/store/constants';
+import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
+import AlertModal from '@/components/modal/alertModal.vue';
+import NoteToolbar from '@/components/toolbar/noteToolbar.vue';
 
-  const props = defineProps<{
-    noteId: number | null;
-    isOpen: boolean;
-  }>();
+const props = defineProps<{
+  noteId: number | null;
+  isOpen: boolean;
+}>();
 
-  const isNoteShared = (noteId: number | null) => {
-    if (noteId === null) return false;
-    return notesStore.sharedNotes.has(noteId);
-  };
+const isEditMode = computed(() => props.noteId !== null);
+const originalNote = ref<Note | null>(null);
+const sidebarContainer = ref<HTMLElement | null>(null);
+const isAlertOpen = ref(false);
+const alertMessage = ref('');
 
-  const toggleMarkdownPreview = () => {
-    uiStore.showPreview = !uiStore.showPreview;
-  };
+const editedNote = ref<Note>(createEmptyNote());
 
-  const toggleShare = (noteId: number | null) => {
-    if (noteId === null) return;
-    notesStore.toggleShare(noteId);
-  };
-
-  const copyShareLink = (noteId: number | null) => {
-    if (noteId === null) return;
-    notesStore.copyShareLink(noteId);
-  };
-
-  const getTruncatedShareLink = (noteId: number | null) => {
-    if (noteId === null) return '';
-    return notesStore.getTruncatedShareLink(noteId);
-  };
-
-  const isEditMode = computed(() => props.noteId !== null);
-  const originalNote = ref<Note | null>(null);
-  const sidebarContainer = ref<HTMLElement | null>(null);
-  const alertMessage = ref('');
-
-  const editedNote = ref<Note>({
+function createEmptyNote(): Note {
+  return {
     id: Date.now(),
     title: '',
     content: '',
     time_created: new Date().toISOString(),
     last_edited: new Date().toISOString(),
     pinned: false,
-    folder: DEFAULT_FOLDERS.UNCATEGORIZED,
-  });
+    folder: folderStore.currentFolder !== DEFAULT_FOLDERS.ALL_NOTES
+      ? folderStore.currentFolder
+      : DEFAULT_FOLDERS.UNCATEGORIZED,
+  };
+}
 
-  const isValid = computed(() => {
-    return (
-      editedNote.value.title.trim().length > 0 &&
-      editedNote.value.title.length <= 30 &&
-      editedNote.value.content.length <= 100000
-    );
-  });
+const isValid = computed(() => {
+  return editedNote.value.title.trim().length > 0 &&
+         editedNote.value.title.length <= 30 &&
+         editedNote.value.content.length <= 100000;
+});
 
-  const hasChanges = computed(() => {
-    if (!isEditMode.value) {
-      return (
-        editedNote.value.title.trim() !== '' ||
-        editedNote.value.content.trim() !== ''
-      );
-    }
-    if (!originalNote.value || !editedNote.value) return false;
-    return notesStore.hasChanged(originalNote.value, editedNote.value);
-  });
+const hasChanges = computed(() => {
+  if (!isEditMode.value) {
+    return editedNote.value.title.trim() !== '' || editedNote.value.content.trim() !== '';
+  }
+  if (!originalNote.value || !editedNote.value) return false;
+  return notesStore.hasChanged(originalNote.value, editedNote.value);
+});
 
-  const saveNote = async () => {
-    if (!isValid.value) {
-      showInvalidNoteToast();
-      return;
-    }
+const saveNote = async () => {
+  if (!isValid.value) {
+    uiStore.showToastMessage(getInvalidNoteMessage());
+    return;
+  }
 
+  try {
     if (isEditMode.value && hasChanges.value) {
       await notesStore.updateNote(editedNote.value);
     } else if (!isEditMode.value) {
       await notesStore.addNote(editedNote.value);
     }
     uiStore.closeNote();
-  };
-
-  const showInvalidNoteToast = () => {
-    if (editedNote.value.title.trim().length === 0) {
-      uiStore.showToastMessage('Title is required');
-    } else if (editedNote.value.title.length > 30) {
-      uiStore.showToastMessage('Title exceeds 30 characters');
-    } else if (editedNote.value.content.length > 100000) {
-      uiStore.showToastMessage('Content exceeds 100,000 characters');
-    }
-  };
-
-  const openDeleteAlert = () => {
-    alertMessage.value = `Are you sure you want to delete the note "${editedNote.value.title}"?`;
-    uiStore.isAlertOpen = true;
-  };
-
-  const closeAlert = () => {
-    uiStore.isAlertOpen = false;
-  };
-
-  const confirmDelete = async () => {
-    try {
-      await notesStore.deleteNote(editedNote.value.id);
-      uiStore.closeNote();
-    } catch (error) {
-      console.error('Error deleting note:', error);
-      uiStore.showToastMessage('Failed to delete note. Please try again.');
-    }
-    closeAlert();
-  };
-
-  function handleOutsideClick() {
-    if (!hasChanges.value) {
-      uiStore.closeNote();
-    } else {
-      uiStore.showToastMessage('You have unsaved changes.');
-    }
+  } catch (error) {
+    console.error('Error saving note:', error);
+    uiStore.showToastMessage('Failed to save note. Please try again.');
   }
+};
 
-  watch(
-    () => props.noteId,
-    async (newNoteId) => {
-      if (newNoteId !== null) {
-        const note = notesStore.notes.find((n) => n.id === newNoteId);
-        if (note) {
-          editedNote.value = { ...note };
-          originalNote.value = { ...note };
-        }
-      } else {
-        editedNote.value = {
-          id: Date.now(),
-          title: '',
-          content: '',
-          time_created: new Date().toISOString(),
-          last_edited: new Date().toISOString(),
-          pinned: false,
-          folder:
-            folderStore.currentFolder !== DEFAULT_FOLDERS.ALL_NOTES
-              ? folderStore.currentFolder
-              : DEFAULT_FOLDERS.UNCATEGORIZED,
-        };
-        originalNote.value = null;
-      }
-    },
-    { immediate: true }
-  );
+function getInvalidNoteMessage(): string {
+  if (editedNote.value.title.trim().length === 0) return 'Title is required';
+  if (editedNote.value.title.length > 30) return 'Title exceeds 30 characters';
+  if (editedNote.value.content.length > 100000) return 'Content exceeds 100,000 characters';
+  return 'Invalid note';
+}
 
-  watch(
-    () => editedNote.value.content,
-    (newContent) => {
-      if (uiStore.showPreview) {
-        // Ensure renderedContent is a string
-        const renderedContent = marked(newContent) as string;
+const updateNoteFolder = (newFolder: string) => {
+  editedNote.value.folder = newFolder;
+};
 
-        // Sanitize the rendered content
-        editedNote.value.renderedContent = DOMPurify.sanitize(renderedContent);
-      }
+const openDeleteAlert = () => {
+  alertMessage.value = `Are you sure you want to delete the note "${editedNote.value.title}"?`;
+  isAlertOpen.value = true;
+};
+
+const closeAlert = () => {
+  isAlertOpen.value = false;
+};
+
+const confirmDelete = async () => {
+  try {
+    await notesStore.deleteNote(editedNote.value.id);
+    uiStore.closeNote();
+  } catch (error) {
+    console.error('Error deleting note:', error);
+    uiStore.showToastMessage('Failed to delete note. Please try again.');
+  }
+  closeAlert();
+};
+
+function handleOutsideClick() {
+  if (!hasChanges.value) {
+    uiStore.closeNote();
+  } else {
+    uiStore.showToastMessage('You have unsaved changes.');
+  }
+}
+
+watch(() => props.noteId, async (newNoteId) => {
+  if (newNoteId !== null) {
+    const note = notesStore.notes.find((n) => n.id === newNoteId);
+    if (note) {
+      editedNote.value = { ...note };
+      originalNote.value = { ...note };
     }
-  );
+  } else {
+    editedNote.value = createEmptyNote();
+    originalNote.value = null;
+  }
+}, { immediate: true });
 </script>
