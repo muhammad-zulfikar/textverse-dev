@@ -15,25 +15,25 @@ import Prism from 'prismjs';
 interface NotesState {
   notes: Note[];
   deletedNotes: Note[];
-  selectedNoteId: number | null;
+  selectedNoteId: string | null;
   searchQuery: string;
-  sharedNotes: Map<number, string>;
+  publicNotes: Map<string, string>;
   unsubscribeNotesListener: (() => void) | null;
 }
 
 interface ShareNote {
-  id: number;
+  id: string;
   uid: string;
-  shareId: string;
+  publicId: string;
 }
 
 export const useNotesStore = defineStore('notes', {
   state: (): NotesState => ({
     notes: [],
     deletedNotes: [],
-    selectedNoteId: null as number | null,
+    selectedNoteId: null as string | null,
     searchQuery: '',
-    sharedNotes: new Map(),
+    publicNotes: new Map(),
     unsubscribeNotesListener: null,
   }),
 
@@ -56,8 +56,8 @@ export const useNotesStore = defineStore('notes', {
   },
 
   actions: {
-    async shareNote(noteId: number) {
-      if (this.sharedNotes.has(noteId)) {
+    async shareNote(noteId: string) {
+      if (this.publicNotes.has(noteId)) {
         await this.unshareNote(noteId);
         return;
       }
@@ -68,19 +68,19 @@ export const useNotesStore = defineStore('notes', {
         return;
       }
 
-      const shareId = nanoid();
+      const publicId = nanoid();
       const shareNote: ShareNote = {
         id: note.id,
         uid: authStore.user!.uid,
-        shareId,
+        publicId,
       };
 
-      const shareRef = ref(db, `sharedNotes/${shareId}`);
+      const shareRef = ref(db, `publicNotes/${publicId}`);
       await set(shareRef, shareNote);
 
-      this.sharedNotes.set(noteId, shareId);
+      this.publicNotes.set(noteId, publicId);
 
-      const shareLink = `${window.location.origin}/shared/${shareId}`;
+      const shareLink = `${window.location.origin}/public/${publicId}`;
       uiStore.showToastMessage(`Note shared! Link: ${shareLink}`);
       navigator.clipboard
         .writeText(shareLink)
@@ -92,13 +92,13 @@ export const useNotesStore = defineStore('notes', {
         });
     },
 
-    async unshareNote(noteId: number) {
+    async unshareNote(noteId: string) {
       try {
-        const shareId = this.sharedNotes.get(noteId);
-        if (shareId) {
-          const shareRef = ref(db, `sharedNotes/${shareId}`);
+        const publicId = this.publicNotes.get(noteId);
+        if (publicId) {
+          const shareRef = ref(db, `publicNotes/${publicId}`);
           await remove(shareRef);
-          this.sharedNotes.delete(noteId);
+          this.publicNotes.delete(noteId);
           uiStore.showToastMessage('Note unshared.');
         } else {
           uiStore.showToastMessage('Note was not shared.');
@@ -109,8 +109,8 @@ export const useNotesStore = defineStore('notes', {
       }
     },
 
-    async getSharedNoteById(shareId: string): Promise<Note | null> {
-      const shareRef = ref(db, `sharedNotes/${shareId}`);
+    async getSharedNoteById(publicId: string): Promise<Note | null> {
+      const shareRef = ref(db, `publicNotes/${publicId}`);
       const snapshot = await get(shareRef);
       const shareNote = snapshot.val() as ShareNote | null;
 
@@ -123,8 +123,8 @@ export const useNotesStore = defineStore('notes', {
       return null;
     },
 
-    getShareId(noteId: number): string | undefined {
-      return this.sharedNotes.get(noteId);
+    getShareId(noteId: string): string | undefined {
+      return this.publicNotes.get(noteId);
     },
 
     async addNote(
@@ -159,6 +159,7 @@ export const useNotesStore = defineStore('notes', {
       this.reorderNotes();
       this.saveNotes();
       uiStore.showToastMessage(`${note.title} added`);
+      return note;
     },
 
     async updateNote(updatedNote: Note) {
@@ -194,7 +195,29 @@ export const useNotesStore = defineStore('notes', {
       }
     },
 
-    async deleteNote(noteId: number) {
+    async duplicateNote(originalNote: Note) {
+      const newNote: Note = {
+        ...originalNote,
+        id: nanoid(),
+        title: `${originalNote.title} (Copy)`,
+        time_created: new Date().toISOString(),
+        last_edited: new Date().toISOString(),
+        pinned: false,
+      };
+
+      if (authStore.isLoggedIn) {
+        await firebaseStore.saveNoteToFirebase(authStore.user!.uid, newNote);
+      } else {
+        this.notes.unshift(newNote);
+      }
+
+      this.reorderNotes();
+      this.saveNotes();
+      uiStore.showToastMessage(`${newNote.title} created`);
+      return newNote;
+    },
+
+    async deleteNote(noteId: string) {
       const index = this.notes.findIndex((n) => n.id === noteId);
       if (index !== -1) {
         const deletedNote = this.notes.splice(index, 1)[0];
@@ -212,7 +235,7 @@ export const useNotesStore = defineStore('notes', {
       }
     },
 
-    async restoreNote(noteId: number) {
+    async restoreNote(noteId: string) {
       const index = this.deletedNotes.findIndex((n) => n.id === noteId);
       if (index !== -1) {
         const { time_deleted, ...restoredNote } = this.deletedNotes[index];
@@ -233,7 +256,7 @@ export const useNotesStore = defineStore('notes', {
       }
     },
 
-    async permanentlyDeleteNote(noteId: number) {
+    async permanentlyDeleteNote(noteId: string) {
       const index = this.deletedNotes.findIndex((n) => n.id === noteId);
       if (index !== -1) {
         this.deletedNotes.splice(index, 1);
@@ -272,17 +295,17 @@ export const useNotesStore = defineStore('notes', {
     },
 
     async fetchSharedNotes() {
-      const sharedNotesRef = ref(db, `sharedNotes`);
+      const sharedNotesRef = ref(db, `publicNotes`);
       const snapshot = await get(sharedNotesRef);
       if (snapshot.exists()) {
-        const sharedNotes = snapshot.val() as Record<string, ShareNote>;
-        Object.values(sharedNotes).forEach((shareNote) => {
-          this.sharedNotes.set(shareNote.id, shareNote.shareId);
+        const publicNotes = snapshot.val() as Record<string, ShareNote>;
+        Object.values(publicNotes).forEach((shareNote) => {
+          this.publicNotes.set(shareNote.id, shareNote.publicId);
         });
       }
     },
 
-    async pinNote(noteId: number) {
+    async pinNote(noteId: string) {
       const note = this.notes.find((n) => n.id === noteId);
       if (note) {
         note.pinned = true;
@@ -301,7 +324,7 @@ export const useNotesStore = defineStore('notes', {
       }
     },
 
-    async unpinNote(noteId: number) {
+    async unpinNote(noteId: string) {
       const note = this.notes.find((n) => n.id === noteId);
       if (note) {
         note.pinned = false;
@@ -320,7 +343,7 @@ export const useNotesStore = defineStore('notes', {
       }
     },
 
-    async moveNote(noteId: number, targetFolder: string) {
+    async moveNote(noteId: string, targetFolder: string) {
       const note = this.notes.find((n) => n.id === noteId);
       if (note) {
         note.folder = targetFolder;
@@ -337,8 +360,8 @@ export const useNotesStore = defineStore('notes', {
       }
     },
 
-    generateValidFirebaseKey(): number {
-      return Date.now() + Math.floor(Math.random() * 1000);
+    generateValidFirebaseKey(): string {
+      return nanoid();
     },
 
     async importNotes() {
@@ -465,8 +488,13 @@ export const useNotesStore = defineStore('notes', {
         const notesRef = ref(db, `users/${userId}/notes`);
 
         this.unsubscribeNotesListener = onValue(notesRef, (snapshot) => {
-          const notes = Object.values(snapshot.val() as Record<string, Note>);
-          this.notes = notes;
+          const notesData = snapshot.val();
+          if (notesData) {
+            const notes = Object.values(notesData as Record<string, Note>);
+            this.notes = notes;
+          } else {
+            this.notes = [];
+          }
           this.reorderNotes();
         });
       } else {
@@ -476,7 +504,7 @@ export const useNotesStore = defineStore('notes', {
         } else {
           const importedNotes = initialNotes.map((note) => ({
             ...note,
-            id: Date.now() + Math.random(),
+            id: nanoid(),
             time_created: note.time_created,
             last_edited: note.time_created,
             pinned: false,
@@ -539,7 +567,7 @@ export const useNotesStore = defineStore('notes', {
       }
     },
 
-    copyNote(noteId: number) {
+    copyNote(noteId: string) {
       const note = this.notes.find((n) => n.id === noteId);
       if (note) {
         navigator.clipboard
@@ -578,32 +606,32 @@ export const useNotesStore = defineStore('notes', {
       }
     },
 
-    async toggleShare(noteId: number) {
-      if (this.sharedNotes.has(noteId)) {
+    async toggleShare(noteId: string) {
+      if (this.publicNotes.has(noteId)) {
         await this.unshareNote(noteId);
       } else {
         await this.shareNote(noteId);
       }
     },
 
-    copyShareLink(noteId: number) {
-      const shareId = this.getShareId(noteId);
-      if (!shareId) return;
-      const shareLink = `${window.location.origin}/shared/${shareId}`;
+    copyShareLink(noteId: string) {
+      const publicId = this.getShareId(noteId);
+      if (!publicId) return;
+      const shareLink = `${window.location.origin}/public/${publicId}`;
       navigator.clipboard
         .writeText(shareLink)
         .then(() => {
           uiStore.showToastMessage('Share link copied to clipboard');
         })
         .catch(() => {
-          uiStore.showToastMessage('Failed to copy share link');
+          uiStore.showToastMessage('Failed to copy public link');
         });
     },
 
-    getTruncatedShareLink(noteId: number): string {
-      const shareId = this.getShareId(noteId);
-      if (!shareId) return '';
-      const fullLink = `${window.location.origin}/shared/${shareId}`;
+    getTruncatedShareLink(noteId: string): string {
+      const publicId = this.getShareId(noteId);
+      if (!publicId) return '';
+      const fullLink = `${window.location.origin}/public/${publicId}`;
       return fullLink;
     },
 
@@ -629,7 +657,7 @@ export const useNotesStore = defineStore('notes', {
       this.searchQuery = query;
     },
 
-    setSelectedNote(noteId: number | null) {
+    setSelectedNote(noteId: string | null) {
       this.selectedNoteId = noteId;
     },
   },

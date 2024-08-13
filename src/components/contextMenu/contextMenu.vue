@@ -29,6 +29,14 @@
           Copy
         </li>
         <li
+          v-if="!showFolderOptions"
+          @click="duplicateNote"
+          class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+        >
+          <PhCopy :size="20" class="mr-2" />
+          Duplicate
+        </li>
+        <li
           v-if="!showFolderOptions && props.note.pinned"
           @click="unpinNote"
           class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
@@ -114,6 +122,7 @@
   import {
     PhNotePencil,
     PhClipboardText,
+    PhCopy,
     PhPushPin,
     PhPushPinSlash,
     PhGlobe,
@@ -134,7 +143,7 @@
       required: true,
     },
     noteId: {
-      type: Number,
+      type: String,
       required: true,
     },
     position: {
@@ -154,6 +163,7 @@
     'pin',
     'unpin',
     'share',
+    'duplicate',
   ]);
 
   const showFolderOptions = ref(false);
@@ -176,7 +186,7 @@
     return folders;
   });
 
-  const isNoteShared = computed(() => notesStore.sharedNotes.has(props.noteId));
+  const isNoteShared = computed(() => notesStore.publicNotes.has(props.noteId));
 
   const calculateMenuPosition = (x: number, y: number) => {
     if (!menuRef.value) return { x, y };
@@ -241,6 +251,11 @@
 
   const copyNote = () => {
     notesStore.copyNote(props.note.id);
+    emit('hideMenu');
+  };
+
+  const duplicateNote = () => {
+    emit('duplicate', props.note);
     emit('hideMenu');
   };
 

@@ -86,14 +86,14 @@ export const useAuthStore = defineStore('auth', {
         this.user = null;
         this.avatarUrl = '';
         this.showToast('Signed out successfully');
-        
+
         // Clear listeners
         const folderStore = useFolderStore();
         folderStore.clearFolderListener();
-        
+
         const uiStore = useUIStore();
         uiStore.clearSettingsListener();
-        
+
         this.clearLocalSettings();
       } catch (error) {
         this.showToast('Sign out failed. Please try again.');

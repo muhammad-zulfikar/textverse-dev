@@ -7,7 +7,7 @@ import { Note } from './types';
 export const saveNoteToFirebase = async (
   userId: string,
   note: Note
-): Promise<number> => {
+): Promise<string> => {
   const noteRef = ref(db, `users/${userId}/notes/${note.id}`);
   await set(noteRef, note);
   return note.id;
@@ -15,7 +15,7 @@ export const saveNoteToFirebase = async (
 
 export const updateNoteInFirebase = async (
   userId: string,
-  noteId: number,
+  noteId: string,
   note: Partial<Note>
 ): Promise<void> => {
   const noteRef = ref(db, `users/${userId}/notes/${noteId}`);
@@ -24,7 +24,7 @@ export const updateNoteInFirebase = async (
 
 export const deleteNoteFromFirebase = async (
   userId: string,
-  noteId: number
+  noteId: string
 ): Promise<void> => {
   const noteRef = ref(db, `users/${userId}/notes/${noteId}`);
   await remove(noteRef);
@@ -32,7 +32,7 @@ export const deleteNoteFromFirebase = async (
 
 export const getNoteFromFirebase = async (
   userId: string,
-  noteId: number
+  noteId: string
 ): Promise<Note | null> => {
   const noteRef = ref(db, `users/${userId}/notes/${noteId}`);
   const snapshot = await get(noteRef);
@@ -73,7 +73,7 @@ export const getAllFoldersFromFirebase = async (
 
 export const updateNoteFolderInFirebase = async (
   userId: string,
-  noteId: number,
+  noteId: string,
   newFolder: string
 ): Promise<void> => {
   const noteRef = ref(db, `users/${userId}/notes/${noteId}`);
@@ -99,7 +99,7 @@ export const restoreNoteFromTrash = async (
 
 export const permanentlyDeleteNoteFromTrash = async (
   userId: string,
-  noteId: number
+  noteId: string
 ): Promise<void> => {
   await remove(ref(db, `users/${userId}/trash/${noteId}`));
 };

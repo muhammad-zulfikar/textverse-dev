@@ -1,7 +1,7 @@
 // types.ts
 
 export interface Note {
-  id: number;
+  id: string;
   title: string;
   content: string;
   time_created: string | Date;

@@ -82,8 +82,10 @@
 
   const modalTitle = computed(() => {
     if (props.mode === 'username') return 'Rename';
-    if (props.mode === 'folder') return props.currentValue ? 'Rename Folder' : 'Create New Folder';
-    if (props.mode === 'title') return props.currentValue ? 'Edit Title' : 'Enter Title';
+    if (props.mode === 'folder')
+      return props.currentValue ? 'Rename Folder' : 'Create New Folder';
+    if (props.mode === 'title')
+      return props.currentValue ? 'Edit Title' : 'Enter Title';
   });
 
   const showCharCount = computed(() => props.mode === 'folder');
@@ -115,8 +117,8 @@
         props.mode === 'username'
           ? 'Enter your username'
           : props.mode === 'folder'
-          ? 'Enter folder name'
-          : 'Enter title';
+            ? 'Enter folder name'
+            : 'Enter title';
     }
   };
 

@@ -221,7 +221,7 @@ export const useUIStore = defineStore('ui', {
       }, 3000);
     },
 
-    openNote(noteId: number | null) {
+    openNote(noteId: string | null) {
       notesStore.selectedNoteId = noteId;
       switch (this.viewType) {
         case 'card':

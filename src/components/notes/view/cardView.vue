@@ -10,7 +10,8 @@
           'columns-1 md:max-w-xl': uiStore.columns === 1,
           'columns-2 md:gap-7 md:max-w-4xl': uiStore.columns === 2,
           'columns-3 sm:columns-2 md:columns-3 gap-8': uiStore.columns === 3,
-          'columns-4 sm:columns-2 md:columns-3 lg:columns-4 gap-5': uiStore.columns === 4,
+          'columns-4 sm:columns-2 md:columns-3 lg:columns-4 gap-5':
+            uiStore.columns === 4,
           // 'columns-5 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3': uiStore.columns === 5,
         },
       ]"
@@ -18,12 +19,10 @@
       <li
         v-for="note in props.notes"
         :key="note.id"
-        class="break-inside-avoid h-min mb-6 md:mb-8 p-2 flex flex-col overflow-x-auto cursor-pointer relative group select-none"
+        class="custom-card break-inside-avoid h-min mb-6 md:mb-8 p-2 flex flex-col overflow-x-auto cursor-pointer relative group select-none"
         :class="{
           'z-50': showMenu && selectedNote?.id === note.id,
           shadow: note.pinned,
-          'custom-card-blur': uiStore.blurEnabled,
-          'custom-card': !uiStore.blurEnabled,
         }"
         @contextmenu.prevent="(event) => showContextMenu(event, note)"
         @click="() => uiStore.openNote(note.id)"
@@ -44,10 +43,14 @@
             class="flex justify-between items-center pt-3 mt-auto font-serif text-gray-700 dark:text-gray-400 text-xs"
           >
             <div class="flex items-center">
-              <div class="hidden md:flex items-center custom-card px-2 py-1 mr-2">
-              <PhCalendarBlank :size="16" class="mr-2" />
-              {{ notesStore.localeDate(note.last_edited || note.time_created) }}
-            </div>
+              <div
+                class="hidden md:flex items-center custom-card px-2 py-1 mr-2"
+              >
+                <PhCalendarBlank :size="16" class="mr-2" />
+                {{
+                  notesStore.localeDate(note.last_edited || note.time_created)
+                }}
+              </div>
               <span
                 v-if="note.pinned"
                 @click.stop="notesStore.unpinNote(note.id)"
@@ -88,6 +91,7 @@
         :noteId="selectedNote.id"
         @hideMenu="hideContextMenu"
         @edit="uiStore.openNote"
+        @duplicate="duplicateNote"
         @delete="openDeleteAlert"
         @pin="notesStore.pinNote"
         @unpin="notesStore.unpinNote"
@@ -106,7 +110,12 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { PhPushPin, PhFolder, PhGlobe, PhCalendarBlank } from '@phosphor-icons/vue';
+  import {
+    PhPushPin,
+    PhFolder,
+    PhGlobe,
+    PhCalendarBlank,
+  } from '@phosphor-icons/vue';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
   import { DEFAULT_FOLDERS } from '@/store/constants';
@@ -121,11 +130,11 @@
   const menuPosition = ref({ x: 0, y: 0 });
   const selectedNote = ref<Note | null>(null);
 
-  const isNoteShared = (noteId: number) => {
-    return notesStore.sharedNotes.has(noteId);
+  const isNoteShared = (noteId: string) => {
+    return notesStore.publicNotes.has(noteId);
   };
 
-  const toggleShare = (noteId: number) => {
+  const toggleShare = (noteId: string) => {
     notesStore.toggleShare(noteId);
   };
 
@@ -147,16 +156,21 @@
     selectedNote.value = note;
   };
 
+  const duplicateNote = (note: Note) => {
+    notesStore.duplicateNote(note);
+  };
+
   const hideContextMenu = () => {
     showMenu.value = false;
   };
 
-  const openDeleteAlert = (noteId: number) => {
+  const openDeleteAlert = (noteId: string) => {
     hideContextMenu();
     const noteToDelete = props.notes.find((note) => note.id === noteId);
     if (noteToDelete) {
       uiStore.isAlertOpen = true;
       uiStore.alertMessage = `Are you sure you want to delete the note "${noteToDelete.title}"?`;
+      selectedNote.value = noteToDelete;
     }
   };
 
@@ -164,8 +178,10 @@
     try {
       if (selectedNote.value) {
         await notesStore.deleteNote(selectedNote.value.id);
+        selectedNote.value = null;
       }
     } catch (error) {
+      console.error('Error deleting note:', error);
       uiStore.showToastMessage('Failed to delete note. Please try again.');
     }
     uiStore.isAlertOpen = false;

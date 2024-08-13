@@ -55,9 +55,9 @@
   });
 
   onUnmounted(() => {
-  folderStore.clearFolderListener();
-  uiStore.clearSettingsListener();
-});
+    folderStore.clearFolderListener();
+    uiStore.clearSettingsListener();
+  });
 </script>
 
 <style>

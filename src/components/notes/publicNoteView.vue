@@ -31,7 +31,7 @@
             class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
           >
             <PhFloppyDisk :size="20" class="size-5 md:mr-2" />
-            <span class="hidden md:flex">Save</span>
+            <span class="hidden md:flex">Save as copy</span>
           </button>
           <button
             @click="closeNote"
@@ -43,16 +43,19 @@
         </div>
       </div>
       <div
+        class="bg-black dark:bg-gray-400 h-px transition-all duration-300"
+      ></div>
+      <div
         v-if="!uiStore.showPreview"
         :class="[
-          'w-full p-2 bg-transparent border-[1px] md:border-2 border-black dark:border-white rounded focus:outline-none flex-grow placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30 whitespace-pre-line overflow-y-auto',
+          'w-full pt-4 bg-transparent focus:outline-none flex-grow placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30 whitespace-pre-line overflow-y-auto',
         ]"
       >
         {{ note.content }}
       </div>
       <div
         v-if="uiStore.showPreview"
-        class="prose dark:prose-dark markdown-body prism-highlight w-full p-2 bg-transparent resize-none overflow-auto flex-grow"
+        class="prose dark:prose-dark markdown-body prism-highlight w-full pt-4 bg-transparent resize-none overflow-auto flex-grow"
         :style="markdownPreviewStyle"
         v-html="note.renderedContent"
       ></div>
@@ -69,13 +72,12 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, nextTick } from 'vue';
+  import { CSSProperties } from 'vue';
   import { notesStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
   import { useRoute, useRouter } from 'vue-router';
-  import { marked } from 'marked';
-  import DOMPurify from 'dompurify';
-  import Prism from 'prismjs';
+  import { nanoid } from 'nanoid';
   import { PhMarkdownLogo, PhFloppyDisk, PhX } from '@phosphor-icons/vue';
 
   const route = useRoute();
@@ -83,50 +85,51 @@
   const note = ref<Note | null>(null);
 
   onMounted(async () => {
-    const shareId = route.params.shareId as string;
-    const fetchedNote = await notesStore.getSharedNoteById(shareId);
+    const publicId = route.params.publicId as string;
+    const fetchedNote = await notesStore.getSharedNoteById(publicId);
     if (fetchedNote) {
       note.value = {
         ...fetchedNote,
-        renderedContent: DOMPurify.sanitize(marked(fetchedNote.content)),
       };
     }
   });
 
   const toggleMarkdownPreview = () => {
     uiStore.showPreview = !uiStore.showPreview;
-    if (uiStore.showPreview && note.value) {
-      marked.setOptions({
-        highlight: function (code, lang) {
-          if (lang) {
-            if (!Prism.languages[lang]) {
-              return Prism.util.encode(code);
-            }
-            return Prism.highlight(code, Prism.languages[lang], lang);
-          }
-          return Prism.util.encode(code);
-        },
-        langPrefix: 'language-',
-      });
-      const renderedContent = marked(note.value.content);
-      note.value.renderedContent = DOMPurify.sanitize(renderedContent);
-
-      setTimeout(() => {
-        Prism.highlightAll();
-      }, 0);
-    }
   };
 
-  const saveNote = () => {
+  const saveNote = async () => {
     if (note.value) {
-      const newNote: Note = {
-        ...note.value,
-        id: Date.now(),
-        time_created: new Date().toISOString(),
-        last_edited: new Date().toISOString(),
+      const newNote: Omit<
+        Note,
+        'id' | 'time_created' | 'last_edited' | 'pinned'
+      > = {
+        title: note.value.title,
+        content: note.value.content,
+        folder: '-',
       };
-      notesStore.addNote(newNote);
-      uiStore.showToastMessage('Note saved as a new copy.');
+
+      try {
+        await notesStore.addNote(newNote);
+        uiStore.showToastMessage('Note saved as a new copy.');
+
+        await nextTick();
+
+        const addedNote = notesStore.notes.find(
+          (n) => n.title === newNote.title && n.content === newNote.content
+        );
+
+        if (addedNote) {
+          await router.push('/');
+          uiStore.openNote(addedNote.id);
+        } else {
+          console.error('Failed to find the newly added note');
+          uiStore.showToastMessage('Error: Failed to open the new note.');
+        }
+      } catch (error) {
+        console.error('Failed to add new note:', error);
+        uiStore.showToastMessage('Error: Failed to save the note.');
+      }
     }
   };
 
@@ -134,7 +137,7 @@
     router.push('/');
   };
 
-  const markdownPreviewStyle = computed(() => {
+  const markdownPreviewStyle = computed<CSSProperties>(() => {
     return {
       height: 'auto',
       overflowY: 'auto',

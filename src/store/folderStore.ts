@@ -108,11 +108,13 @@ export const useFolderStore = defineStore('folders', {
         const foldersRef = ref(db, `users/${authStore.user!.uid}/folders`);
         this.folderListener = onValue(foldersRef, (snapshot) => {
           const loadedFolders = snapshot.val() || {};
-          this.folders = Array.from(new Set([
-            DEFAULT_FOLDERS.ALL_NOTES,
-            DEFAULT_FOLDERS.UNCATEGORIZED,
-            ...Object.keys(loadedFolders)
-          ]));
+          this.folders = Array.from(
+            new Set([
+              DEFAULT_FOLDERS.ALL_NOTES,
+              DEFAULT_FOLDERS.UNCATEGORIZED,
+              ...Object.keys(loadedFolders),
+            ])
+          );
         });
       } else {
         const savedFolders = localStorage.getItem('folders');

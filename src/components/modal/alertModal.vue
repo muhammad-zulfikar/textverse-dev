@@ -1,7 +1,7 @@
 <!-- alertModal.vue -->
 
 <template>
-  <ModalBackdrop v-model="props.isOpen" class="z-60"/>
+  <ModalBackdrop v-model="props.isOpen" class="z-60" />
   <transition name="zoom">
     <div
       v-if="props.isOpen"
