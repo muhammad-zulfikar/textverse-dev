@@ -152,6 +152,8 @@ export const useNotesStore = defineStore('notes', {
 
       if (authStore.isLoggedIn) {
         await firebaseStore.saveNoteToFirebase(authStore.user!.uid, note);
+      } else {
+        this.notes.unshift(note);
       }
 
       this.reorderNotes();
@@ -181,6 +183,8 @@ export const useNotesStore = defineStore('notes', {
             updatedNote.id,
             noteWithTimestamp
           );
+        } else {
+          this.notes[index] = noteWithTimestamp;
         }
 
         this.reorderNotes();
@@ -562,10 +566,10 @@ export const useNotesStore = defineStore('notes', {
         },
         langPrefix: 'language-',
       });
-    
+
       const contentToRender = note.content || '';
       const renderedContent = marked(contentToRender);
-    
+
       if (typeof renderedContent === 'string') {
         return DOMPurify.sanitize(renderedContent);
       } else {

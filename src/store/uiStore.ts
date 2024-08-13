@@ -1,9 +1,9 @@
 // stores/uiStore.ts
 
 import { defineStore } from 'pinia';
-import { notesStore } from './stores';
+import { authStore, notesStore } from './stores';
 import { useAuthStore } from './authStore';
-import { ref, set, get } from 'firebase/database';
+import { ref, set, onValue, off } from 'firebase/database';
 import { db } from '@/firebase';
 
 interface UIState {
@@ -25,6 +25,7 @@ interface UIState {
   isEditing: boolean;
   isCreatingNote: boolean;
   showPreview: boolean;
+  settingsListener: (() => void) | null;
 }
 
 export const useUIStore = defineStore('ui', {
@@ -54,6 +55,7 @@ export const useUIStore = defineStore('ui', {
     isEditing: false,
     isCreatingNote: false,
     showPreview: false,
+    settingsListener: null as null | (() => void),
   }),
 
   actions: {
@@ -82,24 +84,18 @@ export const useUIStore = defineStore('ui', {
     async loadSettings() {
       const authStore = useAuthStore();
       if (authStore.isLoggedIn) {
-        try {
-          const snapshot = await get(
-            ref(db, `users/${authStore.user!.uid}/settings`)
-          );
+        const settingsRef = ref(db, `users/${authStore.user!.uid}/settings`);
+        this.settingsListener = onValue(settingsRef, (snapshot) => {
           if (snapshot.exists()) {
             const data = snapshot.val();
             this.theme = data.theme;
             this.viewType = data.viewType;
             this.blurEnabled = data.blurEnabled;
-
-            this.saveSettings();
+            this.applyTheme();
           } else {
             this.loadUISettings();
           }
-        } catch (error) {
-          console.error('Error loading settings from Firebase:', error);
-          this.loadUISettings();
-        }
+        });
       } else {
         this.loadUISettings();
       }
@@ -112,6 +108,13 @@ export const useUIStore = defineStore('ui', {
       }
 
       this.applyTheme();
+    },
+
+    clearSettingsListener() {
+      if (this.settingsListener) {
+        off(ref(db, `users/${authStore.user!.uid}/settings`));
+        this.settingsListener = null;
+      }
     },
 
     setTheme(theme: 'light' | 'dark' | 'system') {
@@ -256,6 +259,14 @@ export const useUIStore = defineStore('ui', {
           this.isCreatingNote = false;
           break;
       }
+    },
+
+    clearLocalSettings() {
+      localStorage.removeItem('theme');
+      localStorage.removeItem('viewType');
+      localStorage.removeItem('columns');
+      localStorage.removeItem('blurEnabled');
+      this.loadSettings();
     },
   },
 });

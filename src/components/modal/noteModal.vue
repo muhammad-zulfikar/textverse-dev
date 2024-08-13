@@ -63,7 +63,11 @@
               @click="toggleMarkdownPreview"
               class="flex items-center ml-2 px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
             >
-              <PhMarkdownLogo v-if="!uiStore.showPreview" :size="20" class="size-5" />
+              <PhMarkdownLogo
+                v-if="!uiStore.showPreview"
+                :size="20"
+                class="size-5"
+              />
               <PhPencilSimple v-else :size="20" class="size-5" />
               <span v-if="uiStore.isExpanded" class="hidden md:flex md:ml-2">
                 {{ uiStore.showPreview ? 'Edit' : 'Preview' }}
@@ -103,15 +107,15 @@
           v-if="!uiStore.showPreview"
           v-model="editedNote.content"
           placeholder="Content"
-          class="w-full mb-2 bg-transparent resize-none focus:outline-none flex-grow placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
+          class="w-full mb-1 bg-transparent resize-none focus:outline-none flex-grow placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
           :style="contentStyle"
         ></textarea>
         <div
-  v-if="uiStore.showPreview"
-  class="prose dark:prose-dark markdown-body prism-highlight w-full mb-2 bg-transparent resize-none overflow-auto flex-grow"
-  :style="contentStyle"
-  v-html="notesStore.toggleMarkdownPreview(editedNote)"
-></div>
+          v-if="uiStore.showPreview"
+          class="prose dark:prose-dark markdown-body prism-highlight w-full mb-3 bg-transparent resize-none overflow-auto flex-grow"
+          :style="contentStyle"
+          v-html="notesStore.toggleMarkdownPreview(editedNote)"
+        ></div>
         <div class="flex justify-between mt-4 select-none text-sm">
           <FolderDropdown v-model="editedNote.folder" direction="up" />
           <div class="flex justify-end mt-1 select-none text-gray-500 text-sm">
@@ -145,178 +149,178 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onBeforeUnmount } from 'vue';
-import {
-  PhFloppyDisk,
-  PhArrowsOut,
-  PhArrowsIn,
-  PhX,
-  PhMarkdownLogo,
-  PhCopy,
-  PhGlobe,
-  PhGlobeX,
-  PhPencilSimple,
-} from '@phosphor-icons/vue';
-import { Note } from '@/store/types';
-import { notesStore, folderStore, uiStore, authStore } from '@/store/stores';
-import { DEFAULT_FOLDERS } from '@/store/constants';
-import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
-import FolderDropdown from '@/components/dropdown/folderDropdown.vue';
+  import { ref, computed, watch, onBeforeUnmount } from 'vue';
+  import {
+    PhFloppyDisk,
+    PhArrowsOut,
+    PhArrowsIn,
+    PhX,
+    PhMarkdownLogo,
+    PhCopy,
+    PhGlobe,
+    PhGlobeX,
+    PhPencilSimple,
+  } from '@phosphor-icons/vue';
+  import { Note } from '@/store/types';
+  import { notesStore, folderStore, uiStore, authStore } from '@/store/stores';
+  import { DEFAULT_FOLDERS } from '@/store/constants';
+  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
+  import FolderDropdown from '@/components/dropdown/folderDropdown.vue';
 
-const props = defineProps<{
-  noteId: number | null;
-  isOpen: boolean;
-}>();
+  const props = defineProps<{
+    noteId: number | null;
+    isOpen: boolean;
+  }>();
 
-const isNoteShared = (noteId: number | null) => {
-  if (noteId === null) return false;
-  return notesStore.sharedNotes.has(noteId);
-};
-
-const toggleShare = (noteId: number | null) => {
-  if (noteId === null) return;
-  notesStore.toggleShare(noteId);
-};
-
-const copyShareLink = (noteId: number | null) => {
-  if (noteId === null) return;
-  notesStore.copyShareLink(noteId);
-};
-
-const toggleMarkdownPreview = () => {
-  uiStore.showPreview = !uiStore.showPreview;
-};
-
-const getTruncatedShareLink = (noteId: number | null) => {
-  if (noteId === null) return '';
-  return notesStore.getTruncatedShareLink(noteId);
-};
-
-const isEditMode = computed(() => props.noteId !== null);
-const originalNote = ref<Note | null>(null);
-
-const editedNote = ref<Note>({
-  id: Date.now(),
-  title: '',
-  content: '',
-  time_created: new Date().toISOString(),
-  last_edited: new Date().toISOString(),
-  pinned: false,
-  folder: DEFAULT_FOLDERS.UNCATEGORIZED,
-});
-
-const isValid = computed(() => {
-  return (
-    editedNote.value.title.trim().length > 0 &&
-    editedNote.value.title.length <= 30 &&
-    editedNote.value.content.length <= 100000
-  );
-});
-
-const hasChanges = computed(() => {
-  if (!originalNote.value || !editedNote.value) return false;
-  return notesStore.hasChanged(originalNote.value, editedNote.value);
-});
-
-const showInvalidNoteToast = () => {
-  if (editedNote.value.title.trim().length === 0) {
-    uiStore.showToastMessage('Title is required');
-  } else if (editedNote.value.title.length > 30) {
-    uiStore.showToastMessage('Title exceeds 30 characters');
-  } else if (editedNote.value.content.length > 100000) {
-    uiStore.showToastMessage('Content exceeds 100,000 characters');
-  }
-};
-
-const showNoChangesNoteToast = () => {
-  uiStore.showToastMessage('No changes yet');
-};
-
-const contentStyle = computed(() => {
-  const baseStyle = {
-    height: uiStore.isExpanded ? 'calc(100vh - 250px)' : '300px',
-    overflowY: 'auto' as const,
+  const isNoteShared = (noteId: number | null) => {
+    if (noteId === null) return false;
+    return notesStore.sharedNotes.has(noteId);
   };
-  return baseStyle;
-});
 
-watch(
-  () => props.noteId,
-  async (newNoteId) => {
-    if (newNoteId !== null) {
-      const note = notesStore.notes.find((n) => n.id === newNoteId);
-      if (note) {
-        editedNote.value = { ...note };
-        originalNote.value = { ...note };
-      }
-    } else {
-      editedNote.value = {
-        id: Date.now(),
-        title: '',
-        content: '',
-        time_created: new Date().toISOString(),
-        last_edited: new Date().toISOString(),
-        pinned: false,
-        folder:
-          folderStore.currentFolder !== DEFAULT_FOLDERS.ALL_NOTES
-            ? folderStore.currentFolder
-            : DEFAULT_FOLDERS.UNCATEGORIZED,
-      };
-      originalNote.value = null;
-    }
-  },
-  { immediate: true }
-);
+  const toggleShare = (noteId: number | null) => {
+    if (noteId === null) return;
+    notesStore.toggleShare(noteId);
+  };
 
-const saveNote = async () => {
-  if (!isValid.value) {
-    showInvalidNoteToast();
-    return;
-  }
+  const copyShareLink = (noteId: number | null) => {
+    if (noteId === null) return;
+    notesStore.copyShareLink(noteId);
+  };
 
-  if (isEditMode.value && !hasChanges.value) {
-    showNoChangesNoteToast();
-    return;
-  }
+  const toggleMarkdownPreview = () => {
+    uiStore.showPreview = !uiStore.showPreview;
+  };
 
-  if (isEditMode.value && hasChanges.value) {
-    await notesStore.updateNote(editedNote.value);
-    clearNoteModal();
-    uiStore.closeNote();
-  } else if (!isEditMode.value) {
-    await notesStore.addNote(editedNote.value);
-    clearNoteModal();
-    uiStore.closeNote();
-  }
-};
+  const getTruncatedShareLink = (noteId: number | null) => {
+    if (noteId === null) return '';
+    return notesStore.getTruncatedShareLink(noteId);
+  };
 
-const clearNoteModal = () => {
-  editedNote.value = {
+  const isEditMode = computed(() => props.noteId !== null);
+  const originalNote = ref<Note | null>(null);
+
+  const editedNote = ref<Note>({
     id: Date.now(),
     title: '',
     content: '',
     time_created: new Date().toISOString(),
     last_edited: new Date().toISOString(),
     pinned: false,
-    folder:
-      folderStore.currentFolder !== DEFAULT_FOLDERS.ALL_NOTES
-        ? folderStore.currentFolder
-        : DEFAULT_FOLDERS.UNCATEGORIZED,
+    folder: DEFAULT_FOLDERS.UNCATEGORIZED,
+  });
+
+  const isValid = computed(() => {
+    return (
+      editedNote.value.title.trim().length > 0 &&
+      editedNote.value.title.length <= 30 &&
+      editedNote.value.content.length <= 100000
+    );
+  });
+
+  const hasChanges = computed(() => {
+    if (!originalNote.value || !editedNote.value) return false;
+    return notesStore.hasChanged(originalNote.value, editedNote.value);
+  });
+
+  const showInvalidNoteToast = () => {
+    if (editedNote.value.title.trim().length === 0) {
+      uiStore.showToastMessage('Title is required');
+    } else if (editedNote.value.title.length > 30) {
+      uiStore.showToastMessage('Title exceeds 30 characters');
+    } else if (editedNote.value.content.length > 100000) {
+      uiStore.showToastMessage('Content exceeds 100,000 characters');
+    }
   };
-  originalNote.value = null;
-};
 
-const handleOutsideClick = () => {
-  if (!hasChanges.value) {
-    uiStore.showPreview = false;
+  const showNoChangesNoteToast = () => {
+    uiStore.showToastMessage('No changes yet');
+  };
+
+  const contentStyle = computed(() => {
+    const baseStyle = {
+      height: uiStore.isExpanded ? 'calc(100vh - 250px)' : '300px',
+      overflowY: 'auto' as const,
+    };
+    return baseStyle;
+  });
+
+  watch(
+    () => props.noteId,
+    async (newNoteId) => {
+      if (newNoteId !== null) {
+        const note = notesStore.notes.find((n) => n.id === newNoteId);
+        if (note) {
+          editedNote.value = { ...note };
+          originalNote.value = { ...note };
+        }
+      } else {
+        editedNote.value = {
+          id: Date.now(),
+          title: '',
+          content: '',
+          time_created: new Date().toISOString(),
+          last_edited: new Date().toISOString(),
+          pinned: false,
+          folder:
+            folderStore.currentFolder !== DEFAULT_FOLDERS.ALL_NOTES
+              ? folderStore.currentFolder
+              : DEFAULT_FOLDERS.UNCATEGORIZED,
+        };
+        originalNote.value = null;
+      }
+    },
+    { immediate: true }
+  );
+
+  const saveNote = async () => {
+    if (!isValid.value) {
+      showInvalidNoteToast();
+      return;
+    }
+
+    if (isEditMode.value && !hasChanges.value) {
+      showNoChangesNoteToast();
+      return;
+    }
+
+    if (isEditMode.value && hasChanges.value) {
+      await notesStore.updateNote(editedNote.value);
+      clearNoteModal();
+      uiStore.closeNote();
+    } else if (!isEditMode.value) {
+      await notesStore.addNote(editedNote.value);
+      clearNoteModal();
+      uiStore.closeNote();
+    }
+  };
+
+  const clearNoteModal = () => {
+    editedNote.value = {
+      id: Date.now(),
+      title: '',
+      content: '',
+      time_created: new Date().toISOString(),
+      last_edited: new Date().toISOString(),
+      pinned: false,
+      folder:
+        folderStore.currentFolder !== DEFAULT_FOLDERS.ALL_NOTES
+          ? folderStore.currentFolder
+          : DEFAULT_FOLDERS.UNCATEGORIZED,
+    };
+    originalNote.value = null;
+  };
+
+  const handleOutsideClick = () => {
+    if (!hasChanges.value) {
+      uiStore.showPreview = false;
+      clearNoteModal();
+      uiStore.closeNote();
+    } else {
+      uiStore.showToastMessage('You have unsaved changes.');
+    }
+  };
+
+  onBeforeUnmount(() => {
     clearNoteModal();
-    uiStore.closeNote();
-  } else {
-    uiStore.showToastMessage('You have unsaved changes.');
-  }
-};
-
-onBeforeUnmount(() => {
-  clearNoteModal();
-});
+  });
 </script>

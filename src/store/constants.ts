@@ -2,5 +2,5 @@
 
 export const DEFAULT_FOLDERS = {
   ALL_NOTES: 'All Notes',
-  UNCATEGORIZED: 'Uncategorized',
+  UNCATEGORIZED: '-',
 };

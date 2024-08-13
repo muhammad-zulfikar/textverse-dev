@@ -23,6 +23,7 @@ import {
 } from 'firebase/auth';
 import { useFolderStore } from './folderStore';
 import { useUIStore } from './uiStore';
+import { useNotesStore } from './notesStore';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -56,6 +57,7 @@ export const useAuthStore = defineStore('auth', {
       }
       await this.syncFolders();
       await this.syncSettings();
+      await this.syncNotes();
     },
 
     async signUp(email: string, password: string) {
@@ -84,14 +86,21 @@ export const useAuthStore = defineStore('auth', {
         this.user = null;
         this.avatarUrl = '';
         this.showToast('Signed out successfully');
+        
+        // Clear listeners
+        const folderStore = useFolderStore();
+        folderStore.clearFolderListener();
+        
+        const uiStore = useUIStore();
+        uiStore.clearSettingsListener();
+        
+        this.clearLocalSettings();
       } catch (error) {
         this.showToast('Sign out failed. Please try again.');
         throw error;
       } finally {
         this.isLoading = false;
       }
-      await this.syncFolders();
-      this.clearLocalSettings();
     },
 
     async signInWithGoogle() {
@@ -131,15 +140,18 @@ export const useAuthStore = defineStore('auth', {
     },
 
     clearLocalSettings() {
-      localStorage.removeItem('theme');
-      localStorage.removeItem('viewType');
-      localStorage.removeItem('columns');
-      localStorage.removeItem('blurEnabled');
+      const uiStore = useUIStore();
+      uiStore.clearLocalSettings();
     },
 
     async syncFolders() {
       const folderStore = useFolderStore();
       await folderStore.loadFolders();
+    },
+
+    async syncNotes() {
+      const notesStore = useNotesStore();
+      await notesStore.loadNotes();
     },
 
     async updateAvatar(newAvatarUrl: string) {

@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, watch } from 'vue';
+  import { ref, onMounted, onUnmounted, watch } from 'vue';
   import { useRouter } from 'vue-router';
   import { authStore, notesStore, folderStore, uiStore } from './store/stores';
   import Navbar from '@/components/navbar/navbar.vue';
@@ -54,6 +54,11 @@
       );
     }
   });
+
+  onUnmounted(() => {
+  folderStore.clearFolderListener();
+  uiStore.clearSettingsListener();
+});
 </script>
 
 <style>

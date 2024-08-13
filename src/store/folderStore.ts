@@ -3,16 +3,20 @@
 import { defineStore } from 'pinia';
 import { DEFAULT_FOLDERS } from './constants';
 import { authStore, notesStore, uiStore, firebaseStore } from './stores';
+import { off, onValue, ref } from 'firebase/database';
+import { db } from '@/firebase';
 
 interface FolderState {
   folders: string[];
   currentFolder: string;
+  folderListener: (() => void) | null;
 }
 
 export const useFolderStore = defineStore('folders', {
   state: (): FolderState => ({
     folders: [DEFAULT_FOLDERS.ALL_NOTES, DEFAULT_FOLDERS.UNCATEGORIZED],
     currentFolder: DEFAULT_FOLDERS.ALL_NOTES,
+    folderListener: null as null | (() => void),
   }),
 
   actions: {
@@ -100,20 +104,29 @@ export const useFolderStore = defineStore('folders', {
     },
 
     async loadFolders() {
-      let loadedFolders: string[] = [];
-
       if (authStore.isLoggedIn) {
-        loadedFolders = await firebaseStore.getAllFoldersFromFirebase(
-          authStore.user!.uid
-        );
+        const foldersRef = ref(db, `users/${authStore.user!.uid}/folders`);
+        this.folderListener = onValue(foldersRef, (snapshot) => {
+          const loadedFolders = snapshot.val() || {};
+          this.folders = Array.from(new Set([
+            DEFAULT_FOLDERS.ALL_NOTES,
+            DEFAULT_FOLDERS.UNCATEGORIZED,
+            ...Object.keys(loadedFolders)
+          ]));
+        });
       } else {
         const savedFolders = localStorage.getItem('folders');
         if (savedFolders) {
-          loadedFolders = JSON.parse(savedFolders);
+          this.folders = JSON.parse(savedFolders);
         }
       }
+    },
 
-      this.folders = Array.from(new Set([...this.folders, ...loadedFolders]));
+    clearFolderListener() {
+      if (this.folderListener) {
+        off(ref(db, `users/${authStore.user!.uid}/folders`));
+        this.folderListener = null;
+      }
     },
 
     saveFolders() {

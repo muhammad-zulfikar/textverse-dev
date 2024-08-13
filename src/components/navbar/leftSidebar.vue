@@ -70,7 +70,7 @@
       </div>
 
       <div class="p-2">
-        <h2 class="font-bold mb-2 px-2">Create</h2>
+        <h2 class="font-bold mb-2 px-2 mt-2">Create</h2>
         <button
           @click.stop="openNoteForm"
           class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
@@ -88,7 +88,7 @@
       </div>
 
       <div class="p-2">
-        <h2 class="font-bold mb-2 px-2">Recent Notes</h2>
+        <h2 class="font-bold mb-2 px-2 mt-2">Recent Notes</h2>
         <div
           v-for="note in recentNotes"
           :key="note.id"
