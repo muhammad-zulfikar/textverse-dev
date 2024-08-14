@@ -199,6 +199,20 @@
     </div>
 
     <div
+      @click="toggleExpand"
+      class="block px-1 text-sm cursor-pointer"
+      role="menuitem"
+    >
+      <span
+        class="p-2 w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center whitespace-nowrap"
+      >
+        <PhArrowsIn v-if="isExpanded" :size="20" class="size-5 mr-2" />
+        <PhArrowsOut v-else :size="20" class="size-5 mr-2" />
+        {{ isExpanded ? 'Collapse' : 'Expand' }}
+      </span>
+    </div>
+
+    <div
       @click="saveNote"
       :class="[
         'block px-1 text-sm cursor-pointer',
@@ -259,6 +273,8 @@
     PhInfo,
     PhCalendarBlank,
     PhHash,
+    PhArrowsIn,
+    PhArrowsOut,
     PhFloppyDisk,
     PhTrash,
     PhCaretRight,
@@ -358,9 +374,11 @@
   });
 
   const characterCount = computed(() => props.content.length);
+  const isExpanded = computed(() => uiStore.isExpanded);
 
   const saveNote = () => emit('saveNote');
   const openDeleteAlert = () => emit('openDeleteAlert');
+  const toggleExpand = () => uiStore.toggleExpand();
 
   const openSubmenu = (submenu: string) => {
     if (activeSubmenu.value === submenu) {

@@ -260,7 +260,7 @@
   };
 
   const deleteNote = () => {
-    emit('delete', props.noteId);
+    emit('delete', props.note.id);
     emit('hideMenu');
   };
 

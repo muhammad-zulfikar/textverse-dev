@@ -91,7 +91,6 @@
         :noteId="selectedNote.id"
         @hideMenu="hideContextMenu"
         @edit="uiStore.openNote"
-        @duplicate="duplicateNote"
         @delete="openDeleteAlert"
         @pin="notesStore.pinNote"
         @unpin="notesStore.unpinNote"
@@ -100,10 +99,10 @@
     </Transition>
 
     <AlertModal
-      :is-open="uiStore.isAlertOpen"
-      :message="uiStore.alertMessage"
+      :is-open="isAlertOpen"
+      :message="alertMessage"
       @confirm="confirmDelete"
-      @cancel="uiStore.isAlertOpen = false"
+      @cancel="isAlertOpen = false"
     />
   </div>
 </template>
@@ -129,6 +128,8 @@
   const showMenu = ref(false);
   const menuPosition = ref({ x: 0, y: 0 });
   const selectedNote = ref<Note | null>(null);
+  const isAlertOpen = ref(false);
+  const alertMessage = ref('');
 
   const isNoteShared = (noteId: string) => {
     return notesStore.publicNotes.has(noteId);
@@ -156,10 +157,6 @@
     selectedNote.value = note;
   };
 
-  const duplicateNote = (note: Note) => {
-    notesStore.duplicateNote(note);
-  };
-
   const hideContextMenu = () => {
     showMenu.value = false;
   };
@@ -168,9 +165,9 @@
     hideContextMenu();
     const noteToDelete = props.notes.find((note) => note.id === noteId);
     if (noteToDelete) {
-      uiStore.isAlertOpen = true;
-      uiStore.alertMessage = `Are you sure you want to delete the note "${noteToDelete.title}"?`;
       selectedNote.value = noteToDelete;
+      isAlertOpen.value = true;
+      alertMessage.value = `Are you sure you want to delete the note "${noteToDelete.title}"?`;
     }
   };
 
@@ -178,13 +175,15 @@
     try {
       if (selectedNote.value) {
         await notesStore.deleteNote(selectedNote.value.id);
-        selectedNote.value = null;
+      } else {
+        console.error('No selected note to delete.');
       }
     } catch (error) {
       console.error('Error deleting note:', error);
       uiStore.showToastMessage('Failed to delete note. Please try again.');
+    } finally {
+      isAlertOpen.value = false;
     }
-    uiStore.isAlertOpen = false;
   };
 </script>
 
