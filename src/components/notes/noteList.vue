@@ -8,13 +8,10 @@
           :key="uiStore.viewType"
           :is="currentView"
           :notes="filteredNotes"
-          class="w-11/12 mx-auto mt-10"
+          class=" mt-10"
         />
       </transition>
     </template>
-    <div v-else class="absolute inset-0 mt-24 flex justify-center items-center">
-      <div class="font-serif dark:text-white text-md">Not found</div>
-    </div>
   </div>
 </template>
 

@@ -1,6 +1,6 @@
 <!--cardview-->
 <template>
-  <div class="w-11/12 mx-auto mt-10 flex justify-center">
+  <div class="md:w-11/12 mx-auto px-2 md:px-0 flex justify-center">
     <transition-group
       name="list"
       tag="ul"
@@ -8,7 +8,7 @@
         'relative min-w-[300px]',
         {
           'columns-1 md:max-w-xl': uiStore.columns === 1,
-          'columns-2 md:gap-7 md:max-w-4xl': uiStore.columns === 2,
+          'columns-2 gap-2 md:gap-7 md:max-w-4xl': uiStore.columns === 2,
           'columns-3 sm:columns-2 md:columns-3 gap-8': uiStore.columns === 3,
           'columns-4 sm:columns-2 md:columns-3 lg:columns-4 gap-5':
             uiStore.columns === 4,
@@ -19,7 +19,7 @@
       <li
         v-for="note in props.notes"
         :key="note.id"
-        class="custom-card break-inside-avoid h-min mb-6 md:mb-8 p-2 flex flex-col overflow-x-auto cursor-pointer relative group select-none"
+        class="custom-card break-inside-avoid h-min mb-[9px] md:mb-8 p-2 flex flex-col overflow-x-auto cursor-pointer relative group select-none"
         :class="{
           'z-50': showMenu && selectedNote?.id === note.id,
           shadow: note.pinned,
@@ -143,10 +143,7 @@
     const div = document.createElement('div');
     div.innerHTML = content;
     const textContent = div.textContent || div.innerText || '';
-    const lines = textContent.split('\n');
-    let truncatedText =
-      lines.length > 10 ? lines.slice(0, 10).join('\n') + '...' : content;
-    return truncatedText;
+    return textContent;
   };
 
   const showContextMenu = (event: MouseEvent, note: Note) => {
@@ -188,15 +185,23 @@
 </script>
 
 <style scoped>
+.truncate-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 8;
+  line-clamp: 8;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre-wrap;
+}
+
+@media (min-width: 640px) {
   .truncate-text {
-    display: -webkit-box;
-    line-clamp: 10;
     -webkit-line-clamp: 10;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: pre-wrap;
+    line-clamp: 10;
   }
+}
+
 
   .shadow {
     box-shadow:
