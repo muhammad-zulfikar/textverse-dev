@@ -1,3 +1,5 @@
+<!--noteList-->
+
 <template>
   <div class="relative mb-[28px] md:mb-[46px]">
     <template v-if="notesStore.filteredNotes.length > 0">

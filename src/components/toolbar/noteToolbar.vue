@@ -19,7 +19,6 @@
       @unpinNote="unpinNote"
       @toggleMarkdownPreview="toggleMarkdownPreview"
       @updateFolder="updateFolder"
-      @saveNote="saveNote"
       @openDeleteAlert="openDeleteAlert"
       @updateTitle="updateTitle"
     />
@@ -37,8 +36,10 @@
   import { PhX } from '@phosphor-icons/vue';
   import NoteOptionDropdown from '@/components/dropdown/noteOptionDropdown.vue';
   import { notesStore, uiStore } from '@/store/stores';
+  import { Note } from '@/store/types';
 
   const props = defineProps<{
+    note: Note;
     noteId: string | null;
     title: string;
     isEditMode: boolean;
@@ -51,7 +52,6 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'saveNote'): void;
     (e: 'openDeleteAlert'): void;
     (e: 'updateFolder', folder: string): void;
     (e: 'updateTitle', title: string): void;
@@ -81,7 +81,7 @@
 
   const duplicateNote = () => {
     if (props.noteId !== null) {
-      notesStore.duplicatedNote(props.noteId);
+      notesStore.duplicateNote(props.note);
     }
   };
 
@@ -104,7 +104,6 @@
   const closeNote = () => uiStore.closeNote();
 
   const updateTitle = (newTitle: string) => emit('updateTitle', newTitle);
-  const saveNote = () => emit('saveNote');
   const openDeleteAlert = () => emit('openDeleteAlert');
   const updateFolder = (folder: string) => emit('updateFolder', folder);
 </script>

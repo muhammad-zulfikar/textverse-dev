@@ -10,8 +10,8 @@
       <div
         class="flex items-center px-2 py-1 cursor-pointer custom-card hover:bg-[#d9c698] dark:hover:bg-gray-600"
       >
-        <PhFile :size="20" class="size-5 mr-2" />
-        <h1 class="truncate">{{ title }}</h1>
+        <PhFile :size="20" class="size-5" />
+        <h1 class="truncate ml-2">{{ title }}</h1>
       </div>
     </template>
 
@@ -213,27 +213,6 @@
     </div>
 
     <div
-      @click="saveNote"
-      :class="[
-        'block px-1 text-sm cursor-pointer',
-        {
-          'text-blue-500 hover:text-blue-300':
-            isValid && (!isEditMode || hasChanges),
-          'text-gray-400 cursor-default':
-            !isValid || (isEditMode && !hasChanges),
-        },
-      ]"
-      role="menuitem"
-    >
-      <span
-        class="p-2 w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center whitespace-nowrap"
-      >
-        <PhFloppyDisk :size="20" class="size-5 mr-2" />
-        Save
-      </span>
-    </div>
-
-    <div
       v-if="isEditMode"
       @click="openDeleteAlert"
       class="block px-1 text-sm cursor-pointer text-red-500 hover:text-red-100"
@@ -275,7 +254,6 @@
     PhHash,
     PhArrowsIn,
     PhArrowsOut,
-    PhFloppyDisk,
     PhTrash,
     PhCaretRight,
     PhNotePencil,
@@ -306,7 +284,6 @@
     (e: 'copyNote'): void;
     (e: 'toggleMarkdownPreview'): void;
     (e: 'updateFolder', folder: string): void;
-    (e: 'saveNote'): void;
     (e: 'openDeleteAlert'): void;
     (e: 'updateTitle', title: string): void;
     (e: 'duplicateNote'): void;
@@ -376,7 +353,6 @@
   const characterCount = computed(() => props.content.length);
   const isExpanded = computed(() => uiStore.isExpanded);
 
-  const saveNote = () => emit('saveNote');
   const openDeleteAlert = () => emit('openDeleteAlert');
   const toggleExpand = () => uiStore.toggleExpand();
 
@@ -385,12 +361,6 @@
       activeSubmenu.value = null;
     } else {
       activeSubmenu.value = submenu;
-    }
-  };
-
-  const closeSubmenu = (submenu: string) => {
-    if (activeSubmenu.value === submenu) {
-      activeSubmenu.value = null;
     }
   };
 

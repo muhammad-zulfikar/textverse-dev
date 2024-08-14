@@ -18,7 +18,7 @@ interface NotesState {
   selectedNoteId: string | null;
   searchQuery: string;
   publicNotes: Map<string, string>;
-  unsubscribeNotesListener: (() => void) | null;
+  notesListener: (() => void) | null;
 }
 
 interface ShareNote {
@@ -34,7 +34,7 @@ export const useNotesStore = defineStore('notes', {
     selectedNoteId: null as string | null,
     searchQuery: '',
     publicNotes: new Map(),
-    unsubscribeNotesListener: null,
+    notesListener: null,
   }),
 
   getters: {
@@ -190,8 +190,6 @@ export const useNotesStore = defineStore('notes', {
 
         this.reorderNotes();
         this.saveNotes();
-        uiStore.closeNote();
-        uiStore.showToastMessage(`${updatedNote.title} updated`);
       }
     },
 
@@ -487,7 +485,7 @@ export const useNotesStore = defineStore('notes', {
         const userId = authStore.user!.uid;
         const notesRef = ref(db, `users/${userId}/notes`);
 
-        this.unsubscribeNotesListener = onValue(notesRef, (snapshot) => {
+        this.notesListener = onValue(notesRef, (snapshot) => {
           const notesData = snapshot.val();
           if (notesData) {
             const notes = Object.values(notesData as Record<string, Note>);
@@ -544,9 +542,9 @@ export const useNotesStore = defineStore('notes', {
     },
 
     async unloadNotes() {
-      if (this.unsubscribeNotesListener) {
-        this.unsubscribeNotesListener();
-        this.unsubscribeNotesListener = null;
+      if (this.notesListener) {
+        this.notesListener();
+        this.notesListener = null;
       }
     },
 

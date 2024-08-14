@@ -255,7 +255,7 @@
   };
 
   const duplicateNote = () => {
-    emit('duplicate', props.note);
+    notesStore.duplicateNote(props.note);
     emit('hideMenu');
   };
 

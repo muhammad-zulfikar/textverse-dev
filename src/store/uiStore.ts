@@ -9,6 +9,7 @@ import { db } from '@/firebase';
 interface UIState {
   theme: 'light' | 'dark' | 'system';
   viewType: 'card' | 'table' | 'mail' | 'folder';
+  noteOpenPreference: 'modal' | 'sidebar';
   columns: number;
   folderViewType: 'grid' | 'list';
   currentTheme: string;
@@ -38,6 +39,9 @@ export const useUIStore = defineStore('ui', {
         | 'mail'
         | 'folder') || 'card',
     currentTheme: localStorage.getItem('theme') || 'system',
+    noteOpenPreference:
+      (localStorage.getItem('noteOpenPreference') as 'modal' | 'sidebar') ||
+      'modal',
     columns: parseInt(
       localStorage.getItem('columns') || (window.innerWidth < 640 ? '2' : '4')
     ),
@@ -65,6 +69,7 @@ export const useUIStore = defineStore('ui', {
         const settings = {
           theme: this.theme,
           viewType: this.viewType,
+          noteOpenPreference: this.noteOpenPreference,
           blurEnabled: this.blurEnabled,
         };
 
@@ -77,6 +82,7 @@ export const useUIStore = defineStore('ui', {
 
       localStorage.setItem('theme', this.theme);
       localStorage.setItem('viewType', this.viewType);
+      localStorage.setItem('noteOpenPreference', this.noteOpenPreference);
       localStorage.setItem('blurEnabled', this.blurEnabled.toString());
       localStorage.setItem('columns', this.columns.toString());
     },
@@ -90,6 +96,7 @@ export const useUIStore = defineStore('ui', {
             const data = snapshot.val();
             this.theme = data.theme;
             this.viewType = data.viewType;
+            this.noteOpenPreference = data.noteOpenPreference || 'modal';
             this.blurEnabled = data.blurEnabled;
             this.applyTheme();
           } else {
@@ -99,15 +106,6 @@ export const useUIStore = defineStore('ui', {
       } else {
         this.loadUISettings();
       }
-
-      const savedColumns = localStorage.getItem('columns');
-      if (savedColumns) {
-        this.columns = parseInt(savedColumns, 10);
-      } else {
-        this.columns = window.innerWidth < 640 ? 2 : 4;
-      }
-
-      this.applyTheme();
     },
 
     clearSettingsListener() {
@@ -126,6 +124,11 @@ export const useUIStore = defineStore('ui', {
 
     setViewType(viewType: 'card' | 'table' | 'mail' | 'folder') {
       this.viewType = viewType;
+      this.saveSettings();
+    },
+
+    setNoteOpenPreference(preference: 'modal' | 'sidebar') {
+      this.noteOpenPreference = preference;
       this.saveSettings();
     },
 
@@ -196,6 +199,13 @@ export const useUIStore = defineStore('ui', {
         this.viewType = savedViewType;
       }
 
+      const savedNoteOpenPreference = localStorage.getItem(
+        'noteOpenPreference'
+      ) as 'modal' | 'sidebar' | null;
+      if (savedNoteOpenPreference) {
+        this.noteOpenPreference = savedNoteOpenPreference;
+      }
+
       const savedBlurEnabled = localStorage.getItem('blurEnabled');
       if (savedBlurEnabled) {
         this.blurEnabled = savedBlurEnabled === 'true';
@@ -223,47 +233,30 @@ export const useUIStore = defineStore('ui', {
 
     openNote(noteId: string | null) {
       notesStore.selectedNoteId = noteId;
-      switch (this.viewType) {
-        case 'card':
-        case 'folder':
-          this.isNoteCardOpen = true;
-          document.body.classList.add('modal-open');
-          break;
-        case 'table':
-          this.isNoteSidebarOpen = true;
-          document.body.classList.add('modal-open');
-          break;
-        case 'mail':
-          if (noteId === null) {
-            this.isCreatingNote = true;
-            notesStore.selectedNoteId = null;
-          }
-          break;
+      if (this.noteOpenPreference === 'modal') {
+        this.isNoteCardOpen = true;
+        document.body.classList.add('modal-open');
+      } else {
+        this.isNoteSidebarOpen = true;
+        document.body.classList.add('modal-open');
       }
     },
 
     closeNote() {
       notesStore.selectedNoteId = null;
       this.showPreview = false;
-      switch (this.viewType) {
-        case 'card':
-        case 'folder':
-          this.isNoteCardOpen = false;
-          document.body.classList.remove('modal-open');
-          break;
-        case 'table':
-          this.isNoteSidebarOpen = false;
-          document.body.classList.remove('modal-open');
-          break;
-        case 'mail':
-          this.isCreatingNote = false;
-          break;
+      if (this.noteOpenPreference === 'modal') {
+        this.isNoteCardOpen = false;
+      } else {
+        this.isNoteSidebarOpen = false;
       }
+      document.body.classList.remove('modal-open');
     },
 
     clearLocalSettings() {
       localStorage.removeItem('theme');
       localStorage.removeItem('viewType');
+      localStorage.removeItem('noteOpenPreference');
       localStorage.removeItem('columns');
       localStorage.removeItem('blurEnabled');
       this.loadSettings();

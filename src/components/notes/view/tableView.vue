@@ -2,7 +2,7 @@
 
 <template>
   <div class="w-full max-w-5xl mx-auto px-4 md:px-0 text-sm md:text-base">
-    <div class="flex justify-end mb-4 relative font-serif">
+    <div class="flex justify-end mb-4 relative font-serif md:pr-4 xl:pr-0">
       <button
         v-if="selectMode && selectedNotes.length > 0"
         @click="togglePinSelectedNotes"
@@ -59,7 +59,7 @@
         Select
       </button>
     </div>
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto md:px-4 xl:px-0">
       <table
         class="min-w-[800px] w-full border-separate border-spacing-0 font-serif rounded-lg overflow-hidden"
       >
@@ -149,7 +149,7 @@
               <div class="flex items-center space-x-2 truncate">
                 <component
                   :is="
-                    note.folder.toLowerCase() === 'uncategorized'
+                    note.folder.toLowerCase() === 'no folder'
                       ? PhFolderMinus
                       : PhFolder
                   "
@@ -170,9 +170,9 @@
     </div>
 
     <AlertModal
-      :is-open="uiStore.isAlertOpen"
+      :is-open="isAlertOpen"
       :message="`Are you sure you want to delete ${selectedNotes.length} note(s)?`"
-      @cancel="uiStore.isAlertOpen = false"
+      @cancel="isAlertOpen = false"
       @confirm="deleteSelectedNotes"
     />
   </div>
@@ -203,7 +203,7 @@
   }>();
 
   const updatedNotes = ref<{
-    [key: number]: Partial<Note>;
+    [key: string]: Partial<Note>;
   }>({});
 
   const updateNoteTitle = (note: Note, event: Event) => {
@@ -250,7 +250,7 @@
   const availableColumns = ['Title', 'Content', 'Folder', 'Date'];
   const visibleColumns = ref(availableColumns);
   const selectMode = ref(false);
-  const selectedNotes = ref<number[]>([]);
+  const selectedNotes = ref<string[]>([]);
   const isMobile = ref(window.innerWidth < 768);
 
   const filteredColumns = computed(() => {
@@ -284,7 +284,7 @@
     }
   };
 
-  const toggleNoteSelection = (noteId: number) => {
+  const toggleNoteSelection = (noteId: string) => {
     if (selectedNotes.value.includes(noteId)) {
       selectedNotes.value = selectedNotes.value.filter((id) => id !== noteId);
     } else {
@@ -327,8 +327,10 @@
     );
   };
 
+  const isAlertOpen = ref(false);
+
   const confirmDeleteSelectedNotes = () => {
-    uiStore.isAlertOpen = true;
+    isAlertOpen.value = true;
   };
 
   const deleteSelectedNotes = async () => {
@@ -337,7 +339,7 @@
       await notesStore.deleteNote(noteId);
     }
     selectedNotes.value = [];
-    uiStore.isAlertOpen = false;
+    isAlertOpen.value = false;
     uiStore.showToastMessage(
       `${notesToDeleteCount} note(s) deleted successfully!`
     );

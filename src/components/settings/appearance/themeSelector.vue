@@ -1,3 +1,5 @@
+<!--themeSelector-->
+
 <template>
   <div class="flex items-center justify-between relative md:mb-2">
     <div class="mr-6">
@@ -35,7 +37,7 @@
       <a
         v-for="theme in themes"
         :key="theme"
-        @click.stop="setTheme(theme as 'light' | 'dark' | 'system')"
+        @click="setTheme(theme as 'light' | 'dark' | 'system')"
         class="flex items-center flex-grow flex-shrink mx-1 p-2 hover:bg-[#d9c698] dark:hover:bg-gray-700 text-sm md:text-base rounded-md cursor-pointer"
         role="menuitem"
       >

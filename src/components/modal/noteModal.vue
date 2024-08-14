@@ -1,4 +1,4 @@
-<!--noteModal-->
+<!--noteModal.vue-->
 
 <template>
   <ModalBackdrop v-model="props.isOpen" />
@@ -26,16 +26,16 @@
       >
         <div class="flex w-full py-4 select-none">
           <NoteToolbar
+            :note="editedNote"
             :noteId="props.noteId"
             :title="editedNote.title"
             :isEditMode="isEditMode"
-            :isValid="isValid"
+            :isValid="true"
             :hasChanges="hasChanges"
             :folder="editedNote.folder"
             :lastEditedDate="editedNote.last_edited || editedNote.time_created"
             :content="editedNote.content"
             :isPinned="editedNote.pinned"
-            @saveNote="saveNote"
             @openDeleteAlert="openDeleteAlert"
             @updateFolder="updateNoteFolder"
             @updateTitle="updateNoteTitle"
@@ -48,8 +48,9 @@
           v-if="!uiStore.showPreview"
           v-model="editedNote.content"
           placeholder="Content"
-          class="w-full bg-transparent pt-4 resize-none focus:outline-none flex-grow placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
+          class="w-full bg-transparent pt-4 pb-4 resize-none focus:outline-none flex-grow placeholder-black dark:placeholder-white placeholder-opacity-50 dark:placeholder-opacity-30"
           :style="contentStyle"
+          @input="updateNoteContent"
         ></textarea>
         <div
           v-else
@@ -69,9 +70,11 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, watch, onBeforeUnmount } from 'vue';
+  import { onValue, ref as dbRef, Unsubscribe } from 'firebase/database';
+  import { db } from '@/firebase';
+  import { ref, computed, watch, onUnmounted, Ref } from 'vue';
   import { Note } from '@/store/types';
-  import { notesStore, folderStore, uiStore } from '@/store/stores';
+  import { notesStore, folderStore, uiStore, authStore } from '@/store/stores';
   import { DEFAULT_FOLDERS } from '@/store/constants';
   import { nanoid } from 'nanoid';
   import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
@@ -83,14 +86,14 @@
     isOpen: boolean;
   }>();
 
-  const isEditMode = computed(() => props.noteId !== null);
-  const originalNote = ref<Note | null>(null);
+  const isEditMode = ref(false);
   const editedNote = ref<Note>(createEmptyNote());
+  const originalNote = ref<Note | null>(null);
 
   function createEmptyNote(): Note {
     return {
       id: nanoid(),
-      title: '',
+      title: 'Untitled',
       content: '',
       time_created: new Date().toISOString(),
       last_edited: new Date().toISOString(),
@@ -124,16 +127,8 @@
     closeAlert();
   };
 
-  const isValid = computed(() => {
-    return (
-      editedNote.value.title.trim().length > 0 &&
-      editedNote.value.title.length <= 30 &&
-      editedNote.value.content.length <= 100000
-    );
-  });
-
   const hasChanges = computed(() => {
-    if (!originalNote.value || !editedNote.value) return false;
+    if (!originalNote.value) return false;
     return notesStore.hasChanged(originalNote.value, editedNote.value);
   });
 
@@ -145,77 +140,85 @@
 
   const updateNoteTitle = (newTitle: string) => {
     editedNote.value.title = newTitle;
+    saveNote();
+  };
+
+  const updateNoteContent = () => {
+    saveNote();
   };
 
   const updateNoteFolder = (newFolder: string) => {
     editedNote.value.folder = newFolder;
+    saveNote();
   };
 
   const saveNote = async () => {
-    if (!isValid.value) {
-      uiStore.showToastMessage(getInvalidNoteMessage());
-      return;
-    }
-
-    if (isEditMode.value && !hasChanges.value) {
-      uiStore.showToastMessage('No changes yet');
-      return;
-    }
-
     try {
       if (isEditMode.value) {
         await notesStore.updateNote(editedNote.value);
       } else {
-        await notesStore.addNote(editedNote.value);
+        const newNote = await notesStore.addNote(editedNote.value);
+        editedNote.value.id = newNote.id;
+        isEditMode.value = true;
       }
-      clearNoteModal();
-      uiStore.closeNote();
+      originalNote.value = { ...editedNote.value };
     } catch (error) {
       console.error('Error saving note:', error);
       uiStore.showToastMessage('Failed to save note. Please try again.');
     }
   };
 
-  function getInvalidNoteMessage(): string {
-    if (editedNote.value.title.trim().length === 0) return 'Title is required';
-    if (editedNote.value.title.length > 30)
-      return 'Title exceeds 30 characters';
-    if (editedNote.value.content.length > 100000)
-      return 'Content exceeds 100,000 characters';
-    return 'Invalid note';
-  }
-
-  const clearNoteModal = () => {
-    editedNote.value = createEmptyNote();
-    originalNote.value = null;
+  const handleOutsideClick = () => {
+    if (hasChanges.value) {
+      saveNote();
+    }
+    uiStore.showPreview = false;
+    uiStore.closeNote();
   };
 
-  const handleOutsideClick = () => {
-    if (!hasChanges.value) {
-      uiStore.showPreview = false;
-      clearNoteModal();
-      uiStore.closeNote();
-    } else {
-      uiStore.showToastMessage('You have unsaved changes.');
+  const noteListener: Ref<Unsubscribe | null> = ref(null);
+
+  const setupNoteListener = (noteId: string) => {
+    if (authStore.isLoggedIn && noteId && authStore.user) {
+      const noteRef = dbRef(db, `users/${authStore.user.uid}/notes/${noteId}`);
+      noteListener.value = onValue(noteRef, (snapshot) => {
+        const updatedNote = snapshot.val();
+        if (updatedNote && updatedNote.id === editedNote.value.id) {
+          editedNote.value = { ...updatedNote };
+          originalNote.value = { ...updatedNote };
+        }
+      });
     }
   };
 
   watch(
     () => props.noteId,
     async (newNoteId) => {
+      if (noteListener.value) {
+        noteListener.value();
+        noteListener.value = null;
+      }
+
       if (newNoteId !== null) {
         const note = notesStore.notes.find((n) => n.id === newNoteId);
         if (note) {
           editedNote.value = { ...note };
           originalNote.value = { ...note };
+          setupNoteListener(newNoteId);
+          isEditMode.value = true;
         }
       } else {
         editedNote.value = createEmptyNote();
         originalNote.value = null;
+        isEditMode.value = false;
       }
     },
     { immediate: true }
   );
 
-  onBeforeUnmount(clearNoteModal);
+  onUnmounted(() => {
+    if (noteListener.value) {
+      noteListener.value();
+    }
+  });
 </script>

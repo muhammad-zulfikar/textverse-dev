@@ -1,12 +1,13 @@
+<!--noteView-->
 <template>
   <div>
     <NoteModal
-      v-if="uiStore.viewType !== 'table'"
+      v-if="uiStore.noteOpenPreference === 'modal'"
       :note-id="notesStore.selectedNoteId"
       :is-open="uiStore.isNoteCardOpen"
     />
     <NoteSidebar
-      v-if="uiStore.viewType === 'table'"
+      v-if="uiStore.noteOpenPreference === 'sidebar'"
       :note-id="notesStore.selectedNoteId"
       :is-open="uiStore.isNoteSidebarOpen"
     />

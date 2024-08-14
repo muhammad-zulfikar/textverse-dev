@@ -20,6 +20,7 @@
         <div class="flex flex-col gap-4">
           <ThemeSelector />
           <ViewTypeSelector />
+          <NoteOpenPreferenceSelector />
           <BlurToggle />
         </div>
       </div>
@@ -45,6 +46,7 @@
   import ImportNotes from '@/components/settings/sync/importNotes.vue';
   import ThemeSelector from '@/components/settings/appearance/themeSelector.vue';
   import ViewTypeSelector from '@/components/settings/appearance/viewTypeSelector.vue';
+  import NoteOpenPreferenceSelector from '@/components/settings/appearance/noteOpenPreferenceSelector.vue';
   import BlurToggle from '@/components/settings/appearance/blurToggle.vue';
   import BackupData from '@/components/settings/data/backupData.vue';
   import DeleteData from '@/components/settings/data/deleteData.vue';
