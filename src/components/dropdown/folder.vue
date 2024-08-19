@@ -4,7 +4,7 @@
     contentWidth="12rem"
     direction="down"
     position="left"
-    class="mx-2 my-4 md:mx-16 md:my-8"
+    class="md:my-6 z-30"
   >
     <template #label>
       <button
@@ -19,7 +19,7 @@
         />
         <PhFolders v-else-if="isAllNotesFolder" :size="20" />
         <PhFolderMinus v-else :size="20" />
-        <span class="hidden md:flex md:ml-2 text-sm">
+        <span class="flex ml-2 text-sm md:text-base">
           {{ selectedFolder }} ({{ notesCountByFolder[selectedFolder] || 0 }})
         </span>
         <div v-if="!isAllNotesFolder" @click="revertToAllNotes">

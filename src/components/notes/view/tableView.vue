@@ -1,63 +1,55 @@
 <!-- tableView.vue -->
 
 <template>
-  <div class="w-full max-w-5xl mx-auto px-4 md:px-0 text-sm md:text-base">
-    <div class="flex justify-end mb-4 relative font-serif md:pr-4 xl:pr-0">
-      <button
-        v-if="selectMode && selectedNotes.length > 0"
-        @click="togglePinSelectedNotes"
-        class="flex items-center mr-2 px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
-      >
-        <component
-          :is="allSelectedPinned ? PhPushPinSlash : PhPushPin"
-          :size="20"
-          class="size-5 mr-2"
-        />
-        {{ allSelectedPinned ? 'Unpin' : 'Pin' }}
-      </button>
-
-      <button
-        v-if="selectMode && selectedNotes.length > 0"
-        @click="confirmDeleteSelectedNotes"
-        class="flex items-center mr-2 px-2 py-1 custom-card text-red-500 hover:text-red-100 hover:bg-red-700/50 dark:hover:bg-red-800/60"
-      >
-        <PhTrash :size="20" class="size-5 mr-2" />
-        Delete
-      </button>
-      <Dropdown dropdownId="showDropdown" contentWidth="w-fit" direction="down">
-        <template #label>
-          <div
-            class="flex items-center mr-2 px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
-          >
-            <PhEye :size="20" class="size-5 mr-2" />
-            Show
-          </div>
-        </template>
-        <div class="px-[3px]">
-          <a
-            v-for="column in filteredColumns"
-            :key="column"
-            @click.stop="toggleColumn(column)"
-            class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
-            role="menuitem"
-          >
-            <input
-              type="checkbox"
-              :checked="visibleColumns.includes(column)"
-              class="mr-2 cursor-pointer"
-              @click.stop="toggleColumn(column)"
-            />
-            {{ column }}
-          </a>
+  <div class="max-w-5xl mx-auto px-2 md:px-0 text-sm md:text-base mt-4 md:mt-0">
+    <div
+      class="flex justify-between items-center relative font-serif md:px-4 xl:px-0 mb-4 md:mb-0"
+    >
+      <div class="flex items-center">
+        <div class="mr-2 md:mr-4">
+          <Folder />
         </div>
-      </Dropdown>
-      <button
-        @click="toggleSelectMode"
-        class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
-      >
-        <PhCheckCircle :size="20" class="size-5 mr-2" />
-        Select
-      </button>
+      </div>
+      <div class="flex items-center">
+        <Dropdown
+          dropdownId="showDropdown"
+          contentWidth="w-fit"
+          direction="down"
+        >
+          <template #label>
+            <div
+              class="flex items-center mr-2 md:mr-4 px-2 py-1.5 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+            >
+              <PhEye :size="20" class="size-5 mr-2" />
+              Show
+            </div>
+          </template>
+          <div class="px-[3px]">
+            <a
+              v-for="column in filteredColumns"
+              :key="column"
+              @click.stop="toggleColumn(column)"
+              class="text-sm px-3 py-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+              role="menuitem"
+            >
+              <input
+                type="checkbox"
+                :checked="visibleColumns.includes(column)"
+                class="mr-2 cursor-pointer"
+                @click.stop="toggleColumn(column)"
+              />
+              {{ column }}
+            </a>
+          </div>
+        </Dropdown>
+        <button
+          @click="toggleSelectMode"
+          class="flex items-center px-2 py-1.5 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+        >
+          <PhCheckCircle :size="20" class="size-5 mr-2" />
+          Select
+        </button>
+      </div>
     </div>
     <div class="overflow-x-auto md:px-4 xl:px-0">
       <table
@@ -66,13 +58,14 @@
         <thead>
           <tr class="bg-[#ebdfc0] dark:bg-gray-800">
             <th
-              v-if="selectMode"
+              v-if="isSelectMode"
               class="p-3 text-left w-10 border-b-[1px] border-r-[1px] border-black dark:border-white"
             >
               <input
                 type="checkbox"
                 :checked="allSelected"
                 @change="toggleSelectAll"
+                class="cursor-pointer"
               />
             </th>
             <th
@@ -82,12 +75,12 @@
               class="p-3 text-left border-b-[1px] border-r-[1px] border-black dark:border-white whitespace-nowrap"
             >
               <div class="flex items-center">
-                <span>{{ column }}</span>
                 <component
                   :is="getColumnIcon(column)"
                   :size="20"
-                  class="ml-2 md:ml-3"
+                  class="mr-2"
                 />
+                <span>{{ column }}</span>
               </div>
             </th>
           </tr>
@@ -99,12 +92,12 @@
             class="bg-cream dark:bg-gray-750"
           >
             <td
-              v-if="selectMode"
+              v-if="isSelectMode"
               class="p-3 w-10 border-b-[1px] border-r-[1px] border-black dark:border-white"
             >
               <input
                 type="checkbox"
-                :checked="selectedNotes.includes(note.id)"
+                :checked="notesStore.selectedNotes.includes(note.id)"
                 @change="toggleNoteSelection(note.id)"
                 class="cursor-pointer"
               />
@@ -125,7 +118,7 @@
                   <span
                     class="bg-[#ebdfc0] dark:bg-gray-800 hover:bg-[#d9c698] dark:hover:bg-gray-700 active:bg-cream dark:active:bg-gray-700 rounded-lg border-[1px] border-black dark:border-white shadow-md hover:shadow-xl transition-all duration-300 text-sm ml-2 px-2 py-1 absolute right-2 top-1/2 transform -translate-y-1/2 group-hover:inline-block md:group-hover:inline-block md:hidden cursor-pointer"
                   >
-                    <PhSidebarSimple :size="20" />
+                    <PhArrowSquareOut :size="20" />
                   </span>
                 </div>
               </div>
@@ -134,12 +127,10 @@
               v-if="visibleColumns.includes('Content') && !isMobile"
               class="p-3 border-b-[1px] border-r-[1px] border-black dark:border-white"
             >
-              <input
-                :value="note.content"
-                @input="updateNoteContent(note, $event)"
-                @blur="saveNoteIfChanged(note)"
-                class="w-full bg-transparent outline-none"
-              />
+              <div
+                v-html="sanitizeHtml(truncatedContent(note.content))"
+                class="w-full bg-transparent outline-none truncate-text"
+              ></div>
             </td>
             <td
               v-if="visibleColumns.includes('Folder')"
@@ -168,13 +159,6 @@
         </transition-group>
       </table>
     </div>
-
-    <AlertModal
-      :is-open="isAlertOpen"
-      :message="`Are you sure you want to delete ${selectedNotes.length} note(s)?`"
-      @cancel="isAlertOpen = false"
-      @confirm="deleteSelectedNotes"
-    />
   </div>
 </template>
 
@@ -183,10 +167,7 @@
   import {
     PhEye,
     PhCheckCircle,
-    PhTrash,
-    PhPushPin,
-    PhPushPinSlash,
-    PhSidebarSimple,
+    PhArrowSquareOut,
     PhFolder,
     PhFolderMinus,
     PhTextT,
@@ -195,8 +176,9 @@
   } from '@phosphor-icons/vue';
   import { Note } from '@/store/types';
   import { uiStore, notesStore, folderStore } from '@/store/stores';
-  import AlertModal from '@/components/modal/alertModal.vue';
+  import Folder from '@/components/dropdown/folder.vue';
   import Dropdown from '@/components/dropdown/dropdown.vue';
+  import DOMPurify from 'dompurify';
 
   const props = defineProps<{
     notes: Note[];
@@ -214,12 +196,14 @@
     updatedNotes.value[note.id].title = newTitle;
   };
 
-  const updateNoteContent = (note: Note, event: Event) => {
-    const newContent = (event.target as HTMLInputElement).value;
-    if (!updatedNotes.value[note.id]) {
-      updatedNotes.value[note.id] = { ...note };
-    }
-    updatedNotes.value[note.id].content = newContent;
+  const sanitizeHtml = (content: string) => {
+    return DOMPurify.sanitize(content);
+  };
+
+  const truncatedContent = (content: string) => {
+    const div = document.createElement('div');
+    div.innerHTML = content;
+    return div.innerHTML;
   };
 
   const saveNoteIfChanged = (note: Note) => {
@@ -249,7 +233,7 @@
 
   const availableColumns = ['Title', 'Content', 'Folder', 'Date'];
   const visibleColumns = ref(availableColumns);
-  const selectMode = ref(false);
+  const isSelectMode = ref(false);
   const selectedNotes = ref<string[]>([]);
   const isMobile = ref(window.innerWidth < 768);
 
@@ -262,9 +246,32 @@
   const allSelected = computed(() => {
     return (
       props.notes.length > 0 &&
-      selectedNotes.value.length === props.notes.length
+      notesStore.selectedNotes.length === props.notes.length
     );
   });
+
+  const toggleSelectAll = () => {
+    if (allSelected.value) {
+      notesStore.clearSelectedNotes();
+    } else {
+      notesStore.selectAllNotes();
+    }
+  };
+
+  const toggleNoteSelection = (noteId: string) => {
+    const index = notesStore.selectedNotes.indexOf(noteId);
+    if (index === -1) {
+      notesStore.addSelectedNote(noteId);
+    } else {
+      notesStore.removeSelectedNote(noteId);
+    }
+
+    if (notesStore.selectedNotes.length > 0 && !isSelectMode.value) {
+      isSelectMode.value = true;
+    } else if (notesStore.selectedNotes.length === 0 && isSelectMode.value) {
+      isSelectMode.value = false;
+    }
+  };
 
   const toggleColumn = (column: string) => {
     if (visibleColumns.value.includes(column)) {
@@ -278,71 +285,10 @@
   };
 
   const toggleSelectMode = () => {
-    selectMode.value = !selectMode.value;
-    if (!selectMode.value) {
-      selectedNotes.value = [];
+    isSelectMode.value = !isSelectMode.value;
+    if (!isSelectMode.value) {
+      notesStore.clearSelectedNotes();
     }
-  };
-
-  const toggleNoteSelection = (noteId: string) => {
-    if (selectedNotes.value.includes(noteId)) {
-      selectedNotes.value = selectedNotes.value.filter((id) => id !== noteId);
-    } else {
-      selectedNotes.value.push(noteId);
-    }
-  };
-
-  const toggleSelectAll = () => {
-    if (allSelected.value) {
-      selectedNotes.value = [];
-    } else {
-      selectedNotes.value = props.notes.map((note) => note.id);
-    }
-  };
-
-  const allSelectedPinned = computed(() => {
-    return (
-      selectedNotes.value.length > 0 &&
-      selectedNotes.value.every(
-        (noteId) => props.notes.find((note) => note.id === noteId)?.pinned
-      )
-    );
-  });
-
-  const togglePinSelectedNotes = async () => {
-    const notesToToggleCount = selectedNotes.value.length;
-    const action = allSelectedPinned.value ? 'unpin' : 'pin';
-
-    for (const noteId of selectedNotes.value) {
-      if (action === 'pin') {
-        await notesStore.pinNote(noteId);
-      } else {
-        await notesStore.unpinNote(noteId);
-      }
-    }
-
-    selectedNotes.value = [];
-    uiStore.showToastMessage(
-      `${notesToToggleCount} note(s) ${action}ned successfully!`
-    );
-  };
-
-  const isAlertOpen = ref(false);
-
-  const confirmDeleteSelectedNotes = () => {
-    isAlertOpen.value = true;
-  };
-
-  const deleteSelectedNotes = async () => {
-    const notesToDeleteCount = selectedNotes.value.length;
-    for (const noteId of selectedNotes.value) {
-      await notesStore.deleteNote(noteId);
-    }
-    selectedNotes.value = [];
-    isAlertOpen.value = false;
-    uiStore.showToastMessage(
-      `${notesToDeleteCount} note(s) deleted successfully!`
-    );
   };
 
   watch(
@@ -364,6 +310,15 @@
   const handleResize = () => {
     isMobile.value = window.innerWidth < 768;
   };
+
+  watch(
+    () => notesStore.selectedNotes,
+    () => {
+      if (notesStore.selectedNotes.length === 0) {
+        isSelectMode.value = false;
+      }
+    }
+  );
 </script>
 
 <style scoped>
@@ -416,5 +371,15 @@
     .group:hover button {
       display: inline-block;
     }
+  }
+
+  .truncate-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre-wrap;
   }
 </style>

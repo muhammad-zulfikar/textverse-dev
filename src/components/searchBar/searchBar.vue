@@ -4,7 +4,7 @@
     class="flex justify-center items-center font-serif select-none"
   >
     <div
-      class="relative flex items-center justify-end md:w-[350px]"
+      class="relative flex items-center justify-center w-full mx-auto md:w-[350px]"
       :class="{
         'w-[40px]': !isExpanded && isMobile,
         'w-[180px]': isExpanded && isMobile,
@@ -68,7 +68,7 @@
   const isLoading = ref(true);
   const isExpanded = ref(false);
 
-  const emit = defineEmits(['update:modelValue']);
+  const emit = defineEmits(['update:modelValue', 'expanded']);
 
   const updateSearchQuery = () => {
     emit('update:modelValue', searchQuery.value.toLowerCase());
@@ -81,13 +81,15 @@
     if (isExpanded.value) {
       setTimeout(() => {
         searchInput.value.focus();
-      }, 300); // Delay focus until animation completes
+      }, 300);
     }
+    emit('expanded', isExpanded.value);
   };
 
   const handleClickOutside = (event) => {
     if (isExpanded.value && !event.target.closest('.relative')) {
       isExpanded.value = false;
+      emit('expanded', false);
     }
   };
 
@@ -96,6 +98,7 @@
       event.preventDefault();
       event.stopPropagation();
       isExpanded.value = true;
+      emit('expanded', true);
       setTimeout(() => {
         searchInput.value.focus();
       }, 300);

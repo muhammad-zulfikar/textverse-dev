@@ -1,10 +1,8 @@
 <!--cardView-->
 
 <template>
-  <div
-    class="md:w-11/12 mx-auto px-2 md:px-0 flex justify-center"
-    @click="handleOutsideClick"
-  >
+  <div class="mx-2 md:mx-[4.4rem]" @click="handleOutsideClick">
+    <Folder />
     <transition-group
       name="list"
       tag="ul"
@@ -26,7 +24,7 @@
         :class="{
           'z-50': showMenu && notesStore.selectedNote?.id === note.id,
           shadow: note.pinned || notesStore.selectedNotes.includes(note.id),
-          'border-[4px] dark:border-white': notesStore.selectedNotes.includes(
+          'border-[3px] dark:border-white': notesStore.selectedNotes.includes(
             note.id
           ),
           [computedMb]: true,
@@ -126,6 +124,7 @@
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
   import { DEFAULT_FOLDERS } from '@/store/constants';
+  import Folder from '@/components/dropdown/folder.vue';
   import ContextMenu from '@/components/contextMenu/contextMenu.vue';
   import AlertModal from '@/components/modal/alertModal.vue';
   import DOMPurify from 'dompurify';
@@ -215,17 +214,17 @@
   };
 
   const toggleNoteSelection = (noteId: string) => {
-    const index = selectedNotes.value.indexOf(noteId);
+    const index = notesStore.selectedNotes.indexOf(noteId);
     if (index === -1) {
-      selectedNotes.value.push(noteId);
       notesStore.addSelectedNote(noteId);
+      if (!isSelectMode.value) {
+        isSelectMode.value = true;
+      }
     } else {
-      selectedNotes.value.splice(index, 1);
       notesStore.removeSelectedNote(noteId);
-    }
-
-    if (!isSelectMode.value) {
-      isSelectMode.value = true;
+      if (notesStore.selectedNotes.length === 0) {
+        isSelectMode.value = false;
+      }
     }
   };
 
@@ -237,11 +236,15 @@
     }
   };
 
-  watch(selectedNotes, (newSelectedNotes) => {
-    if (newSelectedNotes.length === 0) {
-      isSelectMode.value = false;
-    }
-  });
+  watch(
+    () => notesStore.selectedNotes,
+    (newSelectedNotes) => {
+      if (newSelectedNotes.length === 0) {
+        isSelectMode.value = false;
+      }
+    },
+    { deep: true }
+  );
 </script>
 
 <style scoped>

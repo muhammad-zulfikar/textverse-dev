@@ -7,7 +7,7 @@
         <!-- Left: Menu (always) -->
         <transition-group name="slide-fade">
           <div
-            v-if="!isSelectModeActive"
+            v-if="!isSelectModeActive && !isSearchExpanded"
             class="flex items-center space-x-2 md:space-x-4"
           >
             <button
@@ -33,31 +33,23 @@
         </transition>
 
         <!-- Right: Search (mobile), Create, View, Avatar -->
-        <transition-group name="slide-fade">
-          <div v-if="!isSelectModeActive" class="flex items-center ml-auto">
-            <template v-if="isHomePage">
-              <div key="mobile-search" class="md:hidden">
-                <SearchBar @update:modelValue="notesStore.setSearchQuery" />
-              </div>
-              <div key="create" class="mx-2 md:mr-4">
-                <Create />
-              </div>
-              <View key="view" />
-            </template>
-            <div
-              v-if="authStore.isLoggedIn"
-              class="flex items-center ml-2 md:ml-4"
-            >
-              <div class="flex items-center">
-                <img
-                  :src="authStore.avatarUrl"
-                  alt="User Avatar"
-                  class="border-[1px] border-black dark:border-white size-8 rounded-full"
-                />
-              </div>
+        <transition name="slide-fade">
+          <div
+            v-if="isHomePage && !isSelectModeActive"
+            class="flex items-center ml-auto"
+          >
+            <div key="create" class="mr-2 md:mr-4" v-if="!isSearchExpanded">
+              <Create />
+            </div>
+            <View key="view" v-if="!isSearchExpanded" />
+            <div key="mobile-search" class="md:hidden ml-2">
+              <SearchBar
+                @update:modelValue="notesStore.setSearchQuery"
+                @expanded="setSearchExpanded"
+              />
             </div>
           </div>
-        </transition-group>
+        </transition>
 
         <!-- Selection mode overlay -->
         <transition name="slide-fade">
@@ -155,6 +147,12 @@
   const showSignoutConfirmation = ref(false);
   const showDeleteConfirmation = ref(false);
   const isSidebarOpen = ref(false);
+
+  const isSearchExpanded = ref(false);
+
+  const setSearchExpanded = (expanded: boolean) => {
+    isSearchExpanded.value = expanded;
+  };
 
   const isHomePage = computed(() => route.path === '/');
   const isSelectModeActive = computed(

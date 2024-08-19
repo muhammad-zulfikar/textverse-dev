@@ -3,7 +3,7 @@
 <template>
   <div class="mb-[28px] md:mb-[46px]">
     <template v-if="notesStore.filteredNotes.length > 0">
-      <Folder />
+      <!-- <Folder /> -->
       <transition name="slide-fade" mode="out-in">
         <component
           :key="uiStore.viewType"

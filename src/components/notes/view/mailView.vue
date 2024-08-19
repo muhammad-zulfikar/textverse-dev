@@ -1,7 +1,10 @@
 <template>
-  <div>
+  <div class="md:mx-auto md:max-w-5xl mx-2">
+    <div class="my-4 md:my-0">
+      <Folder />
+    </div>
     <div
-      class="custom-card flex h-full min-h-[800px] md:mx-auto md:max-w-5xl mt-10 rounded-lg border border-black dark:border-white overflow-hidden font-serif mx-1"
+      class="flex custom-card min-h-[800px] h-full rounded-lg border border-black dark:border-white overflow-hidden font-serif"
     >
       <!-- Sidebar -->
       <div
@@ -24,13 +27,7 @@
           >
             <h3 class="font-bold truncate">{{ note.title || 'Untitled' }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-300 truncate">
-              {{
-                uiStore.isCreatingNote &&
-                note.id === editedNote?.id &&
-                !note.content.trim()
-                  ? '\u00A0'
-                  : truncateContent(note.content)
-              }}
+              <span v-html="sanitizeAndTruncate(note.content)"></span>
             </p>
             <div
               class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2"
@@ -156,7 +153,10 @@
   import AlertModal from '@/components/modal/alertModal.vue';
   import { Note } from '@/store/types';
   import { DEFAULT_FOLDERS } from '@/store/constants';
+  import Folder from '@/components/dropdown/folder.vue';
   import FolderDropdown from '@/components/dropdown/folderDropdown.vue';
+  import { nanoid } from 'nanoid';
+  import DOMPurify from 'dompurify';
 
   const props = defineProps<{
     notes: Note[];
@@ -166,14 +166,14 @@
     isMobileView.value ? selectedNoteId.value : desktopSelectedNoteId.value
   );
 
-  const selectedNoteId = ref<number | null>(null);
+  const selectedNoteId = ref<string | null>(null);
   const isMobileView = ref(false);
   const textareaHeight = ref('auto');
   const isAlertOpen = ref(false);
   const alertMessage = ref('');
   const selectedFolder = ref('');
   const editedNote = ref<Note | null>(null);
-  const desktopSelectedNoteId = ref<number | null>(null);
+  const desktopSelectedNoteId = ref<string | null>(null);
   const originalNote = ref<Note | null>(null);
 
   const selectedNote = computed(() =>
@@ -222,7 +222,7 @@
 
   function createNewNote() {
     const newNote: Note = {
-      id: Date.now(),
+      id: nanoid(),
       title: '',
       content: '',
       folder: DEFAULT_FOLDERS.UNCATEGORIZED,
@@ -236,7 +236,7 @@
     selectedNoteId.value = null;
   }
 
-  function selectNote(id: number) {
+  function selectNote(id: string) {
     if (isMobileView.value) {
       selectedNoteId.value = id;
     } else {
@@ -269,10 +269,6 @@
     } else {
       selectNewestNote();
     }
-  }
-
-  function truncateContent(content: string): string {
-    return content.length > 100 ? content.slice(0, 100) + '...' : content;
   }
 
   async function saveNote() {
@@ -339,6 +335,13 @@
     }
   }
 
+  const sanitizeAndTruncate = (content: string) => {
+    const sanitized = DOMPurify.sanitize(content);
+    const truncated =
+      sanitized.length > 100 ? sanitized.slice(0, 100) + '...' : sanitized;
+    return truncated;
+  };
+
   function handleResize() {
     const newIsMobileView = window.innerWidth < 768;
     if (isMobileView.value !== newIsMobileView) {
@@ -357,7 +360,7 @@
     updateTextareaHeight();
   }
 
-  function selectNewestNote(): number | null {
+  function selectNewestNote(): string | null {
     if (props.notes.length === 0) return null;
 
     const newestNote = props.notes.reduce((newest, current) => {
