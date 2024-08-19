@@ -5,13 +5,14 @@
     dropdownId="create"
     contentWidth="6.4rem"
     direction="down"
-    position="right"
+    position="center"
   >
     <template #label>
       <button
-        class="flex items-center px-2 py-1.5 custom-card hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
+        class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
       >
-        <PhPlus :size="20" />
+        <PhPlus :size="20" class="mr-2" />
+        Create
       </button>
     </template>
     <div class="w-full text-sm px-1 space-y-1">
@@ -44,7 +45,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { uiStore, folderStore } from '@/store/stores';
-  import { PhPlus, PhFile, PhFolder, PhCaretDown } from '@phosphor-icons/vue';
+  import { PhPlus, PhFile, PhFolder } from '@phosphor-icons/vue';
   import Dropdown from '@/components/dropdown/dropdown.vue';
   import InputModal from '@/components/modal/inputModal.vue';
 

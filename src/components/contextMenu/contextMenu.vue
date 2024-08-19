@@ -54,12 +54,12 @@
         </li>
         <li
           v-if="!showFolderOptions"
-          @click="shareNote"
+          @click="publicNote"
           class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
-          <PhGlobe v-if="!isNoteShared" :size="20" class="mr-2" />
+          <PhGlobe v-if="!isNotePublic" :size="20" class="mr-2" />
           <PhGlobeX v-else :size="20" class="mr-2" />
-          {{ isNoteShared ? 'Unpublic' : 'Make public' }}
+          {{ isNotePublic ? 'Unpublic' : 'Make public' }}
         </li>
         <li
           v-if="!showFolderOptions"
@@ -186,7 +186,7 @@
     return folders;
   });
 
-  const isNoteShared = computed(() => notesStore.publicNotes.has(props.noteId));
+  const isNotePublic = computed(() => notesStore.publicNotes.has(props.noteId));
 
   const calculateMenuPosition = (x: number, y: number) => {
     if (!menuRef.value) return { x, y };
@@ -274,7 +274,7 @@
     emit('hideMenu');
   };
 
-  const shareNote = () => {
+  const publicNote = () => {
     emit('share', props.noteId);
     emit('hideMenu');
   };

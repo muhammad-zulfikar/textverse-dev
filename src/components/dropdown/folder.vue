@@ -3,19 +3,25 @@
     dropdownId="folder"
     contentWidth="12rem"
     direction="down"
-    position="center"
+    position="left"
+    class="mx-2 my-4 md:mx-16 md:my-8"
   >
     <template #label>
       <button
-        class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+        class="flex items-center px-2 py-1.5 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
       >
         <PhFolder
-          v-if="selectedFolder !== DEFAULT_FOLDERS.UNCATEGORIZED"
+          v-if="
+            selectedFolder !== DEFAULT_FOLDERS.UNCATEGORIZED &&
+            !isAllNotesFolder
+          "
           :size="20"
-          class="mr-2"
         />
-        <PhFolderMinus v-else :size="20" class="mr-2" />
-        {{ selectedFolder }} ({{ notesCountByFolder[selectedFolder] || 0 }})
+        <PhFolders v-else-if="isAllNotesFolder" :size="20" />
+        <PhFolderMinus v-else :size="20" />
+        <span class="hidden md:flex md:ml-2 text-sm">
+          {{ selectedFolder }} ({{ notesCountByFolder[selectedFolder] || 0 }})
+        </span>
         <div v-if="!isAllNotesFolder" @click="revertToAllNotes">
           <PhArrowCounterClockwise :size="20" class="ml-2" />
         </div>
@@ -70,7 +76,7 @@
             </button>
             <button
               @click.stop="openDeleteAlert(folder)"
-              class="text-xs flex items-center px-2 py-1 text-red-500 hover:text-red-00 hover:bg-red-700/50 dark:hover:bg-red-800/60 custom-card mb-2"
+              class="text-xs flex items-center px-2 py-1 text-red-500 hover:text-red-100 hover:bg-red-700/50 dark:hover:bg-red-800/60 custom-card mb-2"
             >
               <PhTrash :size="16" class="mr-1" />
               Delete
@@ -103,6 +109,7 @@
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import {
     PhFolder,
+    PhFolders,
     PhFolderMinus,
     PhArrowCounterClockwise,
     PhCaretDown,

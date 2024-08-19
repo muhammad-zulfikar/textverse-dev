@@ -3,7 +3,7 @@
 <template>
   <div>
     <main
-      class="mx-auto grid max-w-2xl grid-cols-6 gap-6 px-6 pt-10 md:pt-24 select-none"
+      class="mx-auto grid max-w-2xl grid-cols-6 gap-6 px-2 select-none my-8 md:my-24"
     >
       <div
         class="flex flex-col col-span-6 md:col-span-4 h-58 md:h-60 overflow-hidden rounded-lg p-5 md:p-6 custom-card"

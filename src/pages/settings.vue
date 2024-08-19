@@ -2,9 +2,9 @@
 
 <template>
   <div
-    class="max-w-xl md:max-w-2xl p-8 m-8 flex flex-col mx-auto gap-8 overflow-y-auto font-serif"
+    class="max-w-xl md:max-w-2xl my-8 px-2 md:px-8 flex flex-col mx-auto gap-8 overflow-y-auto font-serif"
   >
-    <div class="flex-grow flex flex-col gap-8">
+    <div class="flex-grow flex flex-col gap-2 md:gap-8">
       <!-- Sync notes section -->
       <div class="p-4 custom-card">
         <h2 class="text-2xl font-semibold mb-4">Sync your notes</h2>

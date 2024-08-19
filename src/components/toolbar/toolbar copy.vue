@@ -2,10 +2,14 @@
   <transition name="slide-fade" mode="in-out">
     <div
       v-if="!isLoading"
-      class="hidden md:flex justify-center mt-6 w-11/12 mx-auto font-serif text-sm md:text-base transition-all duration-300"
+      class="hidden md:flex justify-center mt-12 w-11/12 mx-auto font-serif text-sm md:text-base transition-all duration-300"
     >
       <div class="flex items-center select-none">
+        <Create />
+        <span class="mx-2 md:mx-4"></span>
         <Folder />
+        <span class="mx-2 md:mx-4"></span>
+        <View />
       </div>
     </div>
   </transition>

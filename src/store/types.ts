@@ -8,8 +8,13 @@ export interface Note {
   last_edited: string | Date;
   pinned: boolean;
   folder: string;
-  renderedContent?: string;
   time_deleted?: string | Date;
+}
+
+export interface PublicNote {
+  id: string;
+  uid: string;
+  publicId: string;
 }
 
 export interface Folder {

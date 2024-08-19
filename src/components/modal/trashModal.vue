@@ -179,14 +179,14 @@
     emit('update:isOpen', false);
   };
 
-  const selectedNotes = ref<number[]>([]);
+  const selectedNotes = ref<string[]>([]);
   const showCheckboxes = ref(false);
-  const expandedNoteId = ref<number | null>(null);
+  const expandedNoteId = ref<string | null>(null);
   const showDeleteConfirmation = ref(false);
   const showDeleteSelectedConfirmation = ref(false);
-  const noteToDelete = ref<number | null>(null);
+  const noteToDelete = ref<string | null>(null);
 
-  const confirmDeleteNote = (noteId: number) => {
+  const confirmDeleteNote = (noteId: string) => {
     noteToDelete.value = noteId;
     showDeleteConfirmation.value = true;
   };
@@ -212,7 +212,7 @@
     showCheckboxes.value = !showCheckboxes.value;
   };
 
-  const toggleNoteSelection = (noteId: number) => {
+  const toggleNoteSelection = (noteId: string) => {
     const index = selectedNotes.value.indexOf(noteId);
     if (index === -1) {
       selectedNotes.value.push(noteId);
@@ -221,11 +221,11 @@
     }
   };
 
-  const toggleNoteOptions = (noteId: number) => {
+  const toggleNoteOptions = (noteId: string) => {
     expandedNoteId.value = expandedNoteId.value === noteId ? null : noteId;
   };
 
-  const restoreNote = async (noteId: number) => {
+  const restoreNote = async (noteId: string) => {
     await notesStore.restoreNote(noteId);
     uiStore.showToastMessage('Note restored successfully');
   };

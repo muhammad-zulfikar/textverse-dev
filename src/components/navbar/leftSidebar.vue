@@ -1,4 +1,5 @@
 <template>
+  <ModalBackdrop v-model="props.isOpen" />
   <transition name="slide-left">
     <div
       v-if="isOpen"
@@ -7,27 +8,18 @@
         'custom-card-blur': uiStore.blurEnabled,
         'custom-card': !uiStore.blurEnabled,
       }"
-      @mouseleave="handleMouseLeave"
     >
       <div
-        class="flex justify-between items-center px-4 py-[1.7px] bg-[#f7f4e4] dark:bg-gray-700"
+        class="flex justify-between items-center px-4 py-[6.5px] bg-[#f7f4e4] dark:bg-gray-700"
       >
         <img
           src="/dark/android-chrome-512x512.png"
           class="size-12 -ml-2 hidden dark:block cursor-pointer"
-          @click="toggleSidebar"
         />
         <img
           src="/light/android-chrome-512x512.png"
           class="size-12 -ml-2 dark:hidden cursor-pointer"
-          @click="toggleSidebar"
         />
-        <button @click.stop="togglePin" class="outline-none">
-          <component
-            :is="isPinned ? PhPushPinSlash : PhPushPin"
-            class="size-5"
-          />
-        </button>
       </div>
 
       <div
@@ -54,12 +46,7 @@
           <PhDownload class="size-5 mr-2" />
           Install
         </button>
-        <router-link
-          v-if="!authStore.isLoggedIn"
-          to="/sign-in"
-          class="my-1"
-          @click="handleSignInClick"
-        >
+        <router-link v-if="!authStore.isLoggedIn" to="/sign-in" class="my-1">
           <div
             class="text-sm p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
           >
@@ -72,14 +59,14 @@
       <div class="p-2">
         <h2 class="font-bold mb-2 px-2 mt-2">Create</h2>
         <button
-          @click.stop="openNoteForm"
+          @click="openNoteForm"
           class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
           <PhFile class="size-5 mr-2" />
           Note
         </button>
         <button
-          @click.stop="openFolderForm"
+          @click="openFolderForm"
           class="w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
         >
           <PhFolder class="size-5 mr-2" />
@@ -158,7 +145,6 @@
     @cancel="showSignoutConfirmation = false"
     @confirm="signout"
   />
-  <TrashModal v-model:isOpen="isTrashModalOpen" />
   <InputModal
     :is-open="isFolderFormOpen"
     mode="folder"
@@ -173,8 +159,6 @@
   import { useRouter } from 'vue-router';
   import { authStore, notesStore, uiStore, folderStore } from '@/store/stores';
   import {
-    PhPushPin,
-    PhPushPinSlash,
     PhHouse,
     PhInfo,
     PhGear,
@@ -186,34 +170,26 @@
     PhFolder,
     PhCaretUp,
   } from '@phosphor-icons/vue';
+  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
   import AlertModal from '@/components/modal/alertModal.vue';
-  import TrashModal from '@/components/modal/trashModal.vue';
   import InputModal from '@/components/modal/inputModal.vue';
 
   const props = defineProps<{
     isOpen: boolean;
   }>();
 
-  const emit = defineEmits(['close', 'toggle', 'mouseleave']);
+  const emit = defineEmits(['update:isOpen']);
 
   const router = useRouter();
-  const isPinned = ref(false);
   const isUserDropupOpen = ref(false);
   const showSignoutConfirmation = ref(false);
-  const isTrashModalOpen = ref(false);
-
-  const openTrash = () => {
-    isTrashModalOpen.value = true;
-    if (!isPinned.value) {
-      emit('close');
-    }
-  };
+  const isFolderFormOpen = ref(false);
 
   const menuItems = [
     { label: 'Home', path: '/', icon: PhHouse },
     { label: 'About', path: '/about', icon: PhInfo },
     { label: 'Settings', path: '/settings', icon: PhGear },
-    { label: 'Trash', path: '#', icon: PhTrash, action: openTrash },
+    { label: 'Trash', path: '/trash', icon: PhTrash },
   ];
 
   const recentNotes = computed(() => {
@@ -227,49 +203,30 @@
       .slice(0, 5);
   });
 
-  const handleSignInClick = () => {
-    if (!isPinned.value) {
-      emit('close');
-    }
-  };
-
   const signout = async () => {
     await authStore.logout();
     showSignoutConfirmation.value = false;
     router.push('/');
+    closeSidebar();
   };
 
-  const togglePin = () => {
-    isPinned.value = !isPinned.value;
-  };
-
-  const toggleSidebar = () => {
-    emit('toggle');
-  };
-
-  const toggleUserDropup = () => {
+  const toggleUserDropup = (event: Event) => {
+    event.stopPropagation();
     isUserDropupOpen.value = !isUserDropupOpen.value;
   };
 
-  const openNote = (noteId: number) => {
+  const openNote = (noteId: string) => {
     router.push('/');
     uiStore.openNote(noteId);
-    if (!isPinned.value) {
-      emit('close');
-    }
+    closeSidebar();
   };
 
   const navigateToSettings = () => {
     router.push('/settings');
-    if (!isPinned.value) {
-      emit('close');
-    }
+    closeSidebar();
   };
 
   const confirmSignout = () => {
-    if (!isPinned.value) {
-      emit('close');
-    }
     showSignoutConfirmation.value = true;
   };
 
@@ -297,33 +254,23 @@
   const handleMenuItemClick = (item: any) => {
     if (item.action) {
       item.action();
-    } else if (!isPinned.value) {
-      emit('close');
     }
+    closeSidebar();
   };
-
-  const isFolderFormOpen = ref(false);
 
   const openNoteForm = () => {
     router.push('/');
-    if (!isPinned.value) {
-      emit('close');
-    }
     uiStore.openNote(null);
+    closeSidebar();
   };
 
   const openFolderForm = () => {
     router.push('/');
-    if (!isPinned.value) {
-      emit('close');
-    }
     isFolderFormOpen.value = true;
+    closeSidebar();
   };
 
   const closeFolderForm = () => {
-    if (!isPinned.value) {
-      emit('close');
-    }
     isFolderFormOpen.value = false;
   };
 
@@ -332,17 +279,15 @@
     closeFolderForm();
   };
 
-  const handleMouseLeave = () => {
-    if (!isPinned.value) {
-      emit('close');
-    }
+  const closeSidebar = () => {
+    emit('update:isOpen', false);
   };
 
   watch(
     () => props.isOpen,
     (newValue) => {
-      if (!newValue && !isPinned.value) {
-        emit('close');
+      if (!newValue) {
+        isUserDropupOpen.value = false;
       }
     }
   );

@@ -1,6 +1,10 @@
-<!--cardview-->
+<!--cardView-->
+
 <template>
-  <div class="md:w-11/12 mx-auto px-2 md:px-0 flex justify-center">
+  <div
+    class="md:w-11/12 mx-auto px-2 md:px-0 flex justify-center"
+    @click="handleOutsideClick"
+  >
     <transition-group
       name="list"
       tag="ul"
@@ -10,23 +14,40 @@
           'columns-1 md:max-w-xl': uiStore.columns === 1,
           'columns-2 gap-2 md:gap-7 md:max-w-4xl': uiStore.columns === 2,
           'columns-3 sm:columns-2 md:columns-3 gap-8': uiStore.columns === 3,
-          'columns-4 sm:columns-2 md:columns-3 lg:columns-4 gap-5':
+          'columns-4 sm:columns-2 md:columns-3 lg:columns-4 gap-4':
             uiStore.columns === 4,
-          // 'columns-5 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3': uiStore.columns === 5,
         },
       ]"
     >
       <li
         v-for="note in props.notes"
         :key="note.id"
-        class="custom-card break-inside-avoid h-min mb-[9px] md:mb-8 p-2 flex flex-col overflow-x-auto cursor-pointer relative group select-none"
+        class="bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 break-inside-avoid h-min mb-[9px] p-2 cursor-pointer relative group select-none"
         :class="{
-          'z-50': showMenu && selectedNote?.id === note.id,
-          shadow: note.pinned,
+          'z-50': showMenu && notesStore.selectedNote?.id === note.id,
+          shadow: note.pinned || notesStore.selectedNotes.includes(note.id),
+          'border-[4px] dark:border-white': notesStore.selectedNotes.includes(
+            note.id
+          ),
+          [computedMb]: true,
         }"
         @contextmenu.prevent="(event) => showContextMenu(event, note)"
-        @click="() => uiStore.openNote(note.id)"
+        @click.stop="handleNoteClick(note)"
       >
+        <div
+          class="absolute top-0 -left-3 custom-card-rounded hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-opacity duration-200"
+          :class="{
+            'opacity-100': notesStore.selectedNotes.includes(note.id),
+            'opacity-0 group-hover:opacity-100':
+              !notesStore.selectedNotes.includes(note.id),
+          }"
+          @click.stop="toggleNoteSelection(note.id)"
+          style="transform: translateY(-50%)"
+        >
+          <div class="p-1 rounded-full flex items-center justify-center">
+            <PhCheck :size="16" />
+          </div>
+        </div>
         <div class="flex justify-between items-start">
           <h1
             class="font-bold text-sl font-serif cursor-pointer dark:text-white"
@@ -37,20 +58,12 @@
         <div>
           <div
             class="font-serif text-sm mt-2 dark:text-white truncate-text"
-            v-html="truncatedContent(note.content)"
+            v-html="sanitizeHtml(truncatedContent(note.content))"
           ></div>
           <div
             class="flex justify-between items-center pt-3 mt-auto font-serif text-gray-700 dark:text-gray-400 text-xs"
           >
             <div class="flex items-center">
-              <div
-                class="hidden md:flex items-center custom-card px-2 py-1 mr-2"
-              >
-                <PhCalendarBlank :size="16" class="mr-2" />
-                {{
-                  notesStore.localeDate(note.last_edited || note.time_created)
-                }}
-              </div>
               <span
                 v-if="note.pinned"
                 @click.stop="notesStore.unpinNote(note.id)"
@@ -59,8 +72,8 @@
                 <PhPushPin :size="16" class="text-[10px] md:text-xs" />
               </span>
               <span
-                v-if="isNoteShared(note.id)"
-                @click.stop="toggleShare(note.id)"
+                v-if="isNotePublic(note.id)"
+                @click.stop="togglePublic(note.id)"
                 class="justify-start px-2 py-1 hover:bg-[#d9c698] dark:hover:bg-gray-700 rounded-md custom-card"
               >
                 <PhGlobe :size="16" class="text-[10px] md:text-xs" />
@@ -94,7 +107,7 @@
         @delete="openDeleteAlert"
         @pin="notesStore.pinNote"
         @unpin="notesStore.unpinNote"
-        @share="toggleShare"
+        @share="togglePublic"
       />
     </Transition>
 
@@ -108,18 +121,22 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-  import {
-    PhPushPin,
-    PhFolder,
-    PhGlobe,
-    PhCalendarBlank,
-  } from '@phosphor-icons/vue';
+  import { computed, ref, watch } from 'vue';
+  import { PhPushPin, PhFolder, PhGlobe, PhCheck } from '@phosphor-icons/vue';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
   import { DEFAULT_FOLDERS } from '@/store/constants';
   import ContextMenu from '@/components/contextMenu/contextMenu.vue';
   import AlertModal from '@/components/modal/alertModal.vue';
+  import DOMPurify from 'dompurify';
+
+  const computedMb = computed(() => {
+    if (uiStore.columns === 4) {
+      return 'md:mb-4';
+    } else {
+      return 'md:mb-8';
+    }
+  });
 
   const props = defineProps<{
     notes: Note[];
@@ -130,20 +147,24 @@
   const selectedNote = ref<Note | null>(null);
   const isAlertOpen = ref(false);
   const alertMessage = ref('');
+  const selectedNotes = ref<string[]>([]);
 
-  const isNoteShared = (noteId: string) => {
+  const isNotePublic = (noteId: string) => {
     return notesStore.publicNotes.has(noteId);
   };
 
-  const toggleShare = (noteId: string) => {
-    notesStore.toggleShare(noteId);
+  const togglePublic = (noteId: string) => {
+    notesStore.togglePublic(noteId);
+  };
+
+  const sanitizeHtml = (content: string) => {
+    return DOMPurify.sanitize(content);
   };
 
   const truncatedContent = (content: string) => {
     const div = document.createElement('div');
     div.innerHTML = content;
-    const textContent = div.textContent || div.innerText || '';
-    return textContent;
+    return div.innerHTML;
   };
 
   const showContextMenu = (event: MouseEvent, note: Note) => {
@@ -182,26 +203,64 @@
       isAlertOpen.value = false;
     }
   };
+
+  const isSelectMode = ref(false);
+
+  const handleNoteClick = (note: Note) => {
+    if (isSelectMode.value) {
+      toggleNoteSelection(note.id);
+    } else {
+      uiStore.openNote(note.id);
+    }
+  };
+
+  const toggleNoteSelection = (noteId: string) => {
+    const index = selectedNotes.value.indexOf(noteId);
+    if (index === -1) {
+      selectedNotes.value.push(noteId);
+      notesStore.addSelectedNote(noteId);
+    } else {
+      selectedNotes.value.splice(index, 1);
+      notesStore.removeSelectedNote(noteId);
+    }
+
+    if (!isSelectMode.value) {
+      isSelectMode.value = true;
+    }
+  };
+
+  const handleOutsideClick = (event: MouseEvent) => {
+    if (!(event.target as HTMLElement).closest('li')) {
+      isSelectMode.value = false;
+      selectedNotes.value = [];
+      notesStore.clearSelectedNotes();
+    }
+  };
+
+  watch(selectedNotes, (newSelectedNotes) => {
+    if (newSelectedNotes.length === 0) {
+      isSelectMode.value = false;
+    }
+  });
 </script>
 
 <style scoped>
-.truncate-text {
-  display: -webkit-box;
-  -webkit-line-clamp: 8;
-  line-clamp: 8;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: pre-wrap;
-}
-
-@media (min-width: 640px) {
   .truncate-text {
-    -webkit-line-clamp: 10;
-    line-clamp: 10;
+    display: -webkit-box;
+    -webkit-line-clamp: 8;
+    line-clamp: 8;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre-wrap;
   }
-}
 
+  @media (min-width: 640px) {
+    .truncate-text {
+      -webkit-line-clamp: 20;
+      line-clamp: 20;
+    }
+  }
 
   .shadow {
     box-shadow:

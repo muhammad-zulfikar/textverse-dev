@@ -25,7 +25,6 @@ interface UIState {
   isNoteSidebarOpen: boolean;
   isEditing: boolean;
   isCreatingNote: boolean;
-  showPreview: boolean;
   settingsListener: (() => void) | null;
 }
 
@@ -58,7 +57,6 @@ export const useUIStore = defineStore('ui', {
     isNoteSidebarOpen: false,
     isEditing: false,
     isCreatingNote: false,
-    showPreview: false,
     settingsListener: null as null | (() => void),
   }),
 
@@ -88,6 +86,15 @@ export const useUIStore = defineStore('ui', {
     },
 
     async loadSettings() {
+      const savedTheme = localStorage.getItem('theme') as
+        | UIState['theme']
+        | null;
+
+      if (savedTheme) {
+        this.theme = savedTheme;
+        this.applyTheme();
+      }
+
       const authStore = useAuthStore();
       if (authStore.isLoggedIn) {
         const settingsRef = ref(db, `users/${authStore.user!.uid}/settings`);
@@ -95,9 +102,6 @@ export const useUIStore = defineStore('ui', {
           if (snapshot.exists()) {
             const data = snapshot.val();
             this.theme = data.theme;
-            this.viewType = data.viewType;
-            this.noteOpenPreference = data.noteOpenPreference || 'modal';
-            this.blurEnabled = data.blurEnabled;
             this.applyTheme();
           } else {
             this.loadUISettings();
@@ -154,18 +158,18 @@ export const useUIStore = defineStore('ui', {
       if (isDark) {
         document.documentElement.classList.add('dark');
         document
-          .getElementById('theme-color')
+          .querySelector('meta[name="theme-color"]')
           ?.setAttribute('content', '#4b5563');
         document
-          .getElementById('favicon')
+          .querySelector('link[rel="icon"]')
           ?.setAttribute('href', '/dark/favicon.ico');
       } else {
         document.documentElement.classList.remove('dark');
         document
-          .getElementById('theme-color')
+          .querySelector('meta[name="theme-color"]')
           ?.setAttribute('content', '#f7f4e4');
         document
-          .getElementById('favicon')
+          .querySelector('link[rel="icon"]')
           ?.setAttribute('href', '/light/favicon.ico');
       }
     },
@@ -244,7 +248,6 @@ export const useUIStore = defineStore('ui', {
 
     closeNote() {
       notesStore.selectedNoteId = null;
-      this.showPreview = false;
       if (this.noteOpenPreference === 'modal') {
         this.isNoteCardOpen = false;
       } else {

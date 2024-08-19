@@ -3,29 +3,29 @@
     dropdownId="view"
     contentWidth="8.8rem"
     direction="down"
-    position="center"
+    position="right"
   >
     <template #label>
       <button
-        class="flex items-center px-2 py-1 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+        class="flex items-center px-2 py-1.5 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
       >
         <div v-if="uiStore.viewType === 'card'">
-          <PhSquaresFour :size="20" class="mr-2" />
+          <PhSquaresFour :size="20" />
         </div>
         <div v-if="uiStore.viewType === 'table'">
-          <PhTable :size="20" class="mr-2" />
+          <PhTable :size="20" />
         </div>
         <div v-if="uiStore.viewType === 'mail'">
-          <PhEnvelopeSimple :size="20" class="mr-2" />
+          <PhEnvelopeSimple :size="20" />
         </div>
         <div v-if="uiStore.viewType === 'folder'">
-          <PhFolder :size="20" class="mr-2" />
+          <PhFolder :size="20" />
         </div>
 
-        <span v-if="uiStore.viewType === 'card'">Card</span>
-        <span v-else-if="uiStore.viewType === 'table'">Table</span>
-        <span v-else-if="uiStore.viewType === 'mail'">Mail</span>
-        <span v-else-if="uiStore.viewType === 'folder'">Folder</span>
+        <!-- <span class="hidden md:flex md:ml-2" v-if="uiStore.viewType === 'card'">Card</span>
+        <span class="hidden md:flex md:ml-2" v-else-if="uiStore.viewType === 'table'">Table</span>
+        <span class="hidden md:flex md:ml-2" v-else-if="uiStore.viewType === 'mail'">Mail</span>
+        <span class="hidden md:flex md:ml-2" v-else-if="uiStore.viewType === 'folder'">Folder</span> -->
       </button>
     </template>
     <div class="px-1 space-y-1 text-sm">

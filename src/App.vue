@@ -2,8 +2,8 @@
   <div class="app-container">
     <LoadingSpinner v-if="authStore.isLoading" />
     <template v-else>
+      <Navbar />
       <div class="scrollable-container">
-        <Navbar />
         <router-view v-slot="{ Component, route }">
           <transition :name="transitionName" mode="out-in">
             <component :is="Component" :key="route.path"></component>
@@ -20,13 +20,13 @@
 <script setup lang="ts">
   import { ref, onMounted, onUnmounted, watch } from 'vue';
   import { useRouter } from 'vue-router';
-  import { authStore, notesStore, folderStore, uiStore } from './store/stores';
+  import { authStore, uiStore, notesStore, folderStore } from './store/stores';
   import Navbar from '@/components/navbar/navbar.vue';
   import Toast from '@/components/toast/toast.vue';
   import LoadingSpinner from '@/components/loadingSpinner/loadingSpinner.vue';
 
   const router = useRouter();
-  const routeOrder = ['Home', 'About', 'Settings', 'Sign In'];
+  const routeOrder = ['Home', 'About', 'Settings', 'Trash', 'Sign In'];
   const transitionName = ref('slide-right');
 
   watch(
@@ -43,10 +43,12 @@
     try {
       await authStore.fetchCurrentUser();
       await uiStore.loadSettings();
+      uiStore.applyTheme();
+
       await notesStore.loadNotes();
       await folderStore.loadFolders();
       await notesStore.loadDeletedNotes();
-      await notesStore.fetchSharedNotes();
+      await notesStore.fetchPublicNotes();
     } catch (error) {
       uiStore.showToastMessage(
         'An error occurred while loading the app. Please try again.'

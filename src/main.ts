@@ -7,8 +7,7 @@ import router from './router';
 import { initializeStores } from './store/stores';
 import 'tailwindcss/tailwind.css';
 import './style/style.css';
-import './style/markdown.css';
-import './style/prismjs.css';
+import 'quill/dist/quill.snow.css';
 import './firebase';
 
 const app = createApp(App);

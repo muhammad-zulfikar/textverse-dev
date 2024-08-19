@@ -14,34 +14,19 @@
   <div id="app"></div>
   <script type="module" src="/src/main.ts"></script>
   <script>
-    function setTheme(isDark) {
+    (function() {
+      const theme = localStorage.getItem('theme') || 'system';
+      const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
       if (isDark) {
         document.documentElement.classList.add('dark');
-        document.getElementById('theme-color').setAttribute('content', '#4b5563');
-        document.getElementById('favicon').setAttribute('href', '/dark/favicon.ico');
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', '#4b5563');
+        document.querySelector('link[rel="icon"]').setAttribute('href', '/dark/favicon.ico');
       } else {
         document.documentElement.classList.remove('dark');
-        document.getElementById('theme-color').setAttribute('content', '#f7f4e4');
-        document.getElementById('favicon').setAttribute('href', '/light/favicon.ico');
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f7f4e4');
+        document.querySelector('link[rel="icon"]').setAttribute('href', '/light/favicon.ico');
       }
-    }
-
-    function applyTheme() {
-      const currentTheme = localStorage.getItem('theme');
-      const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-
-      if (currentTheme === 'dark' || (currentTheme === 'system' && prefersDarkScheme.matches) || (!currentTheme && prefersDarkScheme.matches)) {
-        setTheme(true);
-      } else {
-        setTheme(false);
-      }
-    }
-
-    applyTheme();
-
-    window.matchMedia('(prefers-color-scheme: dark)').addListener(() => {
-      applyTheme();
-    });
+    })();
   </script>
 </body>
 

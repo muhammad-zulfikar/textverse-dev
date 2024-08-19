@@ -1,36 +1,30 @@
 // notesStore.ts
 
 import { defineStore } from 'pinia';
-import { Note } from './types';
+import { Note, PublicNote } from './types';
 import { DEFAULT_FOLDERS } from './constants';
 import { authStore, folderStore, uiStore, firebaseStore } from './stores';
 import { db } from '@/firebase';
 import { get, onValue, ref, remove, set } from 'firebase/database';
 import initialNotes from '@/assets/initialNotes.json';
-import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { nanoid } from 'nanoid';
-import Prism from 'prismjs';
 
 interface NotesState {
   notes: Note[];
   deletedNotes: Note[];
+  selectedNotes: string[];
   selectedNoteId: string | null;
   searchQuery: string;
   publicNotes: Map<string, string>;
   notesListener: (() => void) | null;
 }
 
-interface ShareNote {
-  id: string;
-  uid: string;
-  publicId: string;
-}
-
 export const useNotesStore = defineStore('notes', {
   state: (): NotesState => ({
     notes: [],
     deletedNotes: [],
+    selectedNotes: [],
     selectedNoteId: null as string | null,
     searchQuery: '',
     publicNotes: new Map(),
@@ -56,77 +50,6 @@ export const useNotesStore = defineStore('notes', {
   },
 
   actions: {
-    async shareNote(noteId: string) {
-      if (this.publicNotes.has(noteId)) {
-        await this.unshareNote(noteId);
-        return;
-      }
-
-      const note = this.notes.find((n) => n.id === noteId);
-      if (!note) {
-        uiStore.showToastMessage('Note not found.');
-        return;
-      }
-
-      const publicId = nanoid();
-      const shareNote: ShareNote = {
-        id: note.id,
-        uid: authStore.user!.uid,
-        publicId,
-      };
-
-      const shareRef = ref(db, `publicNotes/${publicId}`);
-      await set(shareRef, shareNote);
-
-      this.publicNotes.set(noteId, publicId);
-
-      const shareLink = `${window.location.origin}/public/${publicId}`;
-      uiStore.showToastMessage(`Note shared! Link: ${shareLink}`);
-      navigator.clipboard
-        .writeText(shareLink)
-        .then(() => {
-          uiStore.showToastMessage(`Note shared! Link copied to clipboard.`);
-        })
-        .catch(() => {
-          uiStore.showToastMessage('Failed to copy link to clipboard.');
-        });
-    },
-
-    async unshareNote(noteId: string) {
-      try {
-        const publicId = this.publicNotes.get(noteId);
-        if (publicId) {
-          const shareRef = ref(db, `publicNotes/${publicId}`);
-          await remove(shareRef);
-          this.publicNotes.delete(noteId);
-          uiStore.showToastMessage('Note unshared.');
-        } else {
-          uiStore.showToastMessage('Note was not shared.');
-        }
-      } catch (error) {
-        uiStore.showToastMessage('Failed to unshare note.');
-        console.error('Unshare error:', error);
-      }
-    },
-
-    async getSharedNoteById(publicId: string): Promise<Note | null> {
-      const shareRef = ref(db, `publicNotes/${publicId}`);
-      const snapshot = await get(shareRef);
-      const shareNote = snapshot.val() as ShareNote | null;
-
-      if (shareNote) {
-        const noteRef = ref(db, `users/${shareNote.uid}/notes/${shareNote.id}`);
-        const noteSnapshot = await get(noteRef);
-        return noteSnapshot.val() as Note | null;
-      }
-
-      return null;
-    },
-
-    getShareId(noteId: string): string | undefined {
-      return this.publicNotes.get(noteId);
-    },
-
     async addNote(
       newNote: Omit<Note, 'id' | 'time_created' | 'last_edited' | 'pinned'>
     ) {
@@ -134,8 +57,7 @@ export const useNotesStore = defineStore('notes', {
         const d = new Date(date);
         return d.toISOString();
       };
-      const renderedContent = marked.parse(newNote.content) as string;
-      const sanitizedContent = DOMPurify.sanitize(renderedContent);
+      const sanitizedContent = DOMPurify.sanitize(newNote.content);
       const now = formatDate(new Date());
       const note: Note = {
         ...newNote,
@@ -147,7 +69,7 @@ export const useNotesStore = defineStore('notes', {
           folderStore.currentFolder === DEFAULT_FOLDERS.ALL_NOTES
             ? DEFAULT_FOLDERS.UNCATEGORIZED
             : folderStore.currentFolder,
-        renderedContent: sanitizedContent,
+        content: sanitizedContent,
       };
 
       if (authStore.isLoggedIn) {
@@ -163,19 +85,13 @@ export const useNotesStore = defineStore('notes', {
     },
 
     async updateNote(updatedNote: Note) {
-      const formatDate = (date: Date | string) => {
-        const d = new Date(date);
-        return d.toISOString();
-      };
-      const renderedContent = marked.parse(updatedNote.content) as string;
-      const sanitizedContent = DOMPurify.sanitize(renderedContent);
-      const now = formatDate(new Date());
+      const sanitizedContent = DOMPurify.sanitize(updatedNote.content);
       const index = this.notes.findIndex((n) => n.id === updatedNote.id);
       if (index !== -1) {
         const noteWithTimestamp = {
           ...updatedNote,
-          last_edited: now,
-          renderedContent: sanitizedContent,
+          content: sanitizedContent,
+          last_edited: new Date().toISOString(),
         };
 
         if (authStore.isLoggedIn) {
@@ -292,13 +208,13 @@ export const useNotesStore = defineStore('notes', {
       }
     },
 
-    async fetchSharedNotes() {
-      const sharedNotesRef = ref(db, `publicNotes`);
-      const snapshot = await get(sharedNotesRef);
+    async fetchPublicNotes() {
+      const publicNotesRef = ref(db, `publicNotes`);
+      const snapshot = await get(publicNotesRef);
       if (snapshot.exists()) {
-        const publicNotes = snapshot.val() as Record<string, ShareNote>;
-        Object.values(publicNotes).forEach((shareNote) => {
-          this.publicNotes.set(shareNote.id, shareNote.publicId);
+        const publicNotes = snapshot.val() as Record<string, PublicNote>;
+        Object.values(publicNotes).forEach((publicNote) => {
+          this.publicNotes.set(publicNote.id, publicNote.publicId);
         });
       }
     },
@@ -358,6 +274,112 @@ export const useNotesStore = defineStore('notes', {
       }
     },
 
+    saveNotes() {
+      if (!authStore.isLoggedIn) {
+        localStorage.setItem('notes', JSON.stringify(this.notes));
+      }
+    },
+
+    copyNote(noteId: string) {
+      const note = this.notes.find((n) => n.id === noteId);
+      if (note) {
+        const cleanContent = DOMPurify.sanitize(note.content, {
+          RETURN_DOM: true,
+        });
+        const textContent = cleanContent.textContent || '';
+
+        navigator.clipboard
+          .writeText(textContent)
+          .then(() => {
+            uiStore.showToastMessage(`${note.title} copied to clipboard`);
+          })
+          .catch(() => {
+            uiStore.showToastMessage('Failed to copy note content');
+          });
+      }
+    },
+
+    async publicNote(noteId: string) {
+      if (this.publicNotes.has(noteId)) {
+        await this.unpublicNote(noteId);
+        return;
+      }
+
+      const note = this.notes.find((n) => n.id === noteId);
+      if (!note) {
+        uiStore.showToastMessage('Note not found.');
+        return;
+      }
+
+      const publicId = nanoid();
+      const publicNote: PublicNote = {
+        id: note.id,
+        uid: authStore.user!.uid,
+        publicId,
+      };
+
+      const publicRef = ref(db, `publicNotes/${publicId}`);
+      await set(publicRef, publicNote);
+
+      this.publicNotes.set(noteId, publicId);
+
+      const publicLink = `${window.location.origin}/${publicId}`;
+      uiStore.showToastMessage(`Note is now public! Link: ${publicLink}`);
+      navigator.clipboard
+        .writeText(publicLink)
+        .then(() => {
+          uiStore.showToastMessage(
+            `Note is now public! Link copied to clipboard.`
+          );
+        })
+        .catch(() => {
+          uiStore.showToastMessage('Failed to copy link to clipboard.');
+        });
+    },
+
+    async unpublicNote(noteId: string) {
+      try {
+        const publicId = this.publicNotes.get(noteId);
+        if (publicId) {
+          const publicRef = ref(db, `publicNotes/${publicId}`);
+          await remove(publicRef);
+          this.publicNotes.delete(noteId);
+          uiStore.showToastMessage('Note unpublic.');
+        } else {
+          uiStore.showToastMessage('Note was not public.');
+        }
+      } catch (error) {
+        uiStore.showToastMessage('Failed to unpublic note.');
+        console.error('Unpublic note error:', error);
+      }
+    },
+
+    async togglePublic(noteId: string) {
+      if (this.publicNotes.has(noteId)) {
+        await this.unpublicNote(noteId);
+      } else {
+        await this.publicNote(noteId);
+      }
+    },
+
+    getPublicId(noteId: string): string | undefined {
+      return this.publicNotes.get(noteId);
+    },
+
+    copyPublicLink(noteId: string) {
+      const publicId = this.getPublicId(noteId);
+      if (!publicId) return;
+      const publicLink = `${window.location.origin}/${publicId}`;
+      navigator.clipboard
+        .writeText(publicLink)
+        .then(() => {
+          uiStore.showToastMessage('Public link copied to clipboard');
+        })
+        .catch(() => {
+          uiStore.showToastMessage('Failed to copy public link');
+        });
+    },
+
     generateValidFirebaseKey(): string {
       return nanoid();
     },
@@ -378,9 +400,26 @@ export const useNotesStore = defineStore('notes', {
           const reader = new FileReader();
           reader.onload = async (e) => {
             try {
-              const importedNotes = JSON.parse(
-                e.target?.result as string
-              ) as Note[];
+              const result = e.target?.result as string;
+              const notesObject: Record<string, Note> = JSON.parse(result);
+
+              const importedNotes: Note[] = Object.values(notesObject);
+
+              if (
+                !Array.isArray(importedNotes) ||
+                !importedNotes.every(
+                  (note) =>
+                    note.id &&
+                    note.title &&
+                    note.content &&
+                    note.time_created &&
+                    note.last_edited &&
+                    typeof note.pinned === 'boolean' &&
+                    note.folder
+                )
+              ) {
+                throw new Error('Invalid notes format.');
+              }
 
               const importedFolders = new Set<string>(
                 importedNotes
@@ -418,11 +457,18 @@ export const useNotesStore = defineStore('notes', {
                 'Notes and folders imported successfully!'
               );
             } catch (error) {
+              console.error('Import error:', error);
               uiStore.showToastMessage(
-                'Failed to import notes. Please try again.'
+                'Failed to import notes. Please check the file format and try again.'
               );
             }
           };
+
+          reader.onerror = (error) => {
+            console.error('FileReader error:', error);
+            uiStore.showToastMessage('Failed to read file. Please try again.');
+          };
+
           reader.readAsText(file);
         }
       };
@@ -559,84 +605,18 @@ export const useNotesStore = defineStore('notes', {
       });
     },
 
-    saveNotes() {
-      if (!authStore.isLoggedIn) {
-        localStorage.setItem('notes', JSON.stringify(this.notes));
-      }
-    },
-
-    copyNote(noteId: string) {
-      const note = this.notes.find((n) => n.id === noteId);
-      if (note) {
-        navigator.clipboard
-          .writeText(note.content)
-          .then(() => {
-            uiStore.showToastMessage(`${note.title} copied to clipboard`);
-          })
-          .catch(() => {
-            uiStore.showToastMessage('Failed to copy note content');
-          });
-      }
-    },
-
-    toggleMarkdownPreview(note: Note | Partial<Note>) {
-      (marked as any).setOptions({
-        highlight: function (code: any, lang: string | number) {
-          if (lang) {
-            if (!Prism.languages[lang]) {
-              return Prism.util.encode(code);
-            }
-            return Prism.highlight(code, Prism.languages[lang], lang);
-          }
-          return Prism.util.encode(code);
-        },
-        langPrefix: 'language-',
-      });
-
-      const contentToRender = note.content || '';
-      const renderedContent = marked(contentToRender);
-
-      if (typeof renderedContent === 'string') {
-        return DOMPurify.sanitize(renderedContent);
-      } else {
-        console.error('Rendered content is not a string:', renderedContent);
-        return '';
-      }
-    },
-
-    async toggleShare(noteId: string) {
-      if (this.publicNotes.has(noteId)) {
-        await this.unshareNote(noteId);
-      } else {
-        await this.shareNote(noteId);
-      }
-    },
-
-    copyShareLink(noteId: string) {
-      const publicId = this.getShareId(noteId);
-      if (!publicId) return;
-      const shareLink = `${window.location.origin}/public/${publicId}`;
-      navigator.clipboard
-        .writeText(shareLink)
-        .then(() => {
-          uiStore.showToastMessage('Share link copied to clipboard');
-        })
-        .catch(() => {
-          uiStore.showToastMessage('Failed to copy public link');
-        });
-    },
-
-    getTruncatedShareLink(noteId: string): string {
-      const publicId = this.getShareId(noteId);
-      if (!publicId) return '';
-      const fullLink = `${window.location.origin}/public/${publicId}`;
-      return fullLink;
-    },
-
     hasChanged(originalNote: Note, editedNote: Partial<Note>): boolean {
+      const sanitizeAndNormalizeContent = (content: string) => {
+        const sanitized = DOMPurify.sanitize(content);
+        const div = document.createElement('div');
+        div.innerHTML = sanitized;
+        return div.innerHTML;
+      };
+
       return (
         originalNote.title !== editedNote.title ||
-        originalNote.content !== editedNote.content ||
+        sanitizeAndNormalizeContent(originalNote.content) !==
+          sanitizeAndNormalizeContent(editedNote.content || '') ||
         originalNote.folder !== editedNote.folder
       );
     },
@@ -649,6 +629,76 @@ export const useNotesStore = defineStore('notes', {
         month: '2-digit',
         year: 'numeric',
       });
+    },
+
+    addSelectedNote(noteId: string) {
+      if (!this.selectedNotes.includes(noteId)) {
+        this.selectedNotes.push(noteId);
+      }
+    },
+
+    removeSelectedNote(noteId: string) {
+      const index = this.selectedNotes.indexOf(noteId);
+      if (index !== -1) {
+        this.selectedNotes.splice(index, 1);
+      }
+    },
+
+    clearSelectedNotes() {
+      this.selectedNotes = [];
+    },
+
+    selectAllNotes() {
+      this.selectedNotes = this.notes.map((note) => note.id);
+    },
+
+    async pinSelectedNotes() {
+      for (const noteId of this.selectedNotes) {
+        await this.pinNote(noteId);
+      }
+    },
+
+    async unpinSelectedNotes() {
+      for (const noteId of this.selectedNotes) {
+        await this.unpinNote(noteId);
+      }
+    },
+
+    async togglePinSelectedNotes() {
+      const allPinned = this.selectedNotes.every((noteId) => {
+        const note = this.notes.find((n) => n.id === noteId);
+        return note && note.pinned;
+      });
+
+      if (allPinned) {
+        await this.unpinSelectedNotes();
+      } else {
+        await this.pinSelectedNotes();
+      }
+    },
+
+    async deleteSelectedNotes(isTrashRoute: boolean) {
+      if (isTrashRoute) {
+        for (const noteId of this.selectedNotes) {
+          await this.permanentlyDeleteNote(noteId);
+        }
+        uiStore.showToastMessage('Selected notes permanently deleted');
+      } else {
+        for (const noteId of this.selectedNotes) {
+          await this.deleteNote(noteId);
+        }
+        uiStore.showToastMessage('Selected notes moved to trash');
+      }
+      this.clearSelectedNotes();
+    },
+
+    async emptyTrash() {
+      if (authStore.isLoggedIn) {
+        await firebaseStore.emptyTrashInFirebase(authStore.user!.uid);
+      }
+      this.deletedNotes = [];
+      this.saveDeletedNotes();
+      uiStore.showToastMessage('Trash emptied successfully');
     },
 
     setSearchQuery(query: string) {

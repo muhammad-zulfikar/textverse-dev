@@ -104,6 +104,35 @@ export const permanentlyDeleteNoteFromTrash = async (
   await remove(ref(db, `users/${userId}/trash/${noteId}`));
 };
 
+export const emptyTrashInFirebase = async (userId: string): Promise<void> => {
+  const trashRef = ref(db, `users/${userId}/trash`);
+  await remove(trashRef);
+};
+
+export const deleteOldTrashItems = async (userId: string): Promise<void> => {
+  const trashRef = ref(db, `users/${userId}/trash`);
+  const snapshot = await get(trashRef);
+  const trash = snapshot.val() as Record<string, Note>;
+
+  if (trash) {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    for (const [noteId, note] of Object.entries(trash)) {
+      const timeDeleted = note.time_deleted;
+      if (timeDeleted) {
+        const timeDeletedDate = new Date(timeDeleted);
+        if (
+          !isNaN(timeDeletedDate.getTime()) &&
+          timeDeletedDate < thirtyDaysAgo
+        ) {
+          await permanentlyDeleteNoteFromTrash(userId, noteId);
+        }
+      }
+    }
+  }
+};
+
 export const getDeletedNotesFromFirebase = async (
   userId: string
 ): Promise<Record<number, Note>> => {

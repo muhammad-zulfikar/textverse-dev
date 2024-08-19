@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 custom-card">
+  <div class="p-4 custom-card mb-2">
     <h2 class="text-2xl font-semibold mb-4">User Settings</h2>
     <div class="flex flex-col items-center">
       <img

@@ -12,6 +12,10 @@ body {
   @apply bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
 
+.custom-card-rounded {
+  @apply bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-gray-400 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300;
+}
+
 .custom-card-border-dashed {
   @apply bg-cream dark:bg-gray-750 border-[1px] border-dashed border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300;
 }
@@ -195,6 +199,20 @@ button:active {
   display: none;
 }
 
+/* ::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  border: 1px solid black;
+  border-radius: 10px;
+  background-clip: padding-box;
+  background-color: #f2ebd9;
+  -webkit-box-shadow:
+    inset -1px -1px 0px rgba(0, 0, 0, 0.05),
+    inset 1px 1px 0px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+} */
+
 ::selection {
   background: #ebdfc0;
   color: black;
@@ -233,131 +251,165 @@ button:active {
   color: #fff;
 }
 
-.prose {
-  max-height: 100%;
-  max-width: 100%;
-  overflow-y: auto;
+.dark .ql-toolbar .ql-stroke {
+  fill: none;
+  stroke: #b4b4b4;
 }
 
-.prose strong,
-.prose b {
-  color: #333;
+.dark .ql-toolbar .ql-fill {
+  fill: #b4b4b4;
+  stroke: #b4b4b4;
 }
 
-.dark .prose strong,
-.dark .prose b {
-  color: #fff;
+.dark .ql-toolbar .ql-picker {
+  color: #b4b4b4;
 }
 
-.prose th {
-  color: #333;
+button:hover .ql-stroke,
+.ql-picker-label:hover .ql-stroke {
+  fill: none;
+  stroke: #bdaa7a !important;
 }
 
-.dark .prose th {
-  color: #fff;
+.dark button:hover .ql-stroke,
+.dark .ql-picker-label:hover .ql-stroke {
+  fill: none;
+  stroke: #e3e3e3 !important;
 }
 
-/* .dark .prose h1, .dark .prose h2, .dark .prose h3, .dark .prose h4, .dark .prose h5, .dark .prose h6 {
-  color: #f9f9f9;
+.ql-active .ql-stroke {
+  fill: none;
+  stroke: #bdaa7a !important;
 }
 
-.prose hr {
-  border: 0;
-  height: 1px;
-  background-color: #1f2937;
-  margin: 2em 0;
+.dark .ql-active .ql-stroke {
+  fill: none;
+  stroke: #e3e3e3 !important;
 }
 
-.prose blockquote {
-  border-color: #1f2937;
+button:hover .ql-fill,
+.ql-picker-label:hover .ql-fill {
+  fill: #bdaa7a !important;
+  stroke: none;
 }
 
-.dark .prose blockquote {
-  color: #dfdfdf;
-  border-color: #fff;
+.dark button:hover .ql-fill,
+.dark .ql-picker-label:hover .ql-fill {
+  fill: #e3e3e3 !important;
+  stroke: none;
 }
 
-.prose strong, .prose b {
-  color: #333;
+.ql-active .ql-fill {
+  fill: #bdaa7a !important;
+  stroke: none;
 }
 
-.dark .prose strong, .dark .prose b {
-  color: #fff;
+.dark .ql-active .ql-fill {
+  fill: #e3e3e3 !important;
+  stroke: none;
 }
 
-.dark hr {
-  background-color: #fff;
-}
-
-.prose ul li::marker,
-.prose ol li::marker {
-  color: #333 !important;
-  margin-bottom: 0.5em;
-}
-
-.dark .prose ul li::marker,
-.dark .prose ol li::marker {
-  color: #fff !important;
-}
-
-.prose a {
-  color: #333;
-  text-decoration: underline;
-}
-
-.dark .prose a {
-  color: #fff;
-  text-decoration: underline;
-}
-
-.prose table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.prose th {
-  color: #333;
-  background-color: #f2ebd4;
-  padding: 0.5em;
-}
-
-.dark .prose th {
-  color: #fff;
-  background-color: #2e2e2e;
-}
-
-.prose td {
-  color: #333;
-  padding: 0.5em;
-}
-
-.dark .prose td {
-  color: #eeeeee;
-}
-
-.prose pre {
-  background-color: #f2ebd4 !important;
-  color: #333 !important;
-  padding: .5em !important;
+.ql-toolbar .ql-picker-options {
+  background-color: #f2ebd9 !important;
   border: 1px solid black;
-  border-radius: 8px !important;
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  overflow-x: auto;
+  border-radius: 10px;
 }
 
-.dark .prose pre {
-  background-color: #212121 !important;
+.ql-toolbar .ql-picker-label:hover {
+  color: #bdaa7a !important;
+}
+
+.dark .ql-toolbar .ql-picker-label:hover,
+.dark .ql-toolbar .ql-picker-label:focus,
+.dark .ql-toolbar .ql-picker-label:active {
   color: #fff !important;
+}
+
+.ql-toolbar .ql-picker-label,
+.ql-toolbar .ql-picker-label:active,
+.ql-toolbar .ql-picker-label:focus {
+  border: none !important;
+}
+
+.dark .ql-toolbar .ql-picker-options {
+  background-color: #212121 !important;
   border: 1px solid white;
+  border-radius: 10px;
 }
 
-.prose code {
-  padding: 0.2em 0.4em;
-  border-radius: 4px;
-  font-family: 'Courier New', Courier, monospace;
+.ql-header .ql-picker-options .ql-picker-item,
+.ql-font .ql-picker-options .ql-picker-item,
+.ql-header .ql-picker-options .ql-picker-label,
+.ql-font .ql-picker-options .ql-picker-label {
+  border-radius: 5px;
+  padding: 1px 5px 1px 5px;
+  margin: 0 -5px 0 -5px;
 }
 
-.dark .prose code {
+.ql-header .ql-picker-options .ql-picker-item:hover,
+.ql-font .ql-picker-options .ql-picker-item:hover,
+.ql-header .ql-picker-options .ql-picker-label:hover,
+.ql-font .ql-picker-options .ql-picker-label:hover {
+  color: white;
+  background-color: #bdaa7a !important;
+}
+
+.dark .ql-header .ql-picker-options .ql-picker-item:hover,
+.dark .ql-font .ql-picker-options .ql-picker-item:hover,
+.dark .ql-header .ql-picker-options .ql-picker-label:hover,
+.dark .ql-font .ql-picker-options .ql-picker-label:hover {
+  color: white;
+  background-color: #424242 !important;
+}
+
+.dark .ql-toolbar .ql-picker-options {
+  background-color: #212121;
+}
+
+.ql-align .ql-picker-options .ql-picker-item:hover {
+  color: white !important;
+  border-radius: 5px;
+}
+
+.ql-align .ql-picker-options .ql-picker-item:hover svg .ql-stroke {
+  stroke: white !important;
+  fill: white !important;
+}
+
+.ql-align .ql-picker-options .ql-picker-item:hover svg {
+  fill: white !important;
+}
+
+.ql-picker-item.ql-active,
+.ql-picker-item.ql-active:hover {
+  color: #bdaa7a !important;
+}
+
+.dark .ql-picker-item.ql-active,
+.dark .ql-picker-item.ql-active:hover {
   color: #fff;
-  font-family: 'Courier New', Courier, monospace;
-} */
+}
+
+.ql-editor {
+  font-family: serif;
+  font-size: medium;
+  padding: 10px 0 0 0 !important;
+}
+
+.ql-toolbar {
+  border: none !important;
+  border-bottom: 1px solid black !important;
+  padding: 0 0 10px 0 !important;
+  margin-top: -5px !important;
+  gap: 10px !important;
+  position: sticky !important;
+  z-index: 40;
+}
+
+.dark .ql-toolbar {
+  border-bottom: 1px solid #b4b4b4 !important;
+}
+
+.ql-snow:not(.ql-toolbar) {
+  border: none !important;
+}

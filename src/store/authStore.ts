@@ -87,7 +87,6 @@ export const useAuthStore = defineStore('auth', {
         this.avatarUrl = '';
         this.showToast('Signed out successfully');
 
-        // Clear listeners
         const folderStore = useFolderStore();
         folderStore.clearFolderListener();
 

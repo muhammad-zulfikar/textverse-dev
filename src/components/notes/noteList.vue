@@ -1,29 +1,39 @@
 <!--noteList-->
 
 <template>
-  <div class="relative mb-[28px] md:mb-[46px]">
+  <div class="mb-[28px] md:mb-[46px]">
     <template v-if="notesStore.filteredNotes.length > 0">
+      <Folder />
       <transition name="slide-fade" mode="out-in">
         <component
           :key="uiStore.viewType"
           :is="currentView"
           :notes="filteredNotes"
-          class=" mt-10"
         />
       </transition>
     </template>
+    <!-- <button @click.stop="openNoteForm" class="md:hidden absolute bottom-5 right-5 custom-card p-2 hover:bg-[#d9c698] dark:hover:bg-gray-600">
+      <PhPlus :size="30" />
+    </button> -->
   </div>
 </template>
 
 <script lang="ts" setup>
+  import { ref, onMounted, watch, computed } from 'vue';
+  // import { PhPlus } from '@phosphor-icons/vue';
   import { authStore, notesStore, folderStore, uiStore } from '@/store/stores';
+  import Folder from '@/components/dropdown/folder.vue';
   import cardView from './view/cardView.vue';
   import tableView from './view/tableView.vue';
   import mailView from './view/mailView.vue';
   import folderView from './view/folderView.vue';
-  import { ref, onMounted, watch, computed } from 'vue';
 
   const isLoading = ref(true);
+
+  // const openNoteForm = () => {
+  //   uiStore.openNote(null);
+  //   uiStore.setActiveDropdown(null);
+  // };
 
   const filteredNotes = computed(() =>
     notesStore.filteredNotes(folderStore.currentFolder)
