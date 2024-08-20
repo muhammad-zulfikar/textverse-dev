@@ -34,6 +34,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/:publicId',
+    name: 'Public',
     component: publicNoteView,
     props: true,
   },

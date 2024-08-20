@@ -97,8 +97,6 @@
     if (event.ctrlKey && event.key === 'k') {
       event.preventDefault();
       event.stopPropagation();
-      isExpanded.value = true;
-      emit('expanded', true);
       setTimeout(() => {
         searchInput.value.focus();
       }, 300);

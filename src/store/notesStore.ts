@@ -4,6 +4,7 @@ import { defineStore } from 'pinia';
 import { Note, PublicNote } from './types';
 import { DEFAULT_FOLDERS } from './constants';
 import { authStore, folderStore, uiStore, firebaseStore } from './stores';
+import { getAllNotesFromFirebase } from './firebaseStore';
 import { db } from '@/firebase';
 import { get, onValue, ref, remove, set } from 'firebase/database';
 import initialNotes from '@/assets/initialNotes.json';
@@ -591,6 +592,37 @@ export const useNotesStore = defineStore('notes', {
       if (this.notesListener) {
         this.notesListener();
         this.notesListener = null;
+      }
+    },
+
+    async syncNotesFromFirebase(userId: string) {
+      try {
+        const startTime = Date.now();
+
+        const [firebaseNotes] = await Promise.all([
+          getAllNotesFromFirebase(userId),
+          new Promise((resolve) => setTimeout(resolve, 800)),
+        ]);
+
+        const notesArray = Object.values(firebaseNotes);
+
+        this.notes = notesArray;
+
+        this.reorderNotes();
+        this.saveNotes();
+
+        const elapsedTime = Date.now() - startTime;
+        if (elapsedTime < 800) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, 800 - elapsedTime)
+          );
+        }
+
+        uiStore.showToastMessage('Notes synced successfully');
+      } catch (error) {
+        console.error('Error syncing notes:', error);
+        uiStore.showToastMessage('Failed to sync notes');
+        throw error;
       }
     },
 

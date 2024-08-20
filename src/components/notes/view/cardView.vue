@@ -2,12 +2,14 @@
 
 <template>
   <div class="mx-2 md:mx-[4.4rem]" @click="handleOutsideClick">
-    <Folder />
+    <div class="my-4 md:my-0">
+      <Folder />
+    </div>
     <transition-group
       name="list"
       tag="ul"
       :class="[
-        'relative min-w-[300px]',
+        'relative min-w-[300px] md:mx-auto',
         {
           'columns-1 md:max-w-xl': uiStore.columns === 1,
           'columns-2 gap-2 md:gap-7 md:max-w-4xl': uiStore.columns === 2,
@@ -20,7 +22,7 @@
       <li
         v-for="note in props.notes"
         :key="note.id"
-        class="bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 break-inside-avoid h-min mb-[9px] p-2 cursor-pointer relative group select-none"
+        class="notes bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 break-inside-avoid h-min mb-[9px] p-2 cursor-pointer relative group select-none"
         :class="{
           'z-50': showMenu && notesStore.selectedNote?.id === note.id,
           shadow: note.pinned || notesStore.selectedNotes.includes(note.id),
@@ -55,7 +57,7 @@
         </div>
         <div>
           <div
-            class="font-serif text-sm mt-2 dark:text-white truncate-text"
+            class="font-serif text-sm mt-2 dark:text-white truncate-text content"
             v-html="sanitizeHtml(truncatedContent(note.content))"
           ></div>
           <div
@@ -102,31 +104,23 @@
         :noteId="selectedNote.id"
         @hideMenu="hideContextMenu"
         @edit="uiStore.openNote"
-        @delete="openDeleteAlert"
+        @delete="confirmDelete"
         @pin="notesStore.pinNote"
         @unpin="notesStore.unpinNote"
         @share="togglePublic"
       />
     </Transition>
-
-    <AlertModal
-      :is-open="isAlertOpen"
-      :message="alertMessage"
-      @confirm="confirmDelete"
-      @cancel="isAlertOpen = false"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, watch } from 'vue';
+  import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
   import { PhPushPin, PhFolder, PhGlobe, PhCheck } from '@phosphor-icons/vue';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
   import { DEFAULT_FOLDERS } from '@/store/constants';
   import Folder from '@/components/dropdown/folder.vue';
   import ContextMenu from '@/components/contextMenu/contextMenu.vue';
-  import AlertModal from '@/components/modal/alertModal.vue';
   import DOMPurify from 'dompurify';
 
   const computedMb = computed(() => {
@@ -144,8 +138,6 @@
   const showMenu = ref(false);
   const menuPosition = ref({ x: 0, y: 0 });
   const selectedNote = ref<Note | null>(null);
-  const isAlertOpen = ref(false);
-  const alertMessage = ref('');
   const selectedNotes = ref<string[]>([]);
 
   const isNotePublic = (noteId: string) => {
@@ -178,16 +170,6 @@
     showMenu.value = false;
   };
 
-  const openDeleteAlert = (noteId: string) => {
-    hideContextMenu();
-    const noteToDelete = props.notes.find((note) => note.id === noteId);
-    if (noteToDelete) {
-      selectedNote.value = noteToDelete;
-      isAlertOpen.value = true;
-      alertMessage.value = `Are you sure you want to delete the note "${noteToDelete.title}"?`;
-    }
-  };
-
   const confirmDelete = async () => {
     try {
       if (selectedNote.value) {
@@ -199,7 +181,7 @@
       console.error('Error deleting note:', error);
       uiStore.showToastMessage('Failed to delete note. Please try again.');
     } finally {
-      isAlertOpen.value = false;
+      hideContextMenu();
     }
   };
 
@@ -245,6 +227,29 @@
     },
     { deep: true }
   );
+
+  const isMobile = ref(window.innerWidth < 640);
+
+  const handleResize = () => {
+    const newIsMobile = window.innerWidth < 640;
+    if (newIsMobile !== isMobile.value) {
+      isMobile.value = newIsMobile;
+      if (isMobile.value && uiStore.columns > 2) {
+        uiStore.setColumns(2);
+      } else if (!isMobile.value && uiStore.columns < 3) {
+        uiStore.setColumns(4);
+      }
+    }
+  };
+
+  onMounted(() => {
+    window.addEventListener('resize', handleResize);
+    handleResize();
+  });
+
+  onUnmounted(() => {
+    window.removeEventListener('resize', handleResize);
+  });
 </script>
 
 <style scoped>
@@ -260,9 +265,15 @@
 
   @media (min-width: 640px) {
     .truncate-text {
-      -webkit-line-clamp: 20;
-      line-clamp: 20;
+      -webkit-line-clamp: 15;
+      line-clamp: 15;
     }
+  }
+
+  .content >>> p img,
+  .content ::v-deep p img {
+    margin: 10px auto !important;
+    display: block;
   }
 
   .shadow {
@@ -277,7 +288,7 @@
       0 12px 16px -8px rgba(0, 0, 0, 0.2);
   }
 
-  li:active {
+  .notes:active {
     transform: scale(0.98);
   }
 </style>

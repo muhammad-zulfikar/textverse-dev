@@ -413,3 +413,17 @@ button:hover .ql-fill,
 .ql-snow:not(.ql-toolbar) {
   border: none !important;
 }
+
+.ql-editor strong {
+  font-size: initial;
+}
+
+.ql-editor img {
+  display: block;
+  margin: 10px auto !important;
+  cursor: default !important;
+}
+
+.ql-editor img:hover {
+  cursor: pointer;
+}

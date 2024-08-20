@@ -18,7 +18,7 @@
         >
           <template #label>
             <div
-              class="flex items-center mr-2 md:mr-4 px-2 py-1.5 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+              class="flex items-center text-sm mr-2 md:mr-4 px-2 py-1.5 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
             >
               <PhEye :size="20" class="size-5 mr-2" />
               Show
@@ -44,7 +44,7 @@
         </Dropdown>
         <button
           @click="toggleSelectMode"
-          class="flex items-center px-2 py-1.5 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
+          class="flex items-center text-sm px-2 py-1.5 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
         >
           <PhCheckCircle :size="20" class="size-5 mr-2" />
           Select
@@ -129,7 +129,7 @@
             >
               <div
                 v-html="sanitizeHtml(truncatedContent(note.content))"
-                class="w-full bg-transparent outline-none truncate-text"
+                class="w-full bg-transparent outline-none truncate-text content"
               ></div>
             </td>
             <td
@@ -361,6 +361,10 @@
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  .content p strong {
+    font-size: 12px !important;
   }
 
   @media (max-width: 767px) {

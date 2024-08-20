@@ -1,30 +1,35 @@
 <template>
   <div class="trashContainer">
-    <div class="mb-[28px] md:mb-[46px] my-8 font-serif">
-      <div class="flex justify-center items-center mb-6">
-        <p class="custom-card p-2 text-sm text-gray-800 dark:text-gray-400">
+    <div
+      class="mb-[28px] md:mb-[46px] my-6 md:my-8 font-serif"
+      @click="handleOutsideClick"
+    >
+      <div
+        class="flex flex-col md:flex-row md:justify-center items-center mb-6 md:mb-8 mx-2"
+      >
+        <p
+          class="custom-card px-4 md:px-2 py-2 w-full md:w-auto text-sm text-gray-800 dark:text-gray-400 text-center"
+        >
           Notes in trash will be permanently deleted after 30 days.
         </p>
         <button
           v-if="deletedNotes.length > 0"
           @click="emptyTrash"
-          class="flex items-center custom-card p-2 ml-2 md:ml-4 text-sm text-red-500 hover:text-red-100 hover:bg-red-700/50 dark:hover:bg-red-800/60"
+          class="flex items-center custom-card p-2 mt-3 md:mt-0 md:ml-4 text-sm text-red-500 hover:text-red-100 hover:bg-red-700/50 dark:hover:bg-red-800/60"
         >
           <PhTrash :size="20" class="mr-2" />
           Empty Trash
         </button>
       </div>
-
       <div
         v-if="deletedNotes.length > 0"
-        class="md:w-11/12 mx-auto px-2 md:px-0 flex justify-center"
-        @click="handleOutsideClick"
+        class="md:w-11/12 mx-auto px-2 md:px-0"
       >
         <transition-group
           name="list"
           tag="ul"
           :class="[
-            'relative min-w-[300px]',
+            'relative min-w-[300px] md:mx-auto',
             {
               'columns-1 md:max-w-xl': uiStore.columns === 1,
               'columns-2 gap-2 md:gap-7 md:max-w-4xl': uiStore.columns === 2,
@@ -38,7 +43,7 @@
           <li
             v-for="note in deletedNotes"
             :key="note.id"
-            class="bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 break-inside-avoid h-min mb-[9px] p-2 cursor-pointer relative group select-none"
+            class="notes bg-cream dark:bg-gray-750 border-[1px] border-black dark:border-gray-400 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 break-inside-avoid h-min mb-[9px] p-2 cursor-pointer relative group select-none"
             :class="{
               'z-50': showMenu && notesStore.selectedNote?.id === note.id,
               shadow: notesStore.selectedNotes.includes(note.id),
@@ -77,17 +82,23 @@
               <div
                 class="flex justify-between items-center pt-3 mt-auto font-serif text-gray-700 dark:text-gray-400 text-xs"
               >
-                <div class="ml-auto text-left text-[10px] md:text-xs">
-                  <p
+                <div class="flex items-center text-left text-[10px] md:text-xs">
+                  <div
+                    @click.stop="permanentlyDeleteNote(note.id)"
+                    class="flex items-center px-2 py-1 mr-2 cursor-pointer truncate custom-card text-red-500 hover:text-red-100 hover:bg-red-700/50 dark:hover:bg-red-800/60"
+                  >
+                    <PhTrash :size="16" />
+                  </div>
+                  <div
+                    @click.stop="restoreNote(note.id)"
                     class="flex items-center px-2 py-1 cursor-pointer truncate custom-card hover:text-black dark:hover:text-white hover:bg-[#d9c698] dark:hover:bg-gray-700"
                   >
-                    <PhFolder :size="16" class="mr-2" />
-                    {{ note.folder }}
-                  </p>
+                    <PhClockClockwise :size="16" />
+                  </div>
                 </div>
-                <div class="ml-auto text-left text-[10px] md:text-xs">
+                <div class="text-left text-[10px] md:text-xs">
                   <p
-                    class="flex items-center px-2 py-1 cursor-pointer truncate custom-card hover:text-black dark:hover:text-white hover:bg-[#d9c698] dark:hover:bg-gray-700"
+                    class="flex items-center px-2 py-1 cursor-pointer truncate custom-card"
                   >
                     <PhFolder :size="16" class="mr-2" />
                     {{ note.folder }}
@@ -104,38 +115,36 @@
         <p class="text-gray-600 dark:text-gray-400 text-lg">Trash empty</p>
       </div>
 
-      <NoteView />
-
       <AlertModal
-        :is-open="isAlertOpen"
-        :message="alertMessage"
-        @confirm="confirmDelete"
-        @cancel="isAlertOpen = false"
+        :is-open="isDeleteAlertOpen"
+        :message="deleteAlertMessage"
+        @confirm="confirmPermanentlyDeleteNote"
+        @cancel="isDeleteAlertOpen = false"
       />
 
       <AlertModal
-        :is-open="isAlertOpen"
-        :message="alertMessage"
+        :is-open="isEmptyTrashAlertOpen"
+        :message="emptyTrashAlertMessage"
         @confirm="confirmEmptyTrash"
-        @cancel="isAlertOpen = false"
+        @cancel="isEmptyTrashAlertOpen = false"
       />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, onUnmounted } from 'vue';
   import { notesStore, uiStore } from '@/store/stores';
   import AlertModal from '@/components/modal/alertModal.vue';
-  import { PhCheck, PhFolder, PhTrash } from '@phosphor-icons/vue';
+  import {
+    PhCheck,
+    PhFolder,
+    PhTrash,
+    PhClockClockwise,
+  } from '@phosphor-icons/vue';
   import DOMPurify from 'dompurify';
-  import { Note } from '@/store/types';
-  import NoteView from '@/components/notes/noteView.vue';
 
   const showMenu = ref(false);
-  const selectedNote = ref<Note | null>(null);
-  const isAlertOpen = ref(false);
-  const alertMessage = ref('');
   const selectedNotes = ref<string[]>([]);
 
   const deletedNotes = computed(() => notesStore.deletedNotes);
@@ -158,21 +167,6 @@
     return div.innerHTML;
   };
 
-  const confirmDelete = async () => {
-    try {
-      if (selectedNote.value) {
-        await notesStore.permanentlyDeleteNote(selectedNote.value.id);
-      } else {
-        console.error('No selected note to delete.');
-      }
-    } catch (error) {
-      console.error('Error deleting note:', error);
-      uiStore.showToastMessage('Failed to delete note. Please try again.');
-    } finally {
-      isAlertOpen.value = false;
-    }
-  };
-
   const isSelectMode = ref(false);
 
   const toggleNoteSelection = (noteId: string) => {
@@ -190,15 +184,58 @@
     }
   };
 
+  const isDeleteAlertOpen = ref(false);
+  const isEmptyTrashAlertOpen = ref(false);
+  const deleteAlertMessage = ref('');
+  const emptyTrashAlertMessage = ref('');
+  const noteToDelete = ref<string | null>(null);
+
+  const permanentlyDeleteNote = (noteId: string) => {
+    noteToDelete.value = noteId;
+    isDeleteAlertOpen.value = true;
+    deleteAlertMessage.value =
+      'Are you sure you want to permanently delete this note? This action cannot be undone.';
+  };
+
+  const confirmPermanentlyDeleteNote = async () => {
+    if (noteToDelete.value) {
+      try {
+        await notesStore.permanentlyDeleteNote(noteToDelete.value);
+        uiStore.showToastMessage('Note permanently deleted');
+      } catch (error) {
+        console.error('Error deleting note:', error);
+        uiStore.showToastMessage('Failed to delete note. Please try again.');
+      }
+    }
+    isDeleteAlertOpen.value = false;
+    noteToDelete.value = null;
+  };
+
+  const restoreNote = async (noteId: string) => {
+    try {
+      await notesStore.restoreNote(noteId);
+      uiStore.showToastMessage('Note restored');
+    } catch (error) {
+      console.error('Error restoring note:', error);
+      uiStore.showToastMessage('Failed to restore note. Please try again.');
+    }
+  };
+
   const emptyTrash = () => {
-    isAlertOpen.value = true;
-    alertMessage.value =
+    isEmptyTrashAlertOpen.value = true;
+    emptyTrashAlertMessage.value =
       'Are you sure you want to empty the trash? This action cannot be undone.';
   };
 
   const confirmEmptyTrash = async () => {
-    await notesStore.emptyTrash();
-    isAlertOpen.value = false;
+    try {
+      await notesStore.emptyTrash();
+      uiStore.showToastMessage('Trash emptied successfully');
+    } catch (error) {
+      console.error('Error emptying trash:', error);
+      uiStore.showToastMessage('Failed to empty trash. Please try again.');
+    }
+    isEmptyTrashAlertOpen.value = false;
   };
 
   const handleOutsideClick = (event: MouseEvent) => {
@@ -211,6 +248,29 @@
 
   onMounted(async () => {
     await notesStore.loadDeletedNotes();
+  });
+
+  const isMobile = ref(window.innerWidth < 640);
+
+  const handleResize = () => {
+    const newIsMobile = window.innerWidth < 640;
+    if (newIsMobile !== isMobile.value) {
+      isMobile.value = newIsMobile;
+      if (isMobile.value && uiStore.columns > 2) {
+        uiStore.setColumns(2);
+      } else if (!isMobile.value && uiStore.columns < 3) {
+        uiStore.setColumns(4);
+      }
+    }
+  };
+
+  onMounted(() => {
+    window.addEventListener('resize', handleResize);
+    handleResize();
+  });
+
+  onUnmounted(() => {
+    window.removeEventListener('resize', handleResize);
   });
 </script>
 
@@ -244,7 +304,7 @@
       0 12px 16px -8px rgba(0, 0, 0, 0.2);
   }
 
-  li:active {
+  .notes:active {
     transform: scale(0.98);
   }
 </style>

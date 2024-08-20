@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-10 max-w-2xl mx-auto font-serif">
+  <div class="mt-4 md:mt-10 max-w-2xl mx-auto font-serif">
     <!-- Folders view -->
     <div
       v-if="currentView === 'folders'"
@@ -10,7 +10,7 @@
           v-for="folder in folders"
           :key="folder"
           @click="openFolder(folder)"
-          class="custom-card p-4 rounded-lg cursor-pointer"
+          class="custom-card p-4 rounded-lg cursor-pointer mx-2"
           :class="
             uiStore.folderViewType === 'grid'
               ? 'flex flex-col items-center'
@@ -24,9 +24,9 @@
                 : 'w-8 h-8 mr-4'
             "
           >
-            <img
-              :src="folderHasNotes(folder) ? folderIcon : emptyFolderIcon"
-              alt="Folder Icon"
+            <component
+              :is="folderHasNotes(folder) ? PhFolder : PhFolderDashed"
+              class="w-full h-full"
             />
           </div>
           <span
@@ -46,7 +46,7 @@
       v-else-if="currentView === 'notes'"
       :class="uiStore.folderViewType === 'grid' ? 'grid-view' : 'list-view'"
     >
-      <div class="mb-4 flex items-center col-span-full">
+      <div class="mb-4 flex items-center col-span-full mx-2">
         <button
           @click="goBackToFolders"
           class="flex items-center hover:underline"
@@ -77,7 +77,7 @@
           v-for="note in folderNotes"
           :key="note.id"
           @click="uiStore.openNote(note.id)"
-          class="custom-card p-4 rounded-lg cursor-pointer"
+          class="custom-card p-4 rounded-lg cursor-pointer mx-2"
           :class="
             uiStore.folderViewType === 'grid'
               ? 'flex flex-col items-center'
@@ -91,7 +91,7 @@
                 : 'w-8 h-8 mr-4'
             "
           >
-            <img src="@/assets/icons/file.svg" alt="File Icon" />
+            <PhFile class="w-full h-full" />
           </div>
           <h3
             :class="
@@ -119,9 +119,8 @@
 
 <script setup lang="ts">
   import { ref, computed } from 'vue';
+  import { PhFolder, PhFile, PhFolderDashed } from '@phosphor-icons/vue';
   import { notesStore, folderStore, uiStore } from '@/store/stores';
-  import folderIcon from '@/assets/icons/folder.svg';
-  import emptyFolderIcon from '@/assets/icons/folder-empty.svg';
 
   const currentView = ref('folders');
   const currentFolder = ref('');

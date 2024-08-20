@@ -159,7 +159,7 @@
   import { useRouter } from 'vue-router';
   import { authStore, notesStore, uiStore, folderStore } from '@/store/stores';
   import {
-    PhHouse,
+    PhHouseLine,
     PhInfo,
     PhGear,
     PhTrash,
@@ -186,7 +186,7 @@
   const isFolderFormOpen = ref(false);
 
   const menuItems = [
-    { label: 'Home', path: '/', icon: PhHouse },
+    { label: 'Home', path: '/', icon: PhHouseLine },
     { label: 'About', path: '/about', icon: PhInfo },
     { label: 'Settings', path: '/settings', icon: PhGear },
     { label: 'Trash', path: '/trash', icon: PhTrash },

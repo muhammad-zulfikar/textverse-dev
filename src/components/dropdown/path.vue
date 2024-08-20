@@ -40,7 +40,14 @@
   import { computed } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { authStore } from '@/store/stores';
-  import { PhTrash, PhHouse, PhGear, PhSignIn } from '@phosphor-icons/vue';
+  import {
+    PhTrash,
+    PhHouseLine,
+    PhInfo,
+    PhGear,
+    PhSignIn,
+    PhGlobe,
+  } from '@phosphor-icons/vue';
   import Dropdown from '@/components/dropdown/dropdown.vue';
 
   const route = useRoute();
@@ -51,15 +58,17 @@
   const currentIcon = computed(() => {
     switch (currentPath.value) {
       case 'Home':
-        return PhHouse;
+        return PhHouseLine;
       case 'Settings':
         return PhGear;
       case 'Trash':
         return PhTrash;
       case 'Sign In':
         return PhSignIn;
+      case 'Public':
+        return PhGlobe;
       default:
-        return PhHouse;
+        return PhInfo;
     }
   });
 
@@ -76,15 +85,17 @@
   const getIconForRoute = (routeName: string) => {
     switch (routeName) {
       case 'Home':
-        return PhHouse;
+        return PhHouseLine;
       case 'Settings':
         return PhGear;
       case 'Trash':
         return PhTrash;
       case 'Sign In':
         return PhSignIn;
+      case 'Public':
+        return PhGlobe;
       default:
-        return PhHouse;
+        return PhInfo;
     }
   };
 </script>

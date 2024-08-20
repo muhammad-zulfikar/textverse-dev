@@ -38,11 +38,16 @@
             v-if="isHomePage && !isSelectModeActive"
             class="flex items-center ml-auto"
           >
-            <div key="create" class="mr-2 md:mr-4" v-if="!isSearchExpanded">
+            <div class="mr-2 md:mr-4" v-if="!isSearchExpanded">
               <Create />
             </div>
-            <View key="view" v-if="!isSearchExpanded" />
-            <div key="mobile-search" class="md:hidden ml-2">
+            <div class="mr-2 md:mr-4">
+              <View v-if="!isSearchExpanded" />
+            </div>
+            <div>
+              <SyncButton />
+            </div>
+            <div class="md:hidden ml-2">
               <SearchBar
                 @update:modelValue="notesStore.setSearchQuery"
                 @expanded="setSearchExpanded"
@@ -92,7 +97,7 @@
               </button>
               <button
                 @click="deleteSelectedNotes"
-                class="flex items-center px-2 py-1.5 custom-card hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
+                class="flex items-center px-2 py-1.5 custom-card hover:bg-red-700/50 dark:hover:bg-red-800/60 text-red-500 hover:text-red-100"
               >
                 <PhTrash :size="20" />
               </button>
@@ -136,6 +141,7 @@
   import { authStore, notesStore, uiStore } from '@/store/stores';
   import SearchBar from '@/components/searchBar/searchBar.vue';
   import Create from '@/components/dropdown/create.vue';
+  import SyncButton from '@/components/syncButton.vue';
   import Path from '@/components/dropdown/path.vue';
   import View from '@/components/dropdown/view.vue';
   import AlertModal from '@/components/modal/alertModal.vue';

@@ -9,7 +9,7 @@
   </div>
   <div
     v-else-if="note"
-    class="fixed inset-0 flex items-center justify-center font-serif"
+    class="fixed inset-0 flex items-center justify-center font-serif mt-14"
   >
     <div
       :class="[
@@ -46,8 +46,15 @@
       <div
         class="bg-black dark:bg-gray-400 h-px transition-all duration-300"
       ></div>
-      <div class="w-full py-4 bg-transparent flex-grow overflow-y-auto">
-        <div ref="quillEditorRef" class="min-h-[250px]"></div>
+      <div
+        class="w-full pt-4 bg-transparent flex-grow overflow-hidden flex flex-col"
+      >
+        <div class="quill-container flex-grow overflow-hidden flex flex-col">
+          <div
+            ref="quillEditorRef"
+            class="min-h-[250px] flex-grow overflow-y-auto"
+          ></div>
+        </div>
       </div>
     </div>
   </div>
@@ -127,7 +134,6 @@
             [{ list: 'ordered' }, { list: 'bullet' }],
             ['link', 'image'],
             [{ header: [1, 2, 3, 4, 5, 6, false] }],
-            [{ font: [] }],
             [{ script: 'sub' }, { script: 'super' }],
             [{ color: [] }, { background: [] }],
             ['clean'],
