@@ -45,7 +45,7 @@
               <View v-if="!isSearchExpanded" />
             </div>
             <div>
-              <SyncButton />
+              <SyncButton v-if="!isSearchExpanded" />
             </div>
             <div class="md:hidden ml-2">
               <SearchBar
