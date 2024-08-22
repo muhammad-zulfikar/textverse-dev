@@ -5,6 +5,7 @@ import settings from '@/pages/settings.vue';
 import trash from '@/pages/trash.vue';
 import signIn from '@/pages/signIn.vue';
 import publicNote from '@/pages/public.vue';
+import notFound from '@/pages/notFound.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -37,6 +38,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Public',
     component: publicNote,
     props: true,
+  },
+  {
+    path: '/:catchAll(.*)',
+    name: 'NotFound',
+    component: notFound,
   },
 ];
 
