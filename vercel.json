@@ -5,7 +5,7 @@
             "destination": "/service-worker.js"
         },
         {
-            "source": "/(.*)",
+            "source": "/((?!service-worker\\.js).*)",
             "destination": "/index.html"
         }
     ]
