@@ -1,5 +1,4 @@
-<!--noteToolbar-->
-
+<!-- components/NoteToolbar.vue -->
 <template>
   <div class="flex justify-between items-center w-full text-sm">
     <div class="flex">
@@ -22,52 +21,45 @@
         @pinNote="pinNote"
         @unpinNote="unpinNote"
         @updateFolder="updateFolder"
-        @openDeleteAlert="openDeleteAlert"
+        @deleteNote="deleteNote"
         @updateTitle="updateTitle"
         @finishTitleEdit="finishTitleEdit"
       />
-      <div
-        class="ml-2 md:ml-4 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700 cursor-pointer"
-        @click="startTitleEdit"
-      >
+      <Button class="ml-2 md:ml-4 py-1 px-2" @click="startTitleEdit">
         <PhPencilSimple v-if="!isTitleEditing" :size="20" class="size-5" />
         <PhCheckCircle v-else :size="20" class="size-5" />
-      </div>
+      </Button>
     </div>
     <div class="flex">
-      <button
+      <Button
         v-if="isPinned"
-        class="ml-2 md:ml-4 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700 cursor-pointer"
+        class="ml-2 md:ml-4"
         @mouseenter="hoverPin = true"
         @mouseleave="hoverPin = false"
         @click="unpinNote"
       >
         <PhPushPin v-if="!hoverPin" :size="20" class="size-5" />
         <PhPushPinSlash v-else :size="20" class="size-5" />
-      </button>
-      <button
+      </Button>
+      <Button
         v-if="isNotePublic"
-        class="ml-2 md:ml-4 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700 cursor-pointer"
+        class="ml-2 md:ml-4"
         @mouseenter="hoverGlobe = true"
         @mouseleave="hoverGlobe = false"
         @click="togglePublic"
       >
         <PhGlobe v-if="!hoverGlobe" :size="20" class="size-5" />
         <PhGlobeX v-else :size="20" class="size-5" />
-      </button>
-      <div
-        class="hidden md:flex items-center custom-card px-2 py-1 ml-2 md:ml-4"
-      >
-        <PhSpinnerGap v-if="isSaving" :size="20" class="mr-2 animate-spin" />
-        <PhCloudCheck v-else :size="20" class="mr-2" />
-        {{ notesStore.localeDate(note.last_edited || note.time_created) }}
-      </div>
-      <button
-        class="ml-4 px-2 py-1 custom-card flex items-center hover:bg-[#d9c698] dark:hover:bg-gray-700"
-        @click="closeNote"
-      >
+      </Button>
+      <LastEditedButton
+        :lastEdited="note.last_edited || note.time_created"
+        :created="note.time_created"
+        :isSaving="isSaving"
+        class="hidden md:flex ml-2 md:ml-4"
+      />
+      <Button class="ml-4" @click="closeNote">
         <PhX :size="20" class="size-5" />
-      </button>
+      </Button>
     </div>
   </div>
 </template>
@@ -82,10 +74,10 @@
     PhGlobe,
     PhGlobeX,
     PhX,
-    PhSpinnerGap,
-    PhCloudCheck,
   } from '@phosphor-icons/vue';
-  import NoteOptionDropdown from '@/components/dropdown/noteOptionDropdown.vue';
+  import NoteOptionDropdown from '@/components/ui/dropdown/noteOptionDropdown.vue';
+  import Button from '@/components/ui/button.vue';
+  import LastEditedButton from '@/components/ui/button/lastEditedButton.vue';
   import { notesStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
 
@@ -105,7 +97,7 @@
   }>();
 
   const emit = defineEmits<{
-    (e: 'openDeleteAlert'): void;
+    (e: 'deleteNote'): void;
     (e: 'updateFolder', folder: string): void;
     (e: 'updateTitle', title: string): void;
     (e: 'startTitleEdit'): void;
@@ -163,7 +155,7 @@
   const closeNote = () => uiStore.closeNote();
 
   const updateTitle = (newTitle: string) => emit('updateTitle', newTitle);
-  const openDeleteAlert = () => emit('openDeleteAlert');
+  const deleteNote = () => emit('deleteNote');
   const updateFolder = (folder: string) => emit('updateFolder', folder);
 
   const hoverPin = ref(false);

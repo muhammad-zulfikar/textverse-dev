@@ -69,7 +69,7 @@
 <script setup lang="ts">
   import { uiStore } from '@/store/stores';
   import { ref } from 'vue';
-  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
+  import ModalBackdrop from '@/components/ui/modal/backdropModal.vue';
   import { PhTrash, PhProhibit, PhCheckCircle } from '@phosphor-icons/vue';
 
   const props = defineProps<{

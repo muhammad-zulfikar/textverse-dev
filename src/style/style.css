@@ -184,7 +184,6 @@ body {
   opacity: 0;
 }
 
-li:active,
 a:active,
 button:active {
   transform: scale(0.98);
@@ -350,7 +349,7 @@ button:hover .ql-fill,
 .ql-font .ql-picker-options .ql-picker-item:hover,
 .ql-header .ql-picker-options .ql-picker-label:hover,
 .ql-font .ql-picker-options .ql-picker-label:hover {
-  color: white;
+  color: white !important;
   background-color: #bdaa7a !important;
 }
 
@@ -367,16 +366,30 @@ button:hover .ql-fill,
 }
 
 .ql-align .ql-picker-options .ql-picker-item:hover {
-  color: white !important;
+  color: #bdaa7a !important;
   border-radius: 5px;
 }
 
 .ql-align .ql-picker-options .ql-picker-item:hover svg .ql-stroke {
+  stroke: #bdaa7a !important;
+  fill: #bdaa7a !important;
+}
+
+.ql-align .ql-picker-options .ql-picker-item:hover svg {
+  fill: white !important;
+}
+
+.dark .ql-align .ql-picker-options .ql-picker-item:hover {
+  color: white !important;
+  border-radius: 5px;
+}
+
+.dark .ql-align .ql-picker-options .ql-picker-item:hover svg .ql-stroke {
   stroke: white !important;
   fill: white !important;
 }
 
-.ql-align .ql-picker-options .ql-picker-item:hover svg {
+.dark .ql-align .ql-picker-options .ql-picker-item:hover svg {
   fill: white !important;
 }
 
@@ -426,4 +439,9 @@ button:hover .ql-fill,
 
 .ql-editor img:hover {
   cursor: pointer;
+}
+
+.ql-editor ol li,
+.ql-editor ul li {
+  margin-left: -2rem !important;
 }

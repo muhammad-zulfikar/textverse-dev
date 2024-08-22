@@ -1,15 +1,14 @@
 <template>
-  <button
+  <Button
     @click="handleClick"
-    class="flex items-center px-2 py-1.5 custom-card hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
-    :disabled="isSyncing || (authStore.isLoggedIn && !isSignInMode)"
+    :disabled="isSyncing || (!authStore.isLoggedIn && !isSignInMode)"
   >
     <component
       :is="currentIcon"
       :size="20"
       :class="{ 'animate-spin': isSpinning }"
     />
-  </button>
+  </Button>
 </template>
 
 <script setup lang="ts">
@@ -18,10 +17,11 @@
     PhCloudCheck,
     PhSpinnerGap,
     PhCloudSlash,
-    PhSignIn, // Import the sign-in icon
+    PhSignIn,
   } from '@phosphor-icons/vue';
   import { useRouter } from 'vue-router';
   import { notesStore, authStore } from '@/store/stores';
+  import Button from '@/components/ui/button.vue';
 
   const router = useRouter();
   const isSyncing = ref(false);

@@ -8,18 +8,19 @@
         class="flex flex-col md:flex-row md:justify-center items-center mb-6 md:mb-8 mx-2"
       >
         <p
-          class="custom-card px-4 md:px-2 py-2 w-full md:w-auto text-sm text-gray-800 dark:text-gray-400 text-center"
+          class="custom-card px-4 py-2 md:px-2 md:py-1.5 w-full md:w-auto text-sm text-gray-800 dark:text-gray-400 text-center"
         >
           Notes in trash will be permanently deleted after 30 days.
         </p>
-        <button
+        <Button
           v-if="deletedNotes.length > 0"
+          variant="danger"
           @click="emptyTrash"
-          class="flex items-center custom-card p-2 mt-3 md:mt-0 md:ml-4 text-sm text-red-500 hover:text-red-100 hover:bg-red-700/50 dark:hover:bg-red-800/60"
+          class="mt-3 md:mt-0 md:ml-4 text-sm"
         >
           <PhTrash :size="20" class="mr-2" />
           Empty Trash
-        </button>
+        </Button>
       </div>
       <div
         v-if="deletedNotes.length > 0"
@@ -135,7 +136,7 @@
 <script lang="ts" setup>
   import { ref, computed, onMounted, onUnmounted } from 'vue';
   import { notesStore, uiStore } from '@/store/stores';
-  import AlertModal from '@/components/modal/alertModal.vue';
+  import AlertModal from '@/components/ui/modal/alertModal.vue';
   import {
     PhCheck,
     PhFolder,
@@ -143,6 +144,7 @@
     PhClockClockwise,
   } from '@phosphor-icons/vue';
   import DOMPurify from 'dompurify';
+  import Button from '@/components/ui/button.vue';
 
   const showMenu = ref(false);
   const selectedNotes = ref<string[]>([]);

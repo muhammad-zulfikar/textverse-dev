@@ -50,7 +50,7 @@
   import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
   import { PhCaretDown, PhCardsThree, PhSidebar } from '@phosphor-icons/vue';
   import { uiStore } from '@/store/stores';
-  import Dropdown from '@/components/dropdown/dropdown.vue';
+  import Dropdown from '@/components/ui/dropdown.vue';
 
   const isOpen = ref(false);
   const preferences = ['modal', 'sidebar'] as const;

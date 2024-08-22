@@ -22,8 +22,8 @@
   import { useRouter } from 'vue-router';
   import { authStore, uiStore, notesStore, folderStore } from './store/stores';
   import Navbar from '@/components/navbar/navbar.vue';
-  import Toast from '@/components/toast/toast.vue';
-  import LoadingSpinner from '@/components/loadingSpinner/loadingSpinner.vue';
+  import Toast from '@/components/ui/toast.vue';
+  import LoadingSpinner from '@/components/ui/loadingSpinner.vue';
 
   const router = useRouter();
   const routeOrder = ['Home', 'About', 'Settings', 'Trash', 'Sign In'];

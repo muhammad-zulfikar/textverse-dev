@@ -6,9 +6,7 @@
     position="right"
   >
     <template #label>
-      <button
-        class="flex items-center px-2 py-1.5 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
-      >
+      <Button>
         <div v-if="uiStore.viewType === 'card'">
           <PhSquaresFour :size="20" />
         </div>
@@ -26,7 +24,7 @@
         <span class="hidden md:flex md:ml-2" v-else-if="uiStore.viewType === 'table'">Table</span>
         <span class="hidden md:flex md:ml-2" v-else-if="uiStore.viewType === 'mail'">Mail</span>
         <span class="hidden md:flex md:ml-2" v-else-if="uiStore.viewType === 'folder'">Folder</span> -->
-      </button>
+      </Button>
     </template>
     <div class="px-1 space-y-1 text-sm">
       <div
@@ -39,7 +37,7 @@
         <div class="flex items-center justify-between">
           <button
             @click="setViewType('card')"
-            class="flex-grow text-left flex items-center p-2"
+            class="flex-grow text-left flex items-center p-2 cursor-pointer"
           >
             <PhSquaresFour :size="20" class="mr-2" />
             Card
@@ -170,7 +168,8 @@
     PhGridFour,
     PhList,
   } from '@phosphor-icons/vue';
-  import Dropdown from '@/components/dropdown/dropdown.vue';
+  import Dropdown from '@/components/ui/dropdown.vue';
+  import Button from '@/components/ui/button.vue';
 
   const isOpen = ref(false);
   const isMobile = ref(window.innerWidth < 640);

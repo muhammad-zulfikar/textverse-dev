@@ -21,7 +21,7 @@ interface UIState {
   toastTimeoutId: number | null;
   isAlertOpen: boolean;
   alertMessage: string;
-  isNoteCardOpen: boolean;
+  isNoteModalOpen: boolean;
   isNoteSidebarOpen: boolean;
   isEditing: boolean;
   isCreatingNote: boolean;
@@ -53,7 +53,7 @@ export const useUIStore = defineStore('ui', {
     toastTimeoutId: null,
     isAlertOpen: false,
     alertMessage: '',
-    isNoteCardOpen: false,
+    isNoteModalOpen: false,
     isNoteSidebarOpen: false,
     isEditing: false,
     isCreatingNote: false,
@@ -159,7 +159,7 @@ export const useUIStore = defineStore('ui', {
         document.documentElement.classList.add('dark');
         document
           .querySelector('meta[name="theme-color"]')
-          ?.setAttribute('content', '#4b5563');
+          ?.setAttribute('content', '#424242');
         document
           .querySelector('link[rel="icon"]')
           ?.setAttribute('href', '/dark/favicon.ico');
@@ -238,7 +238,7 @@ export const useUIStore = defineStore('ui', {
     openNote(noteId: string | null) {
       notesStore.selectedNoteId = noteId;
       if (this.noteOpenPreference === 'modal') {
-        this.isNoteCardOpen = true;
+        this.isNoteModalOpen = true;
         document.body.classList.add('modal-open');
       } else {
         this.isNoteSidebarOpen = true;
@@ -249,7 +249,7 @@ export const useUIStore = defineStore('ui', {
     closeNote() {
       notesStore.selectedNoteId = null;
       if (this.noteOpenPreference === 'modal') {
-        this.isNoteCardOpen = false;
+        this.isNoteModalOpen = false;
       } else {
         this.isNoteSidebarOpen = false;
       }

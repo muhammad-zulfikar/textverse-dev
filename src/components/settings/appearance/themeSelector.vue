@@ -57,7 +57,7 @@
     PhCaretDown,
   } from '@phosphor-icons/vue';
   import { uiStore } from '@/store/stores';
-  import Dropdown from '@/components/dropdown/dropdown.vue';
+  import Dropdown from '@/components/ui/dropdown.vue';
 
   const isOpen = ref(false);
   const themes = ['system', 'dark', 'light'];

@@ -112,7 +112,6 @@
             />
           </div>
           <div class="flex justify-between items-center text-sm mb-4">
-            <FolderDropdown v-model="editedNote.folder" direction="down" />
             <span class="ml-4 text-gray-600 dark:text-gray-300">
               Last edited:
               {{
@@ -150,11 +149,10 @@
     PhCaretLeft,
   } from '@phosphor-icons/vue';
   import { notesStore, uiStore, folderStore } from '@/store/stores';
-  import AlertModal from '@/components/modal/alertModal.vue';
+  import AlertModal from '@/components/ui/modal/alertModal.vue';
   import { Note } from '@/store/types';
   import { DEFAULT_FOLDERS } from '@/store/constants';
-  import Folder from '@/components/dropdown/folder.vue';
-  import FolderDropdown from '@/components/dropdown/folderDropdown.vue';
+  import Folder from '@/components/ui/dropdown/folderDropdown.vue';
   import { nanoid } from 'nanoid';
   import DOMPurify from 'dompurify';
 

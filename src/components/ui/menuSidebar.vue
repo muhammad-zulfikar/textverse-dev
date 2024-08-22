@@ -170,9 +170,9 @@
     PhFolder,
     PhCaretUp,
   } from '@phosphor-icons/vue';
-  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
-  import AlertModal from '@/components/modal/alertModal.vue';
-  import InputModal from '@/components/modal/inputModal.vue';
+  import ModalBackdrop from '@/components/ui/modal/backdropModal.vue';
+  import AlertModal from '@/components/ui/modal/alertModal.vue';
+  import InputModal from '@/components/ui/modal/inputModal.vue';
 
   const props = defineProps<{
     isOpen: boolean;

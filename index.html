@@ -4,19 +4,19 @@
 <head>
   <meta charset="UTF-8" />
   <link id="favicon" rel="icon" type="image/x-icon" href="/favicon.ico" />
-  <link rel="manifest" href="./manifest.json" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" id="theme-color" content="#f7f4e4">
   <title>textVerse</title>
-</head>
-
-<body>
-  <div id="app"></div>
-  <script type="module" src="/src/main.ts"></script>
   <script>
     (function() {
       const theme = localStorage.getItem('theme') || 'system';
       const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      
+      const manifestLink = document.createElement('link');
+      manifestLink.rel = 'manifest';
+      manifestLink.href = isDark ? '/manifest-dark.json' : '/manifest-light.json';
+      document.head.appendChild(manifestLink);
+
       if (isDark) {
         document.documentElement.classList.add('dark');
         document.querySelector('meta[name="theme-color"]').setAttribute('content', '#4b5563');
@@ -28,6 +28,11 @@
       }
     })();
   </script>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
 </body>
 
 </html>

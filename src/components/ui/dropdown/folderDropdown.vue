@@ -7,9 +7,7 @@
     class="md:my-6 z-20"
   >
     <template #label>
-      <button
-        class="flex items-center px-2 py-1.5 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
-      >
+      <Button>
         <PhFolder
           v-if="
             selectedFolder !== DEFAULT_FOLDERS.UNCATEGORIZED &&
@@ -25,7 +23,7 @@
         <div v-if="!isAllNotesFolder" @click="revertToAllNotes">
           <PhArrowCounterClockwise :size="20" class="ml-2" />
         </div>
-      </button>
+      </Button>
     </template>
     <div class="px-1 space-y-1">
       <div
@@ -38,9 +36,9 @@
         }"
       >
         <div class="flex items-center justify-between">
-          <button
+          <li
             @click.stop="selectFolder(folder)"
-            class="text-sm w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
+            class="text-sm cursor-pointer w-full text-left p-2 rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center"
           >
             <PhFolder
               v-if="folder !== DEFAULT_FOLDERS.UNCATEGORIZED"
@@ -49,7 +47,7 @@
             />
             <PhFolderMinus v-else :size="20" class="mr-2" />
             {{ folder }} ({{ notesCountByFolder[folder] || 0 }})
-          </button>
+          </li>
           <button
             v-if="
               folder !== DEFAULT_FOLDERS.ALL_NOTES &&
@@ -67,20 +65,21 @@
             v-if="expandedFolder === folder"
             class="flex justify-between px-2"
           >
-            <button
+            <Button
               @click.stop="openRenameModal(folder)"
-              class="text-xs flex items-center px-2 py-1 hover:bg-[#d9c698] dark:hover:bg-gray-700 custom-card mb-2"
+              class="text-xs flex items-center mb-2"
             >
               <PhTextbox :size="16" class="mr-1" />
               Rename
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="danger"
               @click.stop="openDeleteAlert(folder)"
-              class="text-xs flex items-center px-2 py-1 text-red-500 hover:text-red-100 hover:bg-red-700/50 dark:hover:bg-red-800/60 custom-card mb-2"
+              class="text-xs flex items-center mb-2"
             >
               <PhTrash :size="16" class="mr-1" />
               Delete
-            </button>
+            </Button>
           </div>
         </Transition>
       </div>
@@ -116,10 +115,11 @@
     PhTextbox,
     PhTrash,
   } from '@phosphor-icons/vue';
-  import Dropdown from '@/components/dropdown/dropdown.vue';
-  import InputModal from '@/components/modal/inputModal.vue';
-  import alertModal from '@/components/modal/alertModal.vue';
+  import Dropdown from '@/components/ui/dropdown.vue';
+  import InputModal from '@/components/ui/modal/inputModal.vue';
+  import alertModal from '@/components/ui/modal/alertModal.vue';
   import { DEFAULT_FOLDERS } from '@/store/constants';
+  import Button from '@/components/ui/button.vue';
 
   const selectedFolder = computed(() => folderStore.currentFolder);
   const notesCountByFolder = computed(() => folderStore.notesCountByFolder());

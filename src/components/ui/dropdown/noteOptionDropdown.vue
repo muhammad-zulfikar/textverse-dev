@@ -8,7 +8,7 @@
   >
     <template #label>
       <div
-        class="flex items-center px-2 py-1 cursor-pointer custom-card hover:bg-[#d9c698] dark:hover:bg-gray-600"
+        class="flex items-center px-2 py-1.5 cursor-pointer custom-card hover:bg-[#d9c698] dark:hover:bg-gray-600"
       >
         <PhFile :size="20" class="size-5 flex-shrink-0" />
         <div class="relative ml-2 flex-grow">
@@ -33,19 +33,6 @@
         </div>
       </div>
     </template>
-
-    <!-- <div
-      @click="renameNote"
-      class="block px-1 text-sm cursor-pointer"
-      role="menuitem"
-    >
-      <span
-        class="p-2 cursor-pointer w-full text-left rounded-md hover:bg-[#ebdfc0] dark:hover:bg-gray-700 transition-colors duration-200 flex items-center whitespace-nowrap"
-      >
-        <PhPencilSimple :size="20" class="size-5 mr-2" />
-        Rename
-      </span>
-    </div> -->
 
     <div
       @click="copyNote"
@@ -190,7 +177,7 @@
 
     <div
       v-if="isEditMode"
-      @click="openDeleteAlert"
+      @click="deleteNote"
       class="block px-1 text-sm cursor-pointer text-red-500 hover:text-red-100"
       role="menuitem"
     >
@@ -230,8 +217,8 @@
     PhLock,
   } from '@phosphor-icons/vue';
   import { uiStore, folderStore, authStore } from '@/store/stores';
-  import Dropdown from '@/components/dropdown/dropdown.vue';
-  import InputModal from '@/components/modal/inputModal.vue';
+  import Dropdown from '@/components/ui/dropdown.vue';
+  import InputModal from '@/components/ui/modal/inputModal.vue';
   import { DEFAULT_FOLDERS } from '@/store/constants';
 
   const props = defineProps<{
@@ -253,7 +240,7 @@
     (e: 'copyPublicLink'): void;
     (e: 'copyNote'): void;
     (e: 'updateFolder', folder: string): void;
-    (e: 'openDeleteAlert'): void;
+    (e: 'deleteNote'): void;
     (e: 'updateTitle', title: string): void;
     (e: 'finishTitleEdit', newTitle: string): void;
     (e: 'duplicateNote'): void;
@@ -366,7 +353,7 @@
   const isExpanded = computed(() => uiStore.isExpanded);
   const isMobile = computed(() => window.innerWidth <= 768);
 
-  const openDeleteAlert = () => emit('openDeleteAlert');
+  const deleteNote = () => emit('deleteNote');
   const toggleExpand = () => uiStore.toggleExpand();
 
   const checkSubmenuPosition = (event: MouseEvent) => {

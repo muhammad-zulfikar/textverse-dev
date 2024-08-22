@@ -30,7 +30,7 @@
   import { ref } from 'vue';
   import { PhTrash } from '@phosphor-icons/vue';
   import { notesStore, uiStore } from '@/store/stores';
-  import AlertModal from '@/components/modal/alertModal.vue';
+  import AlertModal from '@/components/ui/modal/alertModal.vue';
 
   const showDeleteDataConfirmation = ref(false);
 

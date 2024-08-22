@@ -119,8 +119,8 @@
   import { notesStore, folderStore, uiStore } from '@/store/stores';
   import { Note } from '@/store/types';
   import { DEFAULT_FOLDERS } from '@/store/constants';
-  import Folder from '@/components/dropdown/folder.vue';
-  import ContextMenu from '@/components/contextMenu/contextMenu.vue';
+  import Folder from '@/components/ui/dropdown/folderDropdown.vue';
+  import ContextMenu from '@/components/ui/contextMenu.vue';
   import DOMPurify from 'dompurify';
 
   const computedMb = computed(() => {
@@ -270,8 +270,7 @@
     }
   }
 
-  .content >>> p img,
-  .content ::v-deep p img {
+  .content :deep(p img) {
     margin: 10px auto !important;
     display: block;
   }

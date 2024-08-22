@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
   import { uiStore } from '@/store/stores';
-  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
+  import ModalBackdrop from '@/components/ui/modal/backdropModal.vue';
 
   const props = defineProps<{
     isOpen: boolean;

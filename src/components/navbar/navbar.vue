@@ -10,12 +10,9 @@
             v-if="!isSelectModeActive && !isSearchExpanded"
             class="flex items-center space-x-2 md:space-x-4"
           >
-            <button
-              @click.stop="toggleSidebar"
-              class="flex items-center px-2 py-1.5 custom-card hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
-            >
+            <Button @click.stop="toggleSidebar">
               <PhList :size="20" />
-            </button>
+            </Button>
             <Path />
           </div>
         </transition-group>
@@ -32,7 +29,7 @@
           </div>
         </transition>
 
-        <!-- Right: Search (mobile), Create, View, Avatar -->
+        <!-- Right: Search (mobile), Create, View, Sync -->
         <transition name="slide-fade">
           <div
             v-if="isHomePage && !isSelectModeActive"
@@ -63,53 +60,38 @@
             class="absolute inset-0 flex items-center bg-[#f7f4e4] dark:bg-gray-700"
           >
             <div class="flex items-center">
-              <button
-                @click="deselectAllNotes"
-                class="flex items-center px-2 py-1.5 mr-2 md:mr-4 custom-card hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
-              >
+              <Button @click="deselectAllNotes" class="mr-2 md:mr-4">
                 <PhX :size="20" />
-              </button>
+              </Button>
               <span>{{ notesStore.selectedNotes.length }} selected</span>
             </div>
             <div class="flex items-center ml-auto">
-              <button
-                @click="selectAllNotes"
-                class="flex items-center px-2 py-1.5 mr-2 md:mr-4 custom-card hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
-              >
+              <Button @click="selectAllNotes" class="mr-2 md:mr-4">
                 <PhChecks :size="20" />
-              </button>
-              <button
+              </Button>
+              <Button
                 v-if="isTrashRoute"
                 @click="restoreSelectedNotes"
-                class="flex items-center px-2 py-1.5 mr-2 md:mr-4 custom-card hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
+                class="mr-2 md:mr-4"
               >
                 <PhArrowCounterClockwise :size="20" />
-              </button>
-              <button
-                v-else
-                @click="togglePinSelected"
-                class="flex items-center px-2 py-1.5 mr-2 md:mr-4 custom-card hover:bg-[#ebdfc0] dark:hover:bg-gray-700"
-              >
+              </Button>
+              <Button v-else @click="togglePinSelected" class="mr-2 md:mr-4">
                 <component
                   :is="allSelectedNotesPinned ? PhPushPinSlash : PhPushPin"
                   :size="20"
                 />
-              </button>
-              <button
-                @click="deleteSelectedNotes"
-                class="flex items-center px-2 py-1.5 custom-card hover:bg-red-700/50 dark:hover:bg-red-800/60 text-red-500 hover:text-red-100"
-              >
+              </Button>
+              <Button @click="deleteSelectedNotes" variant="danger">
                 <PhTrash :size="20" />
-              </button>
+              </Button>
             </div>
           </div>
         </transition>
       </div>
     </div>
-    <div
-      class="bg-black dark:bg-gray-400 h-px transition-all duration-300"
-    ></div>
-    <LeftSidebar :is-open="isSidebarOpen" />
+    <Separator />
+    <LeftSidebar :isOpen="isSidebarOpen" />
     <AlertModal
       :is-open="showSignoutConfirmation"
       :message="`Are you sure you want to sign out? You won't be able to sync your notes.`"
@@ -139,13 +121,15 @@
     PhArrowCounterClockwise,
   } from '@phosphor-icons/vue';
   import { authStore, notesStore, uiStore } from '@/store/stores';
+  import Button from '@/components/ui/button.vue';
+  import Separator from '@/components/ui/separator.vue';
   import SearchBar from '@/components/searchBar/searchBar.vue';
-  import Create from '@/components/dropdown/create.vue';
-  import SyncButton from '@/components/syncButton.vue';
-  import Path from '@/components/dropdown/path.vue';
-  import View from '@/components/dropdown/view.vue';
-  import AlertModal from '@/components/modal/alertModal.vue';
-  import LeftSidebar from '@/components/navbar/leftSidebar.vue';
+  import Create from '@/components/ui/dropdown/createDropdown.vue';
+  import SyncButton from '@/components/ui/button/syncButton.vue';
+  import Path from '@/components/ui/dropdown/pathDropdown.vue';
+  import View from '@/components/ui/dropdown/viewDropdown.vue';
+  import AlertModal from '@/components/ui/modal/alertModal.vue';
+  import LeftSidebar from '@/components/ui/menuSidebar.vue';
 
   const router = useRouter();
   const route = useRoute();

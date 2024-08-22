@@ -157,7 +157,10 @@ export const useAuthStore = defineStore('auth', {
       if (this.user) {
         try {
           const storage = getStorage();
-          const imageRef = storageRef(storage, `users/${this.user.uid}/avatars`);
+          const imageRef = storageRef(
+            storage,
+            `users/${this.user.uid}/avatars`
+          );
 
           if (newAvatarUrl === '/avatar.png') {
             try {

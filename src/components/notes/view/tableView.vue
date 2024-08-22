@@ -176,8 +176,8 @@
   } from '@phosphor-icons/vue';
   import { Note } from '@/store/types';
   import { uiStore, notesStore, folderStore } from '@/store/stores';
-  import Folder from '@/components/dropdown/folder.vue';
-  import Dropdown from '@/components/dropdown/dropdown.vue';
+  import Folder from '@/components/ui/dropdown/folderDropdown.vue';
+  import Dropdown from '@/components/ui/dropdown.vue';
   import DOMPurify from 'dompurify';
 
   const props = defineProps<{

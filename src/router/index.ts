@@ -4,7 +4,7 @@ import about from '@/pages/about.vue';
 import settings from '@/pages/settings.vue';
 import trash from '@/pages/trash.vue';
 import signIn from '@/pages/signIn.vue';
-import publicNoteView from '@/components/notes/publicNoteView.vue';
+import publicNote from '@/pages/public.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -35,7 +35,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/:publicId',
     name: 'Public',
-    component: publicNoteView,
+    component: publicNote,
     props: true,
   },
 ];

@@ -1,108 +1,101 @@
 <template>
   <ModalBackdrop v-model="props.isOpen" />
-  <transition name="slide">
+  <transition name="zoom">
     <div
       v-if="props.isOpen"
       class="fixed inset-0 z-40 flex items-center justify-center font-serif"
     >
       <div @click="handleOutsideClick" class="absolute inset-0"></div>
       <div
-        ref="sidebarContainer"
+        ref="modalContainer"
         :class="[
-          'fixed inset-y-0 right-0 overflow-y-auto flex flex-col px-4',
+          'px-4 relative flex flex-col',
           {
-            'custom-card-no-rounded-border w-full':
+            'custom-card-no-rounded-border w-full h-full':
               uiStore.isExpanded && !uiStore.blurEnabled,
-            'custom-card-blur-no-rounded-border w-full':
+            'custom-card-blur-no-rounded-border w-full h-full':
               uiStore.isExpanded && uiStore.blurEnabled,
-            'custom-card w-3/4 md:w-2/5':
+            'custom-card w-11/12 md:w-3/4 lg:w-1/2 xl:w-3/5':
               !uiStore.isExpanded && !uiStore.blurEnabled,
-            'custom-card-blur w-3/4 md:w-2/5':
+            'custom-card-blur w-11/12 md:w-3/4 lg:w-1/2 xl:w-3/5':
               !uiStore.isExpanded && uiStore.blurEnabled,
           },
         ]"
       >
         <div class="flex w-full py-4 select-none">
           <NoteToolbar
-            :note="editedNote"
-            :noteId="props.noteId"
-            :title="editedNote.title"
-            :isTitleEditing="isTitleEditing"
-            :isEditMode="isEditMode"
-            :isValid="true"
-            :hasChanges="hasChanges"
-            :folder="editedNote.folder"
-            :lastEditedDate="editedNote.last_edited || editedNote.time_created"
-            :content="editedNote.content"
-            :isPinned="editedNote.pinned"
-            :isSaving="isSaving"
-            @openDeleteAlert="openDeleteAlert"
-            @updateFolder="updateNoteFolder"
-            @updateTitle="updateNoteTitle"
-            @startTitleEdit="startTitleEdit"
-            @finishTitleEdit="finishTitleEdit"
+            v-bind="toolbarProps"
+            @delete-note="deleteNote"
+            @update-folder="updateNoteFolder"
+            @update-title="updateNoteTitle"
+            @start-title-edit="isTitleEditing = true"
+            @finish-title-edit="finishTitleEdit"
           />
         </div>
+        <Separator />
         <div
-          class="bg-black dark:bg-gray-400 h-px transition-all duration-300"
-        ></div>
-        <div
-          class="w-full bg-transparent pt-4 pb-4 flex-grow overflow-y-auto flex flex-col"
+          class="w-full bg-transparent pt-4 pb-1 flex-grow overflow-y-auto flex flex-col"
         >
-          <div ref="quillEditorRef" class="w-full flex-grow"></div>
+          <div
+            ref="quillEditorRef"
+            class="w-full flex-grow"
+            :class="{ 'max-h-[500px]': !uiStore.isExpanded }"
+          ></div>
         </div>
       </div>
     </div>
   </transition>
-  <AlertModal
-    :is-open="uiStore.isAlertOpen"
-    :message="uiStore.alertMessage"
-    @confirm="confirmDelete"
-    @cancel="closeAlert"
-  />
 </template>
 
 <script setup lang="ts">
-  import { onValue, ref as dbRef, Unsubscribe } from 'firebase/database';
+  import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
+  import { onValue, ref as dbRef } from 'firebase/database';
   import { db } from '@/firebase';
-  import { ref, computed, watch, onUnmounted, onMounted, nextTick } from 'vue';
   import { Note } from '@/store/types';
   import { notesStore, folderStore, uiStore, authStore } from '@/store/stores';
   import { DEFAULT_FOLDERS } from '@/store/constants';
   import { nanoid } from 'nanoid';
-  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
-  import AlertModal from '@/components/modal/alertModal.vue';
-  import NoteToolbar from '@/components/toolbar/noteToolbar.vue';
+  import ModalBackdrop from '@/components/ui/modal/backdropModal.vue';
+  import NoteToolbar from '@/components/notes/noteToolbar.vue';
   import Quill from 'quill';
+  import Separator from '@/components/ui/separator.vue';
 
   const props = defineProps<{
     noteId: string | null;
     isOpen: boolean;
   }>();
 
-  const isMobile = ref(false);
+  const isMobile = ref(window.innerWidth <= 768);
   const isEditMode = ref(false);
   const isSaving = ref(false);
   const editedNote = ref<Note>(createEmptyNote());
   const originalNote = ref<Note | null>(null);
-  const sidebarContainer = ref<HTMLElement | null>(null);
+  const modalContainer = ref<HTMLElement | null>(null);
   const quillEditor = ref<Quill | null>(null);
   const quillEditorRef = ref<HTMLElement | null>(null);
-
-  const checkIfMobile = () => {
-    isMobile.value = window.innerWidth <= 768;
-  };
-
   const isTitleEditing = ref(false);
 
-  const startTitleEdit = () => {
-    isTitleEditing.value = true;
-  };
+  const toolbarProps = computed(() => ({
+    noteId: props.noteId,
+    title: editedNote.value.title,
+    content: editedNote.value.content,
+    folder: editedNote.value.folder,
+    note: editedNote.value,
+    isTitleEditing: isTitleEditing.value,
+    isEditMode: isEditMode.value,
+    isValid: true,
+    hasChanges: hasChanges.value,
+    lastEditedDate:
+      editedNote.value.last_edited || editedNote.value.time_created,
+    isPinned: editedNote.value.pinned,
+    isSaving: isSaving.value,
+  }));
 
-  const finishTitleEdit = (newTitle: string) => {
-    isTitleEditing.value = false;
-    updateNoteTitle(newTitle);
-  };
+  const hasChanges = computed(() =>
+    originalNote.value
+      ? notesStore.hasChanged(originalNote.value, editedNote.value)
+      : false
+  );
 
   function createEmptyNote(): Note {
     return {
@@ -119,16 +112,7 @@
     };
   }
 
-  const openDeleteAlert = () => {
-    uiStore.alertMessage = `Are you sure you want to delete the note "${editedNote.value.title}"?`;
-    uiStore.isAlertOpen = true;
-  };
-
-  const closeAlert = () => {
-    uiStore.isAlertOpen = false;
-  };
-
-  const confirmDelete = async () => {
+  async function deleteNote() {
     try {
       if (editedNote.value.id) {
         await notesStore.deleteNote(editedNote.value.id);
@@ -138,34 +122,15 @@
       console.error('Error deleting note:', error);
       uiStore.showToastMessage('Failed to delete note. Please try again.');
     }
-    closeAlert();
-  };
+  }
 
-  const hasChanges = computed(() => {
-    if (!originalNote.value) return false;
-    return notesStore.hasChanged(originalNote.value, editedNote.value);
-  });
-
-  const updateNoteTitle = (newTitle: string) => {
-    editedNote.value.title = newTitle;
-    saveNote();
-  };
-
-  const updateNoteContent = () => {
-    if (hasChanges.value) {
-      saveNote();
-    }
-  };
-
-  const updateNoteFolder = (newFolder: string) => {
-    editedNote.value.folder = newFolder;
-    saveNote();
-  };
-
-  const saveNote = async () => {
+  async function saveNote() {
     if (isEditMode.value && !hasChanges.value) return;
 
     try {
+      isSaving.value = true;
+      const saveStartTime = Date.now();
+
       if (isEditMode.value) {
         await notesStore.updateNote(editedNote.value);
       } else {
@@ -174,13 +139,35 @@
         isEditMode.value = true;
       }
       originalNote.value = { ...editedNote.value };
+
+      await new Promise((resolve) =>
+        setTimeout(resolve, Math.max(0, 500 - (Date.now() - saveStartTime)))
+      );
     } catch (error) {
       console.error('Error saving note:', error);
       uiStore.showToastMessage('Failed to save note. Please try again.');
+    } finally {
+      isSaving.value = false;
     }
-  };
+  }
 
-  const handleOutsideClick = () => {
+  function updateNoteTitle(newTitle: string) {
+    editedNote.value.title = newTitle;
+    saveNote();
+  }
+
+  function updateNoteContent() {
+    if (hasChanges.value) {
+      saveNote();
+    }
+  }
+
+  function updateNoteFolder(newFolder: string) {
+    editedNote.value.folder = newFolder;
+    saveNote();
+  }
+
+  function handleOutsideClick() {
     if (!editedNote.value.content.trim()) {
       uiStore.closeNote();
       uiStore.showToastMessage('Empty note discarded');
@@ -192,14 +179,17 @@
     }
     saveNote();
     uiStore.closeNote();
-  };
+  }
 
-  const noteListener = ref<Unsubscribe | null>(null);
+  function finishTitleEdit(newTitle: string) {
+    isTitleEditing.value = false;
+    updateNoteTitle(newTitle);
+  }
 
-  const setupNoteListener = (noteId: string) => {
+  function setupNoteListener(noteId: string) {
     if (authStore.isLoggedIn && noteId && authStore.user) {
       const noteRef = dbRef(db, `users/${authStore.user.uid}/notes/${noteId}`);
-      noteListener.value = onValue(noteRef, (snapshot) => {
+      return onValue(noteRef, (snapshot) => {
         const updatedNote = snapshot.val();
         if (updatedNote && updatedNote.id === editedNote.value.id) {
           editedNote.value = { ...updatedNote };
@@ -218,23 +208,26 @@
         }
       });
     }
-  };
+  }
 
   function initializeQuillEditor() {
     if (quillEditorRef.value) {
       quillEditor.value = new Quill(quillEditorRef.value, {
         theme: 'snow',
         modules: {
-          toolbar: [
-            ['bold', 'italic', 'underline', 'strike'],
-            ['blockquote', 'code-block'],
-            [{ align: [] }, { indent: '-1' }, { indent: '+1' }],
-            [{ list: 'ordered' }, { list: 'bullet' }],
-            ['link', 'image'],
-            [{ header: [1, 2, 3, 4, 5, 6, false] }],
-            [{ color: [] }, { background: [] }],
-            ['clean'],
-          ],
+          toolbar:
+            !isMobile.value || uiStore.isExpanded
+              ? [
+                  ['bold', 'italic', 'underline', 'strike'],
+                  ['blockquote', 'code-block'],
+                  [{ align: [] }, { indent: '-1' }, { indent: '+1' }],
+                  [{ list: 'ordered' }, { list: 'bullet' }],
+                  ['link', 'image'],
+                  [{ header: [1, 2, 3, 4, 5, 6, false] }],
+                  [{ color: [] }, { background: [] }],
+                  ['clean'],
+                ]
+              : false,
         },
       });
 
@@ -251,33 +244,34 @@
     }
   }
 
-  const updateQuillEditorHeight = () => {
-    if (quillEditorRef.value && sidebarContainer.value) {
-      const containerRect = sidebarContainer.value.getBoundingClientRect();
+  function updateQuillEditorHeight() {
+    if (quillEditorRef.value && modalContainer.value) {
+      const containerRect = modalContainer.value.getBoundingClientRect();
       const editorTop = quillEditorRef.value.offsetTop;
       const newHeight = window.innerHeight - containerRect.top - editorTop - 20;
       quillEditorRef.value.style.height = `${newHeight}px`;
     }
-  };
+  }
 
-  const resizeObserver = new ResizeObserver(() => {
-    updateQuillEditorHeight();
-  });
+  const resizeObserver = new ResizeObserver(updateQuillEditorHeight);
 
   watch(
     () => props.isOpen,
     (isOpen) => {
       if (isOpen) {
+        if (isMobile.value) {
+          uiStore.isExpanded = true;
+        }
         nextTick(() => {
           initializeQuillEditor();
           updateQuillEditorHeight();
-          if (sidebarContainer.value) {
-            resizeObserver.observe(sidebarContainer.value);
+          if (modalContainer.value) {
+            resizeObserver.observe(modalContainer.value);
           }
         });
       } else {
-        if (sidebarContainer.value) {
-          resizeObserver.unobserve(sidebarContainer.value);
+        if (modalContainer.value) {
+          resizeObserver.unobserve(modalContainer.value);
         }
       }
     }
@@ -286,11 +280,6 @@
   watch(
     [() => props.isOpen, () => props.noteId],
     async ([isOpen, newNoteId]) => {
-      if (noteListener.value) {
-        noteListener.value();
-        noteListener.value = null;
-      }
-
       if (isOpen) {
         await nextTick();
 
@@ -312,49 +301,31 @@
           quillEditor.value.off('text-change');
           quillEditor.value = null;
         }
-
-        if (noteListener.value) {
-          (noteListener.value as Unsubscribe)();
-          noteListener.value = null;
-        }
-
         editedNote.value = createEmptyNote();
         originalNote.value = null;
         isEditMode.value = false;
       }
-    },
-    { immediate: true }
-  );
-
-  watch(
-    isMobile,
-    (newValue) => {
-      uiStore.isExpanded = newValue;
-    },
-    { immediate: true }
+    }
   );
 
   onMounted(() => {
-    checkIfMobile();
-    window.addEventListener('resize', checkIfMobile);
-    window.addEventListener('resize', updateQuillEditorHeight);
+    window.addEventListener('resize', () => {
+      isMobile.value = window.innerWidth <= 768;
+      updateQuillEditorHeight();
+    });
 
-    nextTick(() => {
-      if (props.isOpen) {
+    if (props.isOpen) {
+      nextTick(() => {
         initializeQuillEditor();
         updateQuillEditorHeight();
-        if (sidebarContainer.value) {
-          resizeObserver.observe(sidebarContainer.value);
+        if (modalContainer.value) {
+          resizeObserver.observe(modalContainer.value);
         }
-      }
-    });
+      });
+    }
   });
 
   onUnmounted(() => {
-    if (noteListener.value) {
-      noteListener.value();
-    }
-    window.removeEventListener('resize', checkIfMobile);
     window.removeEventListener('resize', updateQuillEditorHeight);
     resizeObserver.disconnect();
   });

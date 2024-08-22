@@ -6,14 +6,12 @@
     position="left"
   >
     <template #label>
-      <button
-        class="flex items-center px-2 py-1.5 custom-card hover:bg-[#d9c698] dark:hover:bg-gray-700"
-      >
+      <Button>
         <component :is="currentIcon" :size="20" />
-        <span class="flex ites-center ml-2 text-sm">
+        <span class="flex items-center ml-2 text-sm">
           {{ currentPath }}
         </span>
-      </button>
+      </Button>
     </template>
     <div class="px-1 space-y-1">
       <router-link
@@ -48,7 +46,8 @@
     PhSignIn,
     PhGlobe,
   } from '@phosphor-icons/vue';
-  import Dropdown from '@/components/dropdown/dropdown.vue';
+  import Dropdown from '@/components/ui/dropdown.vue';
+  import Button from '@/components/ui/button.vue';
 
   const route = useRoute();
   const router = useRouter();

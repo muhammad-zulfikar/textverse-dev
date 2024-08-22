@@ -63,7 +63,7 @@
   import { ref, computed, watch } from 'vue';
   import { PhProhibit, PhCheckCircle } from '@phosphor-icons/vue';
   import { uiStore } from '@/store/stores';
-  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
+  import ModalBackdrop from '@/components/ui/modal/backdropModal.vue';
 
   const props = defineProps<{
     isOpen: boolean;

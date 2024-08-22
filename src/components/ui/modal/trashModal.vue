@@ -154,8 +154,8 @@
     PhX,
   } from '@phosphor-icons/vue';
   import { notesStore, uiStore } from '@/store/stores';
-  import ModalBackdrop from '@/components/modal/modalBackdrop.vue';
-  import AlertModal from '@/components/modal/alertModal.vue';
+  import ModalBackdrop from '@/components/ui/modal/backdropModal.vue';
+  import AlertModal from '@/components/ui/modal/alertModal.vue';
 
   const props = defineProps<{
     isOpen: boolean;
