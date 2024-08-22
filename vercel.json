@@ -1,12 +1,27 @@
 {
+    "headers": [
+      {
+        "source": "/service-worker.js",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/javascript"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=0, must-revalidate"
+          }
+        ]
+      }
+    ],
     "rewrites": [
-        {
-            "source": "/service-worker.js",
-            "destination": "/service-worker.js"
-        },
-        {
-            "source": "/((?!service-worker\\.js).*)",
-            "destination": "/index.html"
-        }
+      {
+        "source": "/service-worker.js",
+        "destination": "/service-worker.js"
+      },
+      {
+        "source": "/(.*)",
+        "destination": "/index.html"
+      }
     ]
-}
+  }
