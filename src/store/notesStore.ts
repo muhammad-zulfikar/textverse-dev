@@ -370,7 +370,7 @@ export const useNotesStore = defineStore('notes', {
     copyPublicLink(noteId: string) {
       const publicId = this.getPublicId(noteId);
       if (!publicId) return;
-      const publicLink = `${window.location.origin}/${publicId}`;
+      const publicLink = `${window.location.origin}/public/${publicId}`;
       navigator.clipboard
         .writeText(publicLink)
         .then(() => {

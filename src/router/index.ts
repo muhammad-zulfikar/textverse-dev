@@ -34,7 +34,7 @@ const routes: Array<RouteRecordRaw> = [
     component: signIn,
   },
   {
-    path: '/:publicId',
+    path: '/public/:publicId',
     name: 'Public',
     component: publicNote,
     props: true,
