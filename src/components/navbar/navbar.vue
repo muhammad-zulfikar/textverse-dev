@@ -24,7 +24,7 @@
             class="hidden md:flex absolute left-0 right-0 justify-center pointer-events-none"
           >
             <div class="w-1/3 pointer-events-auto">
-              <SearchBar @update:modelValue="notesStore.setSearchQuery" />
+              <SearchBar @update:modelValue="updateSearchQuery" />
             </div>
           </div>
         </transition>
@@ -46,7 +46,7 @@
             </div>
             <div class="md:hidden ml-2">
               <SearchBar
-                @update:modelValue="notesStore.setSearchQuery"
+                @update:modelValue="updateSearchQuery"
                 @expanded="setSearchExpanded"
               />
             </div>
@@ -143,6 +143,14 @@
   const setSearchExpanded = (expanded: boolean) => {
     isSearchExpanded.value = expanded;
   };
+
+  const updateSearchQuery = (query: string) => {
+  if (notesStore && notesStore.setSearchQuery) {
+    notesStore.setSearchQuery(query);
+  } else {
+    console.error('notesStore or setSearchQuery is not available');
+  }
+};
 
   const isHomePage = computed(() => route.path === '/');
   const isSelectModeActive = computed(

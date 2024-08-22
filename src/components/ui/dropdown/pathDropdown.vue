@@ -75,7 +75,7 @@
     router.options.routes.filter(
       (route) =>
         route.name &&
-        route.path !== '/:publicId' &&
+        route.path !== '/public/:publicId' &&
         route.path !== '/about' &&
         !(route.name === 'Sign In' && authStore.isLoggedIn)
     )
