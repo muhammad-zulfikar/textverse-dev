@@ -1,12 +1,12 @@
 {
-    "routes": [
+    "rewrites": [
         {
-            "src": "/service-worker.js",
-            "dest": "/service-worker.js"
+            "source": "/service-worker.js",
+            "destination": "/service-worker.js"
         },
         {
-            "src": "/(.*)",
-            "dest": "/"
+            "source": "/(.*)",
+            "destination": "/index.html"
         }
     ]
 }
