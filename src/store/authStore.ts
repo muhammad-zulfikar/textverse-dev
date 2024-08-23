@@ -2,13 +2,12 @@
 
 import { defineStore } from 'pinia';
 import {
-  getStorage,
   ref as storageRef,
   uploadString,
   getDownloadURL,
   deleteObject,
 } from 'firebase/storage';
-import { auth } from '@/firebase';
+import { auth, storage } from '@/firebase';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -21,25 +20,30 @@ import {
   deleteUser,
   signInWithPopup,
 } from 'firebase/auth';
-import { useFolderStore } from './folderStore';
-import { useUIStore } from './uiStore';
-import { useNotesStore } from './notesStore';
+import { uiStore, notesStore, folderStore } from '@/store/stores';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as User | null,
     avatarUrl: '' as string,
-    isLoading: false,
-    pendingRedirect: false,
+    isLoading: true,
+    isInitialized: false,
   }),
   actions: {
-    showToast(message: string) {
-      const uiStore = useUIStore();
-      uiStore.showToastMessage(message);
+    async initialize() {
+      return new Promise<void>((resolve) => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          this.user = user;
+          this.avatarUrl = user?.photoURL || '/avatar.png';
+          this.isLoading = false;
+          this.isInitialized = true;
+          unsubscribe();
+          resolve();
+        });
+      });
     },
 
     async login(email: string, password: string) {
-      this.isLoading = true;
       try {
         const userCredential = await signInWithEmailAndPassword(
           auth,
@@ -48,20 +52,19 @@ export const useAuthStore = defineStore('auth', {
         );
         this.user = userCredential.user;
         this.avatarUrl = this.user.photoURL || '';
-        this.showToast('Signed in successfully');
+        uiStore.showToastMessage('Signed in successfully');
       } catch (error) {
-        this.showToast('Sign in failed. Please check your credentials.');
+        uiStore.showToastMessage('Sign in failed. Please check your credentials.');
         throw error;
       } finally {
         this.isLoading = false;
       }
-      await this.syncFolders();
-      await this.syncSettings();
-      await this.syncNotes();
+      await folderStore.loadFolders();
+      await uiStore.loadSettings();
+      await notesStore.loadNotes();
     },
 
     async signUp(email: string, password: string) {
-      this.isLoading = true;
       try {
         const userCredential = await createUserWithEmailAndPassword(
           auth,
@@ -70,9 +73,9 @@ export const useAuthStore = defineStore('auth', {
         );
         this.user = userCredential.user;
         this.avatarUrl = this.user.photoURL || '';
-        this.showToast('Account successfully created');
+        uiStore.showToastMessage('Account successfully created');
       } catch (error) {
-        this.showToast('Sign up failed. Please try again.');
+        uiStore.showToastMessage('Sign up failed. Please try again.');
         throw error;
       } finally {
         this.isLoading = false;
@@ -80,22 +83,16 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
-      this.isLoading = true;
       try {
         await signOut(auth);
         this.user = null;
         this.avatarUrl = '';
-        this.showToast('Signed out successfully');
-
-        const folderStore = useFolderStore();
+        uiStore.showToastMessage('Signed out successfully');
         folderStore.clearFolderListener();
-
-        const uiStore = useUIStore();
         uiStore.clearSettingsListener();
-
-        this.clearLocalSettings();
+        uiStore.clearLocalSettings();
       } catch (error) {
-        this.showToast('Sign out failed. Please try again.');
+        uiStore.showToastMessage('Sign out failed. Please try again.');
         throw error;
       } finally {
         this.isLoading = false;
@@ -116,47 +113,9 @@ export const useAuthStore = defineStore('auth', {
       this.avatarUrl = this.user.photoURL || '';
     },
 
-    async fetchCurrentUser() {
-      this.isLoading = true;
-      return new Promise<void>((resolve) => {
-        onAuthStateChanged(auth, async (user) => {
-          if (user) {
-            this.user = user;
-            this.avatarUrl = user.photoURL || '/avatar.png';
-          } else {
-            this.user = null;
-            this.avatarUrl = '';
-          }
-          this.isLoading = false;
-          resolve();
-        });
-      });
-    },
-
-    async syncSettings() {
-      const uiStore = useUIStore();
-      await uiStore.loadSettings();
-    },
-
-    clearLocalSettings() {
-      const uiStore = useUIStore();
-      uiStore.clearLocalSettings();
-    },
-
-    async syncFolders() {
-      const folderStore = useFolderStore();
-      await folderStore.loadFolders();
-    },
-
-    async syncNotes() {
-      const notesStore = useNotesStore();
-      await notesStore.loadNotes();
-    },
-
     async updateAvatar(newAvatarUrl: string) {
       if (this.user) {
         try {
-          const storage = getStorage();
           const imageRef = storageRef(
             storage,
             `users/${this.user.uid}/avatars`
@@ -165,7 +124,7 @@ export const useAuthStore = defineStore('auth', {
           if (newAvatarUrl === '/avatar.png') {
             try {
               await deleteObject(imageRef);
-            } catch (error) {}
+            } catch (error) { }
 
             await updateProfile(this.user, { photoURL: null });
             this.avatarUrl = '/avatar.png';

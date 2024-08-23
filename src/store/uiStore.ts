@@ -2,7 +2,6 @@
 
 import { defineStore } from 'pinia';
 import { authStore, notesStore } from './stores';
-import { useAuthStore } from './authStore';
 import { ref, set, onValue, off } from 'firebase/database';
 import { db } from '@/firebase';
 
@@ -62,7 +61,6 @@ export const useUIStore = defineStore('ui', {
 
   actions: {
     async saveSettings() {
-      const authStore = useAuthStore();
       if (authStore.isLoggedIn) {
         const settings = {
           theme: this.theme,
@@ -95,7 +93,6 @@ export const useUIStore = defineStore('ui', {
         this.applyTheme();
       }
 
-      const authStore = useAuthStore();
       if (authStore.isLoggedIn) {
         const settingsRef = ref(db, `users/${authStore.user!.uid}/settings`);
         this.settingsListener = onValue(settingsRef, (snapshot) => {
