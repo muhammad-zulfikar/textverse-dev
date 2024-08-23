@@ -1,7 +1,7 @@
 <!--cardView-->
 
 <template>
-  <div class="mx-2 md:mx-[4.4rem]" @click="handleOutsideClick">
+  <div class="mx-2 md:mx-4 xl:mx-[4.4rem]" @click="handleOutsideClick">
     <div class="my-4 md:my-0">
       <Folder />
     </div>
