@@ -1,30 +1,30 @@
 <template>
-    <div>
-      <slot v-if="!error"></slot>
-      <div v-else class="error-message">
-        <h2>An error occurred</h2>
-        <p>{{ error.message }}</p>
-        <button @click="reload">Reload App</button>
-      </div>
+  <div>
+    <slot v-if="!error"></slot>
+    <div v-else class="error-message">
+      <h2>An error occurred</h2>
+      <p>{{ error.message }}</p>
+      <button @click="reload">Reload App</button>
     </div>
-  </template>
-  
-  <script setup lang="ts">
+  </div>
+</template>
+
+<script setup lang="ts">
   import { ref, onErrorCaptured } from 'vue';
-  
+
   const error = ref<Error | null>(null);
-  
+
   onErrorCaptured((e: Error) => {
     error.value = e;
     return false;
   });
-  
+
   const reload = () => {
     window.location.reload();
   };
-  </script>
-  
-  <style scoped>
+</script>
+
+<style scoped>
   .error-message {
     padding: 20px;
     background-color: #f8d7da;
@@ -33,4 +33,4 @@
     border-radius: 4px;
     margin: 20px 0;
   }
-  </style>
+</style>

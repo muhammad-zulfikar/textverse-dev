@@ -9,7 +9,7 @@
       <Button>
         <component :is="currentIcon" :size="20" />
         <span class="flex items-center ml-2 text-sm">
-          {{ currentPath }}
+          {{ currentPathName }}
         </span>
       </Button>
     </template>
@@ -45,6 +45,7 @@
     PhGear,
     PhSignIn,
     PhGlobe,
+    PhQuestion,
   } from '@phosphor-icons/vue';
   import Dropdown from '@/components/ui/dropdown.vue';
   import Button from '@/components/ui/button.vue';
@@ -54,8 +55,14 @@
 
   const currentPath = computed(() => route.name as string);
 
+  const currentPathName = computed(() => {
+    return availableRoutes.value.some((r) => r.name === currentPath.value)
+      ? currentPath.value
+      : 'Not Found';
+  });
+
   const currentIcon = computed(() => {
-    switch (currentPath.value) {
+    switch (currentPathName.value) {
       case 'Home':
         return PhHouseLine;
       case 'Settings':
@@ -66,6 +73,8 @@
         return PhSignIn;
       case 'Public':
         return PhGlobe;
+      case 'Not Found':
+        return PhQuestion;
       default:
         return PhInfo;
     }
@@ -75,6 +84,7 @@
     router.options.routes.filter(
       (route) =>
         route.name &&
+        route.name !== 'NotFound' &&
         route.path !== '/public/:publicId' &&
         route.path !== '/about' &&
         !(route.name === 'Sign In' && authStore.isLoggedIn)

@@ -126,7 +126,9 @@ export const useFolderStore = defineStore('folders', {
 
     clearFolderListener() {
       if (this.folderListener) {
-        off(ref(db, `users/${authStore.user!.uid}/folders`));
+        if (authStore.user) {
+          off(ref(db, `users/${authStore.user.uid}/folders`));
+        }
         this.folderListener = null;
       }
     },

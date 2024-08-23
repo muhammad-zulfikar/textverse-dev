@@ -63,13 +63,11 @@
   const themes = ['system', 'dark', 'light'];
 
   const currentThemeText = computed(
-    () =>
-      uiStore.currentTheme.charAt(0).toUpperCase() +
-      uiStore.currentTheme.slice(1)
+    () => uiStore.theme.charAt(0).toUpperCase() + uiStore.theme.slice(1)
   );
 
   const currentThemeIcon = computed(() => {
-    switch (uiStore.currentTheme) {
+    switch (uiStore.theme) {
       case 'light':
         return PhSun;
       case 'dark':

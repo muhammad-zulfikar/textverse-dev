@@ -1,74 +1,139 @@
 // stores/uiStore.ts
 
 import { defineStore } from 'pinia';
+
 import { authStore, notesStore } from './stores';
+
 import { ref, set, onValue, off } from 'firebase/database';
+
 import { db } from '@/firebase';
 
+type Theme = 'light' | 'dark' | 'system';
+
+type ViewType = 'card' | 'table' | 'mail' | 'folder';
+
+type NoteOpenPreference = 'modal' | 'sidebar';
+
+type FolderViewType = 'grid' | 'list';
+
 interface UIState {
-  theme: 'light' | 'dark' | 'system';
-  viewType: 'card' | 'table' | 'mail' | 'folder';
-  noteOpenPreference: 'modal' | 'sidebar';
+  theme: Theme;
+
+  viewType: ViewType;
+
+  noteOpenPreference: NoteOpenPreference;
+
   columns: number;
-  folderViewType: 'grid' | 'list';
-  currentTheme: string;
+
+  folderViewType: FolderViewType;
+
   blurEnabled: boolean;
+
   isExpanded: boolean;
+
   activeDropdown: string | null;
+
   showToast: boolean;
+
   toastMessage: string;
+
   toastTimeoutId: number | null;
-  isAlertOpen: boolean;
-  alertMessage: string;
+
   isNoteModalOpen: boolean;
+
   isNoteSidebarOpen: boolean;
+
   isEditing: boolean;
+
   isCreatingNote: boolean;
+
   settingsListener: (() => void) | null;
 }
 
 export const useUIStore = defineStore('ui', {
   state: (): UIState => ({
     theme: 'system',
-    viewType:
-      (localStorage.getItem('viewType') as
-        | 'card'
-        | 'table'
-        | 'mail'
-        | 'folder') || 'card',
-    currentTheme: localStorage.getItem('theme') || 'system',
-    noteOpenPreference:
-      (localStorage.getItem('noteOpenPreference') as 'modal' | 'sidebar') ||
-      'modal',
-    columns: parseInt(
-      localStorage.getItem('columns') || (window.innerWidth < 640 ? '2' : '4')
-    ),
+
+    viewType: 'card',
+
+    noteOpenPreference: 'modal',
+
+    columns: 4,
+
     folderViewType: 'grid',
-    blurEnabled: JSON.parse(localStorage.getItem('blurEnabled') || 'false'),
+
+    blurEnabled: false,
+
     isExpanded: false,
+
     activeDropdown: null,
+
     showToast: false,
+
     toastMessage: '',
+
     toastTimeoutId: null,
-    isAlertOpen: false,
-    alertMessage: '',
+
     isNoteModalOpen: false,
+
     isNoteSidebarOpen: false,
+
     isEditing: false,
+
     isCreatingNote: false,
-    settingsListener: null as null | (() => void),
+
+    settingsListener: null,
   }),
 
   actions: {
-    async saveSettings() {
+    async initializeSettings() {
       if (authStore.isLoggedIn) {
-        const settings = {
-          theme: this.theme,
-          viewType: this.viewType,
-          noteOpenPreference: this.noteOpenPreference,
-          blurEnabled: this.blurEnabled,
-        };
+        await this.loadSettings();
+      } else {
+        this.loadUISettings();
+      }
 
+      this.applyTheme();
+    },
+
+    loadLocalSettings() {
+      this.theme = (localStorage.getItem('theme') as Theme) || 'system';
+      this.viewType = (localStorage.getItem('viewType') as ViewType) || 'card';
+      this.noteOpenPreference =
+        (localStorage.getItem('noteOpenPreference') as NoteOpenPreference) ||
+        'modal';
+      this.columns =
+        parseInt(localStorage.getItem('columns') || '', 10) ||
+        (window.innerWidth < 640 ? 2 : 4);
+      this.blurEnabled = JSON.parse(
+        localStorage.getItem('blurEnabled') || 'false'
+      );
+    },
+
+    async setupFirebaseListener() {
+      const settingsRef = ref(db, `users/${authStore.user!.uid}/settings`);
+      this.settingsListener = onValue(settingsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          this.updateSettings(data);
+        }
+      });
+    },
+
+    updateSettings(settings: Partial<UIState>) {
+      Object.assign(this, settings);
+      this.saveSettings();
+    },
+
+    async saveSettings() {
+      const settings = {
+        theme: this.theme,
+        viewType: this.viewType,
+        noteOpenPreference: this.noteOpenPreference,
+        blurEnabled: this.blurEnabled,
+      };
+
+      if (authStore.isLoggedIn) {
         try {
           await set(ref(db, `users/${authStore.user!.uid}/settings`), settings);
         } catch (error) {
@@ -76,37 +141,10 @@ export const useUIStore = defineStore('ui', {
         }
       }
 
-      localStorage.setItem('theme', this.theme);
-      localStorage.setItem('viewType', this.viewType);
-      localStorage.setItem('noteOpenPreference', this.noteOpenPreference);
-      localStorage.setItem('blurEnabled', this.blurEnabled.toString());
+      Object.entries(settings).forEach(([key, value]) => {
+        localStorage.setItem(key, JSON.stringify(value));
+      });
       localStorage.setItem('columns', this.columns.toString());
-    },
-
-    async loadSettings() {
-      const savedTheme = localStorage.getItem('theme') as
-        | UIState['theme']
-        | null;
-
-      if (savedTheme) {
-        this.theme = savedTheme;
-        this.applyTheme();
-      }
-
-      if (authStore.isLoggedIn) {
-        const settingsRef = ref(db, `users/${authStore.user!.uid}/settings`);
-        this.settingsListener = onValue(settingsRef, (snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            this.theme = data.theme;
-            this.applyTheme();
-          } else {
-            this.loadUISettings();
-          }
-        });
-      } else {
-        this.loadUISettings();
-      }
     },
 
     clearSettingsListener() {
@@ -116,29 +154,36 @@ export const useUIStore = defineStore('ui', {
       }
     },
 
-    setTheme(theme: 'light' | 'dark' | 'system') {
+    setTheme(theme: Theme) {
       this.theme = theme;
-      this.currentTheme = theme;
       this.saveSettings();
       this.applyTheme();
     },
 
-    setViewType(viewType: 'card' | 'table' | 'mail' | 'folder') {
+    setViewType(viewType: ViewType) {
       this.viewType = viewType;
       this.saveSettings();
     },
 
-    setNoteOpenPreference(preference: 'modal' | 'sidebar') {
+    setNoteOpenPreference(preference: NoteOpenPreference) {
       this.noteOpenPreference = preference;
       this.saveSettings();
     },
 
     setColumns(columns: number) {
-      this.columns = columns;
-      localStorage.setItem('columns', columns.toString());
+      this.columns = this.getValidColumns(columns);
+      this.saveSettings();
     },
 
-    setFolderViewType(viewType: 'grid' | 'list') {
+    getValidColumns(columns: number): number {
+      const isMobile = window.innerWidth < 640;
+      if (isMobile) {
+        return Math.min(columns, 2);
+      }
+      return columns || 4;
+    },
+
+    setFolderViewType(viewType: FolderViewType) {
       this.folderViewType = viewType;
     },
 
@@ -152,67 +197,31 @@ export const useUIStore = defineStore('ui', {
         (this.theme === 'system' &&
           window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-        document
-          .querySelector('meta[name="theme-color"]')
-          ?.setAttribute('content', '#424242');
-        document
-          .querySelector('link[rel="icon"]')
-          ?.setAttribute('href', '/dark/favicon.ico');
-      } else {
-        document.documentElement.classList.remove('dark');
-        document
-          .querySelector('meta[name="theme-color"]')
-          ?.setAttribute('content', '#f7f4e4');
-        document
-          .querySelector('link[rel="icon"]')
-          ?.setAttribute('href', '/light/favicon.ico');
-      }
+      document.documentElement.classList.toggle('dark', isDark);
+      this.updateThemeColor(isDark);
+      this.updateFavicon(isDark);
+    },
+
+    updateThemeColor(isDark: boolean) {
+      const color = isDark ? '#424242' : '#f7f4e4';
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', color);
+    },
+
+    updateFavicon(isDark: boolean) {
+      const faviconPath = isDark ? '/dark/favicon.ico' : '/light/favicon.ico';
+      document
+        .querySelector('link[rel="icon"]')
+        ?.setAttribute('href', faviconPath);
     },
 
     setBlurEnabled(enabled: boolean) {
       this.blurEnabled = enabled;
-      const message = enabled ? 'Blur effect enabled' : 'Blur effect disabled';
-      this.showToastMessage(message);
+      this.showToastMessage(
+        enabled ? 'Blur effect enabled' : 'Blur effect disabled'
+      );
       this.saveSettings();
-    },
-
-    loadUISettings() {
-      const savedTheme = localStorage.getItem('theme') as
-        | UIState['theme']
-        | null;
-      if (savedTheme) {
-        this.theme = savedTheme;
-      }
-
-      const savedColumns = localStorage.getItem('columns');
-      if (savedColumns) {
-        this.columns = parseInt(savedColumns, 10);
-      } else {
-        this.columns = window.innerWidth < 640 ? 2 : 4;
-      }
-
-      const savedViewType = localStorage.getItem('viewType') as
-        | UIState['viewType']
-        | null;
-      if (savedViewType) {
-        this.viewType = savedViewType;
-      }
-
-      const savedNoteOpenPreference = localStorage.getItem(
-        'noteOpenPreference'
-      ) as 'modal' | 'sidebar' | null;
-      if (savedNoteOpenPreference) {
-        this.noteOpenPreference = savedNoteOpenPreference;
-      }
-
-      const savedBlurEnabled = localStorage.getItem('blurEnabled');
-      if (savedBlurEnabled) {
-        this.blurEnabled = savedBlurEnabled === 'true';
-      }
-
-      this.applyTheme();
     },
 
     setActiveDropdown(dropdown: string | null) {
@@ -236,30 +245,67 @@ export const useUIStore = defineStore('ui', {
       notesStore.selectedNoteId = noteId;
       if (this.noteOpenPreference === 'modal') {
         this.isNoteModalOpen = true;
-        document.body.classList.add('modal-open');
       } else {
         this.isNoteSidebarOpen = true;
-        document.body.classList.add('modal-open');
       }
+      document.body.classList.add('modal-open');
     },
 
     closeNote() {
-      notesStore.selectedNoteId = null;
-      if (this.noteOpenPreference === 'modal') {
-        this.isNoteModalOpen = false;
-      } else {
-        this.isNoteSidebarOpen = false;
-      }
+      this.isNoteModalOpen = false;
+      this.isNoteSidebarOpen = false;
       document.body.classList.remove('modal-open');
     },
 
+    async loadSettings() {
+      if (authStore.isLoggedIn) {
+        const settingsRef = ref(db, `users/${authStore.user!.uid}/settings`);
+        this.settingsListener = onValue(settingsRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            this.updateSettings(data);
+          } else {
+            this.loadUISettings();
+          }
+        });
+      } else {
+        this.loadUISettings();
+      }
+    },
+
+    loadUISettings() {
+      this.theme = (localStorage.getItem('theme') as Theme) || 'system';
+      this.viewType = (localStorage.getItem('viewType') as ViewType) || 'card';
+      this.noteOpenPreference =
+        (localStorage.getItem('noteOpenPreference') as NoteOpenPreference) ||
+        'modal';
+      const storedColumns = parseInt(localStorage.getItem('columns') || '', 10);
+      this.columns = this.getValidColumns(storedColumns);
+      this.blurEnabled = JSON.parse(
+        localStorage.getItem('blurEnabled') || 'false'
+      );
+      this.applyTheme();
+    },
+
     clearLocalSettings() {
-      localStorage.removeItem('theme');
-      localStorage.removeItem('viewType');
-      localStorage.removeItem('noteOpenPreference');
-      localStorage.removeItem('columns');
-      localStorage.removeItem('blurEnabled');
-      this.loadSettings();
+      [
+        'theme',
+        'viewType',
+        'noteOpenPreference',
+        'columns',
+        'blurEnabled',
+      ].forEach((key) => {
+        localStorage.removeItem(key);
+      });
+      this.loadLocalSettings();
+      this.applyTheme();
+    },
+
+    handleResize() {
+      const newColumns = this.getValidColumns(this.columns);
+      if (newColumns !== this.columns) {
+        this.setColumns(newColumns);
+      }
     },
   },
 });

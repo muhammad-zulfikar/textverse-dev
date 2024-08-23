@@ -204,10 +204,10 @@
   });
 
   const signout = async () => {
-    await authStore.logout();
     showSignoutConfirmation.value = false;
     router.push('/');
     closeSidebar();
+    await authStore.logout();
   };
 
   const toggleUserDropup = (event: Event) => {

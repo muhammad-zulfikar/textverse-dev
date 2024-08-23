@@ -26,7 +26,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as User | null,
     avatarUrl: '' as string,
-    isLoading: true,
+    isLoading: false,
     isInitialized: false,
   }),
   actions: {
@@ -54,7 +54,9 @@ export const useAuthStore = defineStore('auth', {
         this.avatarUrl = this.user.photoURL || '';
         uiStore.showToastMessage('Signed in successfully');
       } catch (error) {
-        uiStore.showToastMessage('Sign in failed. Please check your credentials.');
+        uiStore.showToastMessage(
+          'Sign in failed. Please check your credentials.'
+        );
         throw error;
       } finally {
         this.isLoading = false;
@@ -84,13 +86,16 @@ export const useAuthStore = defineStore('auth', {
 
     async logout() {
       try {
-        await signOut(auth);
-        this.user = null;
-        this.avatarUrl = '';
-        uiStore.showToastMessage('Signed out successfully');
         folderStore.clearFolderListener();
         uiStore.clearSettingsListener();
         uiStore.clearLocalSettings();
+
+        await signOut(auth);
+
+        this.user = null;
+        this.avatarUrl = '';
+
+        uiStore.showToastMessage('Signed out successfully');
       } catch (error) {
         uiStore.showToastMessage('Sign out failed. Please try again.');
         throw error;
@@ -124,7 +129,7 @@ export const useAuthStore = defineStore('auth', {
           if (newAvatarUrl === '/avatar.png') {
             try {
               await deleteObject(imageRef);
-            } catch (error) { }
+            } catch (error) {}
 
             await updateProfile(this.user, { photoURL: null });
             this.avatarUrl = '/avatar.png';

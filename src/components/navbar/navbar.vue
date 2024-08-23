@@ -145,12 +145,12 @@
   };
 
   const updateSearchQuery = (query: string) => {
-  if (notesStore && notesStore.setSearchQuery) {
-    notesStore.setSearchQuery(query);
-  } else {
-    console.error('notesStore or setSearchQuery is not available');
-  }
-};
+    if (notesStore && notesStore.setSearchQuery) {
+      notesStore.setSearchQuery(query);
+    } else {
+      console.error('notesStore or setSearchQuery is not available');
+    }
+  };
 
   const isHomePage = computed(() => route.path === '/');
   const isSelectModeActive = computed(

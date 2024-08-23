@@ -1,7 +1,7 @@
 <template>
-  <div class="px-8 md:px-0 md:max-w-md md:mx-auto mt-24 md:mt-20">
+  <div class="fixed inset-0 flex items-center justify-center p-4">
     <div
-      class="font-serif custom-card px-10 py-8 md:p-8 relative flex flex-col mx-auto mt-2 md:mt-0"
+      class="font-serif custom-card px-10 py-8 md:p-8 relative flex flex-col mx-auto max-w-md w-full"
     >
       <h2 class="text-2xl font-bold mb-4 flex justify-center">
         Page Not Found
@@ -13,17 +13,16 @@
         @click="goHome"
         class="flex w-full md:w-fit items-center justify-center px-4 py-2 mt-4 mx-auto custom-card"
       >
+        <PhHouseLine :size="20" class="mr-2" />
         Go to Home
       </button>
-      <p class="text-center mt-5 text-gray-500 dark:text-gray-400 text-sm">
-        If you believe this is a mistake, please contact support.
-      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
   import { useRouter } from 'vue-router';
+  import { PhHouseLine } from '@phosphor-icons/vue';
 
   const router = useRouter();
 

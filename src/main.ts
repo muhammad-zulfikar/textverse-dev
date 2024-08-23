@@ -35,7 +35,6 @@ function loadGoogleAPI() {
   });
 }
 
-loadGoogleAPI()
-  .catch((error) => {
-    console.error('Failed to load Google API:', error);
-  });
+loadGoogleAPI().catch((error) => {
+  console.error('Failed to load Google API:', error);
+});

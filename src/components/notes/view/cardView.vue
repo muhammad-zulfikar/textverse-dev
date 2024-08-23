@@ -228,27 +228,13 @@
     { deep: true }
   );
 
-  const isMobile = ref(window.innerWidth < 640);
-
-  const handleResize = () => {
-    const newIsMobile = window.innerWidth < 640;
-    if (newIsMobile !== isMobile.value) {
-      isMobile.value = newIsMobile;
-      if (isMobile.value && uiStore.columns > 2) {
-        uiStore.setColumns(2);
-      } else if (!isMobile.value && uiStore.columns < 3) {
-        uiStore.setColumns(4);
-      }
-    }
-  };
-
   onMounted(() => {
-    window.addEventListener('resize', handleResize);
-    handleResize();
+    window.addEventListener('resize', uiStore.handleResize);
+    uiStore.handleResize();
   });
 
   onUnmounted(() => {
-    window.removeEventListener('resize', handleResize);
+    window.removeEventListener('resize', uiStore.handleResize);
   });
 </script>
 

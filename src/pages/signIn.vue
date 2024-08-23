@@ -1,7 +1,9 @@
 <template>
-  <div class="px-8 md:px-0 md:max-w-md md:mx-auto mt-24 md:mt-20">
+  <div
+    class="fixed inset-0 flex items-center justify-center px-8 md:px-0 md:pt-12"
+  >
     <div
-      class="font-serif custom-card px-10 py-8 md:p-8 relative flex flex-col mx-auto mt-2 md:mt-0"
+      class="font-serif custom-card px-10 py-8 md:p-8 relative flex flex-col mx-auto max-w-md w-full"
     >
       <transition :name="transitionName" mode="out-in">
         <div :key="isSignUp ? 'signup' : 'signin'">

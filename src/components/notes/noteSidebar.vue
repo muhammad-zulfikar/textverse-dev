@@ -259,7 +259,6 @@
           uiStore.isExpanded = true;
         }
         nextTick(() => {
-          initializeQuillEditor();
           updateQuillEditorHeight();
           if (sidebarContainer.value) {
             resizeObserver.observe(sidebarContainer.value);
@@ -278,7 +277,6 @@
     async ([isOpen, newNoteId]) => {
       if (isOpen) {
         await nextTick();
-
         if (newNoteId !== null) {
           const note = notesStore.notes.find((n) => n.id === newNoteId);
           if (note) {
@@ -292,14 +290,12 @@
           originalNote.value = null;
           isEditMode.value = false;
         }
+        initializeQuillEditor();
       } else {
         if (quillEditor.value) {
           quillEditor.value.off('text-change');
           quillEditor.value = null;
         }
-        editedNote.value = createEmptyNote();
-        originalNote.value = null;
-        isEditMode.value = false;
       }
     }
   );
